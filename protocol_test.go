@@ -1,6 +1,7 @@
 package protocol_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"reflect"
 	"testing"
@@ -11,21 +12,51 @@ import (
 
 func TestRelayEnvelopeRoundtrip(t *testing.T) {
 	t.Parallel()
-	original := protocol.RelayEnvelope{
-		SessionID: "sess-123",
-		Seq:       42,
-		Encrypted: []byte("ciphertext-bytes"),
+
+	tests := []struct {
+		name     string
+		envelope protocol.RelayEnvelope
+	}{
+		{
+			name: "with trace ID",
+			envelope: protocol.RelayEnvelope{
+				SessionID: "sess-123",
+				Seq:       42,
+				Encrypted: []byte("ciphertext-bytes"),
+				TraceID:   "4bf92f3577b34da6a3ce929d0e0e4736",
+			},
+		},
+		{
+			name: "without trace ID (backward compat)",
+			envelope: protocol.RelayEnvelope{
+				SessionID: "sess-456",
+				Seq:       1,
+				Encrypted: []byte("data"),
+			},
+		},
 	}
-	data, err := json.Marshal(original)
-	if err != nil {
-		t.Fatalf("marshal: %v", err)
-	}
-	var decoded protocol.RelayEnvelope
-	if err := json.Unmarshal(data, &decoded); err != nil {
-		t.Fatalf("unmarshal: %v", err)
-	}
-	if !reflect.DeepEqual(original, decoded) {
-		t.Errorf("roundtrip mismatch:\n  got:  %+v\n  want: %+v", decoded, original)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			data, err := json.Marshal(tt.envelope)
+			if err != nil {
+				t.Fatalf("marshal: %v", err)
+			}
+			// Verify tid is omitted when empty
+			if tt.envelope.TraceID == "" {
+				if bytes.Contains(data, []byte(`"tid"`)) {
+					t.Errorf("empty TraceID should be omitted from JSON, got: %s", data)
+				}
+			}
+			var decoded protocol.RelayEnvelope
+			if err := json.Unmarshal(data, &decoded); err != nil {
+				t.Fatalf("unmarshal: %v", err)
+			}
+			if !reflect.DeepEqual(tt.envelope, decoded) {
+				t.Errorf("roundtrip mismatch:\n  got:  %+v\n  want: %+v", decoded, tt.envelope)
+			}
+		})
 	}
 }
 
