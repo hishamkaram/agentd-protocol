@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hishamkaram/agentd-workspace/main/docs/assets/icon-mark.svg" width="80" height="80" alt="AgentD">
+  <img src="docs/icon.svg" width="80" height="80" alt="AgentD">
 </p>
 
 <h1 align="center">agentd-protocol</h1>
