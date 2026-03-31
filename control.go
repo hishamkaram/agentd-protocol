@@ -63,6 +63,7 @@ type StatusUpdatePayload struct {
 	SessionID string  `json:"sid"`
 	State     string  `json:"state"`
 	CostUSD   float64 `json:"cost_usd,omitempty"`
+	Project   string  `json:"project,omitempty"`
 }
 
 // AuditEntryPayload carries a single audit event from daemon to relay.
