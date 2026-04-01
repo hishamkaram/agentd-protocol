@@ -6,11 +6,16 @@ import (
 )
 
 // NewTraceID generates a random W3C-compatible trace ID (32 lowercase hex chars).
-// Returns empty string on crypto/rand failure (caller should log and continue).
+//
+// Panics on crypto/rand failure. This is an accepted deviation from the
+// "no panic in library code" rule: crypto/rand failure indicates a catastrophic
+// OS-level entropy issue where no cryptographic operation in the system can be
+// trusted (AES-GCM encryption, key generation, token signing). Crashing
+// immediately is safer than continuing with broken cryptography.
 func NewTraceID() string {
 	var buf [16]byte
 	if _, err := rand.Read(buf[:]); err != nil {
-		return ""
+		panic("protocol.NewTraceID: crypto/rand failed: " + err.Error())
 	}
 	return hex.EncodeToString(buf[:])
 }
