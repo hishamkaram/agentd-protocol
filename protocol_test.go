@@ -202,6 +202,225 @@ func TestControlTypeConstants(t *testing.T) {
 	}
 }
 
+func TestRelayEnvelopeEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		envelope protocol.RelayEnvelope
+	}{
+		{
+			name:     "zero-value struct",
+			envelope: protocol.RelayEnvelope{},
+		},
+		{
+			name: "nil Encrypted field",
+			envelope: protocol.RelayEnvelope{
+				SessionID: "sess-nil-enc",
+				Seq:       7,
+				Encrypted: nil,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.envelope)
+		})
+	}
+}
+
+func TestControlMessageEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	t.Run("zero-value struct marshal unmarshal", func(t *testing.T) {
+		t.Parallel()
+		original := protocol.ControlMessage{}
+		data, err := json.Marshal(original)
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+		var decoded protocol.ControlMessage
+		if err := json.Unmarshal(data, &decoded); err != nil {
+			t.Fatalf("unmarshal: %v", err)
+		}
+		if decoded.Type != "" {
+			t.Errorf("expected empty Type, got %q", decoded.Type)
+		}
+		// nil json.RawMessage marshals as "null", which unmarshals as json.RawMessage("null")
+		// This is expected JSON behavior — verify it explicitly.
+		if decoded.Payload == nil {
+			t.Error("expected Payload to be non-nil after roundtrip of zero-value (JSON null)")
+		}
+	})
+
+	roundtripTests := []struct {
+		name string
+		msg  protocol.ControlMessage
+	}{
+		{
+			name: "unknown control type",
+			msg: protocol.ControlMessage{
+				Type:    protocol.ControlType("unknown_type_xyz"),
+				Payload: json.RawMessage(`{"foo":"bar"}`),
+			},
+		},
+		{
+			name: "null payload roundtrips",
+			msg: protocol.ControlMessage{
+				Type:    protocol.CtrlHeartbeat,
+				Payload: json.RawMessage("null"),
+			},
+		},
+		{
+			name: "empty JSON object payload",
+			msg: protocol.ControlMessage{
+				Type:    protocol.CtrlAck,
+				Payload: json.RawMessage(`{}`),
+			},
+		},
+	}
+	for _, tt := range roundtripTests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.msg)
+		})
+	}
+}
+
+func TestPolicyJSONEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	t.Run("zero-value struct", func(t *testing.T) {
+		t.Parallel()
+		assertRoundtrip(t, protocol.PolicyJSON{})
+	})
+
+	t.Run("nil slices in PolicyMatchJSON", func(t *testing.T) {
+		t.Parallel()
+		assertRoundtrip(t, protocol.PolicyJSON{
+			Name:   "nil-slices",
+			Match:  protocol.PolicyMatchJSON{},
+			Action: "deny",
+		})
+	})
+
+	t.Run("empty slices become nil after roundtrip due to omitempty", func(t *testing.T) {
+		t.Parallel()
+		original := protocol.PolicyJSON{
+			Name: "empty-match",
+			Match: protocol.PolicyMatchJSON{
+				Tool:      []string{},
+				RiskLevel: []string{},
+			},
+			Action: "allow",
+		}
+		data, err := json.Marshal(original)
+		if err != nil {
+			t.Fatalf("marshal: %v", err)
+		}
+		var decoded protocol.PolicyJSON
+		if err := json.Unmarshal(data, &decoded); err != nil {
+			t.Fatalf("unmarshal: %v", err)
+		}
+		// omitempty causes empty slices to be omitted from JSON, resulting in nil after unmarshal.
+		if decoded.Name != "empty-match" {
+			t.Errorf("Name: got %q, want %q", decoded.Name, "empty-match")
+		}
+		if decoded.Action != "allow" {
+			t.Errorf("Action: got %q, want %q", decoded.Action, "allow")
+		}
+		if decoded.Match.Tool != nil {
+			t.Errorf("Tool: expected nil after roundtrip of empty slice, got %v", decoded.Match.Tool)
+		}
+		if decoded.Match.RiskLevel != nil {
+			t.Errorf("RiskLevel: expected nil after roundtrip of empty slice, got %v", decoded.Match.RiskLevel)
+		}
+	})
+}
+
+func TestSyncPoliciesPayloadEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		payload protocol.SyncPoliciesPayload
+	}{
+		{
+			name:    "zero-value struct",
+			payload: protocol.SyncPoliciesPayload{},
+		},
+		{
+			name:    "empty policies slice",
+			payload: protocol.SyncPoliciesPayload{Policies: []protocol.PolicyJSON{}},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.payload)
+		})
+	}
+}
+
+func TestInvalidJSONDecode(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   string
+		target  interface{}
+		wantErr bool
+	}{
+		{
+			name:    "invalid JSON for ControlMessage",
+			input:   `{invalid}`,
+			target:  &protocol.ControlMessage{},
+			wantErr: true,
+		},
+		{
+			name:    "invalid JSON for RelayEnvelope",
+			input:   `{invalid}`,
+			target:  &protocol.RelayEnvelope{},
+			wantErr: true,
+		},
+		{
+			name:    "truncated JSON for ControlMessage",
+			input:   `{"type":"register","pay`,
+			target:  &protocol.ControlMessage{},
+			wantErr: true,
+		},
+		{
+			name:    "truncated JSON for RelayEnvelope",
+			input:   `{"sid":"abc","seq":1,"en`,
+			target:  &protocol.RelayEnvelope{},
+			wantErr: true,
+		},
+		{
+			name:    "wrong type for seq field",
+			input:   `{"sid":"abc","seq":"not-a-number","enc":"AA=="}`,
+			target:  &protocol.RelayEnvelope{},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			err := json.Unmarshal([]byte(tt.input), tt.target)
+			if tt.wantErr && err == nil {
+				t.Errorf("expected error for input %q, got nil", tt.input)
+			}
+			if !tt.wantErr && err != nil {
+				t.Errorf("unexpected error for input %q: %v", tt.input, err)
+			}
+		})
+	}
+}
+
 // assertRoundtrip marshals v to JSON and unmarshals back, asserting equality.
 func assertRoundtrip[T any](t *testing.T, original T) {
 	t.Helper()
