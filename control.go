@@ -12,7 +12,7 @@ type ControlType string
 const (
 	CtrlRegister            ControlType = "register"
 	CtrlJoin                ControlType = "join"
-	CtrlHeartbeat           ControlType = "heartbeat"
+	CtrlHeartbeat           ControlType = "heartbeat" // reserved for future application-level keepalive; WebSocket ping/pong handles heartbeats
 	CtrlAck                 ControlType = "ack"
 	CtrlError               ControlType = "error"
 	CtrlSyncPolicies        ControlType = "sync_policies"
