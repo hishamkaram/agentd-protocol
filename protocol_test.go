@@ -114,10 +114,45 @@ func TestErrorPayloadRoundtrip(t *testing.T) {
 func TestStatusUpdatePayloadRoundtrip(t *testing.T) {
 	t.Parallel()
 	assertRoundtrip(t, protocol.StatusUpdatePayload{
-		SessionID: "sess-123",
-		State:     "running",
-		CostUSD:   1.23,
+		SessionID:   "sess-123",
+		State:       "running",
+		CostUSD:     1.23,
+		AgentType:   "claude-code",
+		DeveloperID: "dev-1",
+		CreatedAt:   1712345678000,
 	})
+}
+
+func TestStatusUpdatePayloadBackwardCompat(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		payload protocol.StatusUpdatePayload
+	}{
+		{
+			name: "omitempty omits new fields when zero",
+			payload: protocol.StatusUpdatePayload{
+				SessionID: "sess-compat",
+				State:     "idle",
+			},
+		},
+		{
+			name: "partial new fields",
+			payload: protocol.StatusUpdatePayload{
+				SessionID: "sess-partial",
+				State:     "running",
+				AgentType: "aider",
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.payload)
+		})
+	}
 }
 
 func TestAuditEntryPayloadRoundtrip(t *testing.T) {

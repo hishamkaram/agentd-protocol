@@ -60,10 +60,13 @@ type ErrorPayload struct {
 // current session state. The relay intercepts this and updates its in-memory
 // state; it is never forwarded to clients.
 type StatusUpdatePayload struct {
-	SessionID string  `json:"sid"`
-	State     string  `json:"state"`
-	CostUSD   float64 `json:"cost_usd,omitempty"`
-	Project   string  `json:"project,omitempty"`
+	SessionID   string  `json:"sid"`
+	State       string  `json:"state"`
+	CostUSD     float64 `json:"cost_usd,omitempty"`
+	Project     string  `json:"project,omitempty"`
+	AgentType   string  `json:"agent,omitempty"`
+	DeveloperID string  `json:"dev_id,omitempty"`
+	CreatedAt   int64   `json:"created_at,omitempty"`
 }
 
 // AuditEntryPayload carries a single audit event from daemon to relay.
