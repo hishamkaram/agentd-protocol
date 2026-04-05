@@ -5,7 +5,7 @@ Shared wire protocol types for the AgentD ecosystem. Both the daemon (`agentd`) 
 
 ## Build & Test
 ```bash
-go test -race -count=1 ./...
+go test -race -count=1 -p 4 ./...
 go vet ./...
 ```
 
@@ -35,7 +35,7 @@ go vet ./...
 
 1. Add the struct to the appropriate file (`envelope.go`, `control.go`, or `policy.go`)
 2. Add a roundtrip test in `protocol_test.go`
-3. Run `go test -race -count=1 ./...`
+3. Run `go test -race -count=1 -p 4 ./...`
 4. Update the type alias in `agentd/internal/relay/types.go`
 5. Update the type alias in `agentd-relay/internal/relay/types.go`
 6. Update the TypeScript definition in `agentd-web/src/types/index.ts`
