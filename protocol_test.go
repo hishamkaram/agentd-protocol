@@ -113,11 +113,111 @@ func TestErrorPayloadRoundtrip(t *testing.T) {
 
 func TestStatusUpdatePayloadRoundtrip(t *testing.T) {
 	t.Parallel()
-	assertRoundtrip(t, protocol.StatusUpdatePayload{
-		SessionID: "sess-123",
+
+	tests := []struct {
+		name    string
+		payload protocol.StatusUpdatePayload
+	}{
+		{
+			name: "all 7 fields populated",
+			payload: protocol.StatusUpdatePayload{
+				SessionID:   "sess-123",
+				State:       "running",
+				CostUSD:     1.23,
+				Project:     "my-project",
+				AgentType:   "claude-code",
+				DeveloperID: "dev-1",
+				CreatedAt:   1712000000000,
+			},
+		},
+		{
+			name: "only original fields (backward compat)",
+			payload: protocol.StatusUpdatePayload{
+				SessionID: "sess-456",
+				State:     "idle",
+				CostUSD:   0.50,
+			},
+		},
+		{
+			name: "zero-value new fields omitted from JSON",
+			payload: protocol.StatusUpdatePayload{
+				SessionID: "sess-789",
+				State:     "stopped",
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.payload)
+		})
+	}
+}
+
+func TestStatusUpdatePayloadBackwardCompat(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		json string
+		want protocol.StatusUpdatePayload
+	}{
+		{
+			name: "JSON without new fields unmarshals to zero values",
+			json: `{"sid":"sess-old","state":"running","cost_usd":0.5}`,
+			want: protocol.StatusUpdatePayload{
+				SessionID: "sess-old",
+				State:     "running",
+				CostUSD:   0.5,
+			},
+		},
+		{
+			name: "JSON with all fields round-trips correctly",
+			json: `{"sid":"sess-full","state":"idle","cost_usd":1.0,"project":"proj","agent":"aider","dev_id":"dev-2","created_at":1712000000000}`,
+			want: protocol.StatusUpdatePayload{
+				SessionID:   "sess-full",
+				State:       "idle",
+				CostUSD:     1.0,
+				Project:     "proj",
+				AgentType:   "aider",
+				DeveloperID: "dev-2",
+				CreatedAt:   1712000000000,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got protocol.StatusUpdatePayload
+			if err := json.Unmarshal([]byte(tt.json), &got); err != nil {
+				t.Fatalf("unmarshal: %v", err)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("mismatch:\n  got:  %+v\n  want: %+v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestStatusUpdatePayloadOmitempty(t *testing.T) {
+	t.Parallel()
+	// When new fields are zero, they must not appear in JSON output.
+	payload := protocol.StatusUpdatePayload{
+		SessionID: "sess-omit",
 		State:     "running",
-		CostUSD:   1.23,
-	})
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	s := string(data)
+	for _, field := range []string{`"agent"`, `"dev_id"`, `"created_at"`} {
+		if bytes.Contains(data, []byte(field)) {
+			t.Errorf("zero-value field %s should be omitted, got JSON: %s", field, s)
+		}
+	}
 }
 
 func TestAuditEntryPayloadRoundtrip(t *testing.T) {
