@@ -20,6 +20,7 @@ const (
 	CtrlAuditEntry          ControlType = "audit_entry"
 	CtrlDeactivateDeveloper ControlType = "deactivate_developer"
 	CtrlClientConnected     ControlType = "client_connected"
+	CtrlClientCount         ControlType = "client_count"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -43,11 +44,13 @@ type RegisterPayload struct {
 type JoinPayload struct {
 	SessionID string `json:"sid"`
 	JWT       string `json:"jwt"`
+	ClientID  string `json:"client_id,omitempty"`
 }
 
 // AckPayload is the relay's acknowledgement of a successful registration or join.
 type AckPayload struct {
 	SessionID string `json:"sid"`
+	ClientID  string `json:"client_id,omitempty"`
 }
 
 // ErrorPayload is the relay's error response to a failed control operation.
@@ -93,6 +96,14 @@ type DeactivateDeveloperPayload struct {
 // ClientConnectedPayload is sent by the relay to the daemon when a PWA client
 // connects or reconnects. The daemon uses this to replay message history.
 type ClientConnectedPayload struct {
+	SessionID string `json:"session_id"`
+}
+
+// ClientCountPayload is sent by the relay to the daemon after every client
+// join and disconnect. Informs the daemon of the current connected client count
+// for replay optimization (first client: full replay, subsequent: session list only).
+type ClientCountPayload struct {
+	Count     int    `json:"count"`
 	SessionID string `json:"session_id"`
 }
 
