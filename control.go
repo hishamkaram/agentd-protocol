@@ -21,6 +21,7 @@ const (
 	CtrlDeactivateDeveloper ControlType = "deactivate_developer"
 	CtrlClientConnected     ControlType = "client_connected"
 	CtrlClientCount         ControlType = "client_count"
+	CtrlKeyRotate           ControlType = "key_rotate"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -105,6 +106,17 @@ type ClientConnectedPayload struct {
 type ClientCountPayload struct {
 	Count     int    `json:"count"`
 	SessionID string `json:"session_id"`
+}
+
+// KeyRotatePayload is sent by the daemon to the relay to update the session's
+// auth KeyHMAC during automatic key rotation. The relay retains the previous
+// HMAC until PrevExpiresAt so in-flight client tokens pass validation during
+// the grace window. Fields are NOT omitempty because the relay needs all four.
+type KeyRotatePayload struct {
+	NewKeyHMAC    string `json:"new_key_hmac"`
+	PrevKeyHMAC   string `json:"prev_key_hmac"`
+	PrevExpiresAt int64  `json:"prev_expires_at"`
+	Epoch         uint64 `json:"epoch"`
 }
 
 // SyncPoliciesPayload is sent by relay to daemon after CtrlAck.

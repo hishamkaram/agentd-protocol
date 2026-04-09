@@ -281,6 +281,72 @@ func TestPolicyJSONRoundtrip(t *testing.T) {
 	assertRoundtrip(t, original)
 }
 
+func TestKeyRotatePayloadRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		payload protocol.KeyRotatePayload
+	}{
+		{
+			name: "all fields populated",
+			payload: protocol.KeyRotatePayload{
+				NewKeyHMAC:    "dGVzdC1uZXcta2V5LWhtYWM",
+				PrevKeyHMAC:   "dGVzdC1wcmV2LWtleS1obWFj",
+				PrevExpiresAt: 1744300060,
+				Epoch:         3,
+			},
+		},
+		{
+			name: "epoch zero",
+			payload: protocol.KeyRotatePayload{
+				NewKeyHMAC:    "YWJj",
+				PrevKeyHMAC:   "ZGVm",
+				PrevExpiresAt: 1744300000,
+				Epoch:         0,
+			},
+		},
+		{
+			name: "empty HMACs",
+			payload: protocol.KeyRotatePayload{
+				NewKeyHMAC:    "",
+				PrevKeyHMAC:   "",
+				PrevExpiresAt: 0,
+				Epoch:         0,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.payload)
+		})
+	}
+}
+
+func TestKeyRotatePayloadOmitemptyNotUsed(t *testing.T) {
+	t.Parallel()
+	// KeyRotatePayload fields are NOT omitempty — all fields must be present in JSON
+	// because the relay needs all four fields to process the rotation.
+	payload := protocol.KeyRotatePayload{
+		NewKeyHMAC:    "abc",
+		PrevKeyHMAC:   "def",
+		PrevExpiresAt: 1744300000,
+		Epoch:         1,
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	s := string(data)
+	for _, field := range []string{`"new_key_hmac"`, `"prev_key_hmac"`, `"prev_expires_at"`, `"epoch"`} {
+		if !bytes.Contains(data, []byte(field)) {
+			t.Errorf("field %s must be present in JSON, got: %s", field, s)
+		}
+	}
+}
+
 func TestControlTypeConstants(t *testing.T) {
 	t.Parallel()
 	expected := map[protocol.ControlType]string{
@@ -294,6 +360,8 @@ func TestControlTypeConstants(t *testing.T) {
 		protocol.CtrlAuditEntry:          "audit_entry",
 		protocol.CtrlDeactivateDeveloper: "deactivate_developer",
 		protocol.CtrlClientConnected:     "client_connected",
+		protocol.CtrlClientCount:         "client_count",
+		protocol.CtrlKeyRotate:           "key_rotate",
 	}
 	for ct, want := range expected {
 		if string(ct) != want {
