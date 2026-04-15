@@ -72,16 +72,22 @@ type MCPServerStatusEntry struct {
 
 // MCPListPayload is the PWA → daemon request for the merged MCP server list.
 // Empty Scope means both scopes; SessionID is required for project-scope
-// resolution.
+// resolution. RequestID is an opaque client-generated identifier echoed back
+// in the response so the PWA can match replies to in-flight requests (feature
+// 170).
 type MCPListPayload struct {
+	RequestID string         `json:"request_id,omitempty"`
 	Scope     MCPServerScope `json:"scope,omitempty"`
 	SessionID string         `json:"session_id,omitempty"`
 }
 
 // MCPListResponse is the daemon → PWA response to mcp_list_servers. Servers
 // is ordered deterministically: user scope first, then project, sorted by
-// name within each scope. Status is empty when no session is active.
+// name within each scope. Status is empty when no session is active. RequestID
+// echoes the originating request's request_id so the PWA can route the
+// response to the right in-flight callback (feature 170).
 type MCPListResponse struct {
+	RequestID      string                 `json:"request_id,omitempty"`
 	Servers        []MCPServerConfig      `json:"servers"`
 	Status         []MCPServerStatusEntry `json:"status,omitempty"`
 	ProjectWorkdir string                 `json:"project_workdir,omitempty"`
@@ -89,8 +95,10 @@ type MCPListResponse struct {
 
 // MCPMutationPayload is the PWA → daemon request for add/update operations.
 // SessionID is required for project-scope mutations so the daemon can
-// resolve the target workdir; user-scope mutations may omit it.
+// resolve the target workdir; user-scope mutations may omit it. RequestID
+// is echoed back in the response (feature 170).
 type MCPMutationPayload struct {
+	RequestID string          `json:"request_id,omitempty"`
 	SessionID string          `json:"session_id,omitempty"`
 	Server    MCPServerConfig `json:"server"`
 }
@@ -99,7 +107,9 @@ type MCPMutationPayload struct {
 // toggle/reconnect operations. AppliedToLive is true when the SDK's
 // SetMCPServers call succeeded against a live session; false for user-scope
 // mutations without an active session, or when the session ended mid-op.
+// RequestID echoes the originating request's request_id (feature 170).
 type MCPMutationResponse struct {
+	RequestID     string                 `json:"request_id,omitempty"`
 	OK            bool                   `json:"ok"`
 	Error         string                 `json:"error,omitempty"`
 	ErrorCode     string                 `json:"error_code,omitempty"`
@@ -109,8 +119,10 @@ type MCPMutationResponse struct {
 }
 
 // MCPRemovePayload is the PWA → daemon request to delete a server from a
-// given scope. Shares MCPMutationResponse for the reply.
+// given scope. Shares MCPMutationResponse for the reply. RequestID is
+// echoed back (feature 170).
 type MCPRemovePayload struct {
+	RequestID string         `json:"request_id,omitempty"`
 	SessionID string         `json:"session_id,omitempty"`
 	Scope     MCPServerScope `json:"scope"`
 	Name      string         `json:"name"`
@@ -118,8 +130,9 @@ type MCPRemovePayload struct {
 
 // MCPTogglePayload is the PWA → daemon request to enable/disable a server
 // without rewriting its full config. Shares MCPMutationResponse for the
-// reply.
+// reply. RequestID is echoed back (feature 170).
 type MCPTogglePayload struct {
+	RequestID string         `json:"request_id,omitempty"`
 	SessionID string         `json:"session_id,omitempty"`
 	Scope     MCPServerScope `json:"scope"`
 	Name      string         `json:"name"`
@@ -128,8 +141,10 @@ type MCPTogglePayload struct {
 
 // MCPReconnectPayload is the PWA → daemon request to force a reconnect of
 // a named MCP server on a live session. SessionID is required — reconnect
-// is session-scoped. Shares MCPMutationResponse for the reply.
+// is session-scoped. Shares MCPMutationResponse for the reply. RequestID
+// is echoed back (feature 170).
 type MCPReconnectPayload struct {
+	RequestID string `json:"request_id,omitempty"`
 	SessionID string `json:"session_id"`
 	Name      string `json:"name"`
 }

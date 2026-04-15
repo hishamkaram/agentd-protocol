@@ -206,6 +206,8 @@ func TestMCPListPayloadRoundTrip(t *testing.T) {
 		{name: "both scopes no session", in: protocol.MCPListPayload{}},
 		{name: "project scope only", in: protocol.MCPListPayload{Scope: protocol.MCPScopeProject, SessionID: "sess-1"}},
 		{name: "user scope only", in: protocol.MCPListPayload{Scope: protocol.MCPScopeUser}},
+		// Feature 170: RequestID field round-trips under Unmarshal.
+		{name: "with request_id", in: protocol.MCPListPayload{RequestID: "req-abc", Scope: protocol.MCPScopeUser}},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -229,7 +231,9 @@ func TestMCPListPayloadRoundTrip(t *testing.T) {
 func TestMCPListResponseRoundTrip(t *testing.T) {
 	t.Parallel()
 
+	// Feature 170: RequestID field is echoed back from the originating request.
 	in := protocol.MCPListResponse{
+		RequestID: "req-list-42",
 		Servers: []protocol.MCPServerConfig{
 			{Name: "a", Scope: protocol.MCPScopeProject, Transport: "stdio", Enabled: true, Command: "a"},
 			{Name: "b", Scope: protocol.MCPScopeUser, Transport: "http", Enabled: true, URL: "https://b.example.com"},
@@ -251,12 +255,35 @@ func TestMCPListResponseRoundTrip(t *testing.T) {
 	if !reflect.DeepEqual(in, out) {
 		t.Errorf("mismatch:\n in:  %+v\n out: %+v", in, out)
 	}
+	if out.RequestID != "req-list-42" {
+		t.Errorf("RequestID not round-tripped: got %q, want %q", out.RequestID, "req-list-42")
+	}
+}
+
+// TestMCPListResponseRequestIDOmitempty verifies the request_id field is
+// omitted from the wire when unset, so legacy PWAs that do not send
+// request_id see identical JSON output (feature 170 backward-compat).
+func TestMCPListResponseRequestIDOmitempty(t *testing.T) {
+	t.Parallel()
+
+	in := protocol.MCPListResponse{
+		Servers: []protocol.MCPServerConfig{},
+	}
+	data, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := string(data); strings.Contains(got, "request_id") {
+		t.Errorf("unexpected request_id in empty response JSON: %s", got)
+	}
 }
 
 func TestMCPMutationPayloadRoundTrip(t *testing.T) {
 	t.Parallel()
 
+	// Feature 170: RequestID on the request so the daemon can echo it back.
 	in := protocol.MCPMutationPayload{
+		RequestID: "req-mut-42",
 		SessionID: "sess-42",
 		Server: protocol.MCPServerConfig{
 			Name:      "fs",
@@ -288,8 +315,9 @@ func TestMCPMutationResponseRoundTrip(t *testing.T) {
 		in   protocol.MCPMutationResponse
 	}{
 		{
-			name: "ok applied to live",
+			name: "ok applied to live with request_id (feature 170)",
 			in: protocol.MCPMutationResponse{
+				RequestID:     "req-mut-ok-1",
 				OK:            true,
 				AppliedToLive: true,
 				LiveStatus: []protocol.MCPServerStatusEntry{
@@ -302,15 +330,16 @@ func TestMCPMutationResponseRoundTrip(t *testing.T) {
 			},
 		},
 		{
-			name: "error validation",
+			name: "error validation with request_id (feature 170)",
 			in: protocol.MCPMutationResponse{
+				RequestID: "req-mut-err-1",
 				OK:        false,
 				Error:     "invalid name",
 				ErrorCode: "invalid_name",
 			},
 		},
 		{
-			name: "ok persisted no live session",
+			name: "ok persisted no live session no request_id",
 			in: protocol.MCPMutationResponse{
 				OK:            true,
 				AppliedToLive: false,
@@ -341,7 +370,9 @@ func TestMCPRemoveTogglReconnectRoundTrip(t *testing.T) {
 
 	t.Run("remove", func(t *testing.T) {
 		t.Parallel()
+		// Feature 170: RequestID on every request payload.
 		in := protocol.MCPRemovePayload{
+			RequestID: "req-rm-1",
 			SessionID: "sess-1",
 			Scope:     protocol.MCPScopeProject,
 			Name:      "fs",
@@ -362,6 +393,7 @@ func TestMCPRemoveTogglReconnectRoundTrip(t *testing.T) {
 	t.Run("toggle", func(t *testing.T) {
 		t.Parallel()
 		in := protocol.MCPTogglePayload{
+			RequestID: "req-tg-1",
 			SessionID: "sess-1",
 			Scope:     protocol.MCPScopeUser,
 			Name:      "api",
@@ -382,7 +414,7 @@ func TestMCPRemoveTogglReconnectRoundTrip(t *testing.T) {
 
 	t.Run("reconnect", func(t *testing.T) {
 		t.Parallel()
-		in := protocol.MCPReconnectPayload{SessionID: "sess-1", Name: "fs"}
+		in := protocol.MCPReconnectPayload{RequestID: "req-rc-1", SessionID: "sess-1", Name: "fs"}
 		data, err := json.Marshal(in)
 		if err != nil {
 			t.Fatal(err)
