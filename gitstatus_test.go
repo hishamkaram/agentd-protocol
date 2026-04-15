@@ -138,6 +138,76 @@ func TestGitStatusPayloadRoundtrip(t *testing.T) {
 	}
 }
 
+func TestGitStatusPayload_Feature172_ExtendedFields(t *testing.T) {
+	t.Parallel()
+
+	// Populated path: all 5 feature-172 fields set.
+	in := protocol.GitStatusPayload{
+		RepoRoot:        "/tmp/repo",
+		Files:           []protocol.GitFileStatus{},
+		TotalInsertions: 0,
+		TotalDeletions:  0,
+		GeneratedAt:     1712345678000,
+		Branch:          "main",
+		Upstream:        "origin/main",
+		Ahead:           2,
+		Behind:          1,
+		LastFetchedAt:   1712345678,
+	}
+	data, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(data)
+	for _, want := range []string{
+		`"branch":"main"`,
+		`"upstream":"origin/main"`,
+		`"ahead":2`,
+		`"behind":1`,
+		`"last_fetched_at":1712345678`,
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf("populated: JSON missing %q; got: %s", want, s)
+		}
+	}
+	var out protocol.GitStatusPayload
+	if err := json.Unmarshal(data, &out); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(in, out) {
+		t.Errorf("populated: mismatch\n in:  %+v\n out: %+v", in, out)
+	}
+}
+
+func TestGitStatusPayload_Feature172_OmitEmpty(t *testing.T) {
+	t.Parallel()
+
+	// Older-daemon shape: feature-172 fields zero-valued. All 5 new fields
+	// MUST be absent from the JSON thanks to omitempty — a backward-compat
+	// requirement for older PWA clients and for drift detection.
+	in := protocol.GitStatusPayload{
+		RepoRoot:    "/tmp/repo",
+		Files:       []protocol.GitFileStatus{},
+		GeneratedAt: 1712345678000,
+	}
+	data, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(data)
+	for _, forbidden := range []string{
+		`"branch"`,
+		`"upstream"`,
+		`"ahead"`,
+		`"behind"`,
+		`"last_fetched_at"`,
+	} {
+		if strings.Contains(s, forbidden) {
+			t.Errorf("omitempty broken: JSON contains %q (should be omitted when zero): %s", forbidden, s)
+		}
+	}
+}
+
 func TestGitStatusRequestRoundtrip(t *testing.T) {
 	t.Parallel()
 	in := protocol.GitStatusRequest{SessionID: "sess-1", RequestID: "req-abc"}

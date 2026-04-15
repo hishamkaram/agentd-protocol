@@ -21,12 +21,25 @@ type GitFileStatus struct {
 // GitStatusPayload is the full per-session status snapshot returned by
 // GetGitStatus and carried in MsgGitStatusUpdate pushes. Files is sorted
 // ascending by path and capped at 500 entries.
+//
+// Feature 172 extended this struct with five omitempty fields (Branch,
+// Upstream, Ahead, Behind, LastFetchedAt) so the PWA's BranchChip and
+// FreshnessPill can render current-branch context alongside the existing
+// file-level status. All new fields are omitempty — older daemons emit
+// the original 5-field shape and older PWAs ignore the new fields.
 type GitStatusPayload struct {
 	RepoRoot        string          `json:"repo_root"`
 	Files           []GitFileStatus `json:"files"`
 	TotalInsertions int             `json:"total_insertions"`
 	TotalDeletions  int             `json:"total_deletions"`
 	GeneratedAt     int64           `json:"generated_at"`
+
+	// Feature 172 additive fields — all omitempty for backward compat.
+	Branch        string `json:"branch,omitempty"`
+	Upstream      string `json:"upstream,omitempty"`
+	Ahead         int    `json:"ahead,omitempty"`
+	Behind        int    `json:"behind,omitempty"`
+	LastFetchedAt int64  `json:"last_fetched_at,omitempty"`
 }
 
 // GitStatusRequest is the PWA → daemon request to fetch the current status
