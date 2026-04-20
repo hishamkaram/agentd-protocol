@@ -22,9 +22,34 @@ package protocol
 // daemons that do not populate this struct will emit it as the zero value
 // (all false) when embedded by pointer with omitempty — PWA falls back to
 // "all capabilities available" default per FR-013 when the field is absent.
+//
+// Feature 186 (codex-remaining-gaps) adds two fields:
+//   - SessionScopedApproval — enables 3rd "Allow for session" ApprovalGate
+//     button for agents whose runtime supports session-scoped permission
+//     grants (Codex: true; Claude: false).
+//     See specs/186-codex-remaining-gaps/contracts/session-scoped-approval-capability.md.
+//   - AnswerQuestionFreeText — whether the free-text reply box applies to
+//     agent-initiated AskUserQuestion prompts. Replaces the semantics of
+//     AnswerQuestion over a two-release deprecation window. Claude: true;
+//     Codex: false (Codex uses structured ElicitationResponse, not free text).
+//     See specs/186-codex-remaining-gaps/contracts/answer-question-free-text-capability.md.
+//
+// The pre-existing AnswerQuestion field is retained verbatim for back-compat
+// per FR-017 deprecation plan.
 type AgentCapability struct {
-	AnswerQuestion bool `json:"answer_question"`
-	SendToolResult bool `json:"send_tool_result"`
-	RewindFiles    bool `json:"rewind_files"`
-	MCPHotApply    bool `json:"mcp_hot_apply"`
+	// Deprecated: As of feature 186 (codex-remaining-gaps), consumers
+	// should read AnswerQuestionFreeText instead. This field is retained
+	// verbatim for one release so older PWAs that predate 186 continue to
+	// render the free-text reply row under the original semantics. The
+	// PWA consumer chain is `answer_question_free_text ?? answer_question
+	// ?? true` — new field wins, legacy field is the fallback, default
+	// favors claude-style rendering. See
+	// specs/186-codex-remaining-gaps/contracts/answer-question-free-text-capability.md
+	// for the full two-release deprecation plan.
+	AnswerQuestion         bool `json:"answer_question"`
+	SendToolResult         bool `json:"send_tool_result"`
+	RewindFiles            bool `json:"rewind_files"`
+	MCPHotApply            bool `json:"mcp_hot_apply"`
+	SessionScopedApproval  bool `json:"session_scoped_approval"`
+	AnswerQuestionFreeText bool `json:"answer_question_free_text"`
 }
