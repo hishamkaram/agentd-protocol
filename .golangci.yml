@@ -1,0 +1,18 @@
+# golangci-lint v2 configuration for agentd-protocol.
+# Minimal config: keep default linters, suppress only the QF* staticcheck
+# quickfix category (informational style refactors like De Morgan's law) which
+# flag pre-existing stylistic preferences rather than correctness issues.
+# Run: golangci-lint run ./...
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  settings:
+    staticcheck:
+      checks:
+        - all
+        - -QF1001  # De Morgan's law suggestion
+        - -QF1008  # omit embedded field suggestion
