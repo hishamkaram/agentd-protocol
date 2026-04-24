@@ -27,6 +27,7 @@ A tiny Go module containing the shared wire protocol types used by both the [Age
 | `envelope.go` | `RelayEnvelope` | Encrypted message envelope (sid, seq, enc, tid) |
 | `control.go` | `ControlMessage`, `ControlType` (10 constants), 9 payload structs | Relay control protocol |
 | `policy.go` | `PolicyJSON`, `PolicyMatchJSON` | Policy rule wire format |
+| `capabilities.go` | `AgentCapability` | Per-agent feature flags the daemon emits to the PWA (MCP reconnect, session-scoped approvals, free-text replies, etc.) |
 | `trace.go` | `NewTraceID()`, `ValidTraceID()` | W3C-compatible trace ID generation |
 
 ### Control Types
