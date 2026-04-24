@@ -18,10 +18,9 @@
 package protocol
 
 // AgentCapability declares which interactive PWA controls the current agent
-// supports. Fields are required (non-nullable bool) per the contract. Older
-// daemons that do not populate this struct will emit it as the zero value
-// (all false) when embedded by pointer with omitempty — PWA falls back to
-// "all capabilities available" default per FR-013 when the field is absent.
+// supports. Older daemons that do not populate this struct will emit it as the
+// zero value (all false) when embedded by pointer with omitempty — PWA falls
+// back to capability-specific defaults when the field is absent.
 //
 // Feature 186 (codex-remaining-gaps) adds two fields:
 //   - SessionScopedApproval — enables 3rd "Allow for session" ApprovalGate
@@ -36,6 +35,12 @@ package protocol
 //
 // The pre-existing AnswerQuestion field is retained verbatim for back-compat
 // per FR-017 deprecation plan.
+//
+// Feature 188 (MCP parity) adds two more fields:
+//   - MCPReconnect — whether the agent exposes a real reconnect operation for
+//     a single MCP server. Claude: true; Codex: false.
+//   - MCPLiveStatusLimited — whether MCP status is inventory-derived / limited
+//     rather than a full live-health report. Claude: false; Codex: true.
 type AgentCapability struct {
 	// Deprecated: As of feature 186 (codex-remaining-gaps), consumers
 	// should read AnswerQuestionFreeText instead. This field is retained
@@ -50,6 +55,8 @@ type AgentCapability struct {
 	SendToolResult         bool `json:"send_tool_result"`
 	RewindFiles            bool `json:"rewind_files"`
 	MCPHotApply            bool `json:"mcp_hot_apply"`
+	MCPReconnect           bool `json:"mcp_reconnect"`
+	MCPLiveStatusLimited   bool `json:"mcp_live_status_limited"`
 	SessionScopedApproval  bool `json:"session_scoped_approval"`
 	AnswerQuestionFreeText bool `json:"answer_question_free_text"`
 }

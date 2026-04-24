@@ -9,11 +9,12 @@ import (
 	protocol "github.com/hishamkaram/agentd-protocol"
 )
 
-// TestAgentCapabilityFields asserts the struct has exactly the six required
+// TestAgentCapabilityFields asserts the struct has exactly the eight required
 // bool fields per specs/185-codex-parity-gaps/contracts/agent-capability.md
 // (original 4 fields) and specs/186-codex-remaining-gaps/contracts/
 // session-scoped-approval-capability.md + answer-question-free-text-capability.md
-// (2 new fields added by feature 186).
+// (2 new fields added by feature 186), plus feature 188's two MCP parity
+// flags.
 func TestAgentCapabilityFields(t *testing.T) {
 	t.Parallel()
 
@@ -27,6 +28,8 @@ func TestAgentCapabilityFields(t *testing.T) {
 		"SendToolResult":         "send_tool_result",
 		"RewindFiles":            "rewind_files",
 		"MCPHotApply":            "mcp_hot_apply",
+		"MCPReconnect":           "mcp_reconnect",
+		"MCPLiveStatusLimited":   "mcp_live_status_limited",
 		"SessionScopedApproval":  "session_scoped_approval",
 		"AnswerQuestionFreeText": "answer_question_free_text",
 	}
@@ -74,15 +77,17 @@ func TestAgentCapabilityRoundTrip(t *testing.T) {
 				SendToolResult: true,
 				RewindFiles:    true,
 				MCPHotApply:    true,
+				MCPReconnect:   true,
 			},
 		},
 		{
 			name: "codex per data-model",
 			in: protocol.AgentCapability{
-				AnswerQuestion: false,
-				SendToolResult: false,
-				RewindFiles:    false,
-				MCPHotApply:    true,
+				AnswerQuestion:       false,
+				SendToolResult:       false,
+				RewindFiles:          false,
+				MCPHotApply:          true,
+				MCPLiveStatusLimited: true,
 			},
 		},
 		{
@@ -92,10 +97,12 @@ func TestAgentCapabilityRoundTrip(t *testing.T) {
 		{
 			name: "mixed",
 			in: protocol.AgentCapability{
-				AnswerQuestion: true,
-				SendToolResult: false,
-				RewindFiles:    true,
-				MCPHotApply:    false,
+				AnswerQuestion:       true,
+				SendToolResult:       false,
+				RewindFiles:          true,
+				MCPHotApply:          false,
+				MCPReconnect:         true,
+				MCPLiveStatusLimited: true,
 			},
 		},
 	}
@@ -132,6 +139,7 @@ func TestAgentCapabilityJSONKeys(t *testing.T) {
 		SendToolResult: true,
 		RewindFiles:    true,
 		MCPHotApply:    true,
+		MCPReconnect:   true,
 	}
 	raw, err := json.Marshal(cap)
 	if err != nil {
@@ -144,6 +152,8 @@ func TestAgentCapabilityJSONKeys(t *testing.T) {
 		`"send_tool_result":true`,
 		`"rewind_files":true`,
 		`"mcp_hot_apply":true`,
+		`"mcp_reconnect":true`,
+		`"mcp_live_status_limited":false`,
 	}
 	for _, k := range wantKeys {
 		if !strings.Contains(payload, k) {
@@ -152,7 +162,7 @@ func TestAgentCapabilityJSONKeys(t *testing.T) {
 	}
 
 	// Assert no CamelCase / PascalCase leakage.
-	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "SessionScopedApproval", "AnswerQuestionFreeText"}
+	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText"}
 	for _, k := range forbidden {
 		if strings.Contains(payload, k) {
 			t.Errorf("unexpected Go field name %q in JSON payload: %s", k, payload)
@@ -211,6 +221,48 @@ func TestAgentCapabilityAnswerQuestionFreeTextField(t *testing.T) {
 	}
 }
 
+func TestAgentCapabilityMCPReconnectField(t *testing.T) {
+	t.Parallel()
+
+	typ := reflect.TypeOf(protocol.AgentCapability{})
+	field, ok := typ.FieldByName("MCPReconnect")
+	if !ok {
+		t.Fatalf("AgentCapability missing field MCPReconnect")
+	}
+	if field.Type.Kind() != reflect.Bool {
+		t.Fatalf("MCPReconnect: want bool, got %s", field.Type.Kind())
+	}
+	if got := field.Tag.Get("json"); got != "mcp_reconnect" {
+		t.Fatalf("MCPReconnect: json tag want %q, got %q", "mcp_reconnect", got)
+	}
+
+	var zero protocol.AgentCapability
+	if zero.MCPReconnect != false {
+		t.Fatalf("zero-value MCPReconnect: want false, got %v", zero.MCPReconnect)
+	}
+}
+
+func TestAgentCapabilityMCPLiveStatusLimitedField(t *testing.T) {
+	t.Parallel()
+
+	typ := reflect.TypeOf(protocol.AgentCapability{})
+	field, ok := typ.FieldByName("MCPLiveStatusLimited")
+	if !ok {
+		t.Fatalf("AgentCapability missing field MCPLiveStatusLimited")
+	}
+	if field.Type.Kind() != reflect.Bool {
+		t.Fatalf("MCPLiveStatusLimited: want bool, got %s", field.Type.Kind())
+	}
+	if got := field.Tag.Get("json"); got != "mcp_live_status_limited" {
+		t.Fatalf("MCPLiveStatusLimited: json tag want %q, got %q", "mcp_live_status_limited", got)
+	}
+
+	var zero protocol.AgentCapability
+	if zero.MCPLiveStatusLimited != false {
+		t.Fatalf("zero-value MCPLiveStatusLimited: want false, got %v", zero.MCPLiveStatusLimited)
+	}
+}
+
 // TestAgentCapability186RoundTrip verifies the new fields marshal and
 // unmarshal with the other 4 correctly across the per-agent shapes called out
 // in data-model.md (Claude: AnswerQuestionFreeText=true, SSA=false; Codex:
@@ -229,6 +281,8 @@ func TestAgentCapability186RoundTrip(t *testing.T) {
 				SendToolResult:         true,
 				RewindFiles:            true,
 				MCPHotApply:            true,
+				MCPReconnect:           true,
+				MCPLiveStatusLimited:   false,
 				SessionScopedApproval:  false,
 				AnswerQuestionFreeText: true,
 			},
@@ -240,20 +294,24 @@ func TestAgentCapability186RoundTrip(t *testing.T) {
 				SendToolResult:         false,
 				RewindFiles:            false,
 				MCPHotApply:            true,
+				MCPReconnect:           false,
+				MCPLiveStatusLimited:   true,
 				SessionScopedApproval:  true,
 				AnswerQuestionFreeText: false,
 			},
 		},
 		{
-			name: "ssa true only",
+			name: "ssa + reconnect only",
 			in: protocol.AgentCapability{
 				SessionScopedApproval: true,
+				MCPReconnect:          true,
 			},
 		},
 		{
-			name: "free-text true only",
+			name: "free-text + limited status only",
 			in: protocol.AgentCapability{
 				AnswerQuestionFreeText: true,
+				MCPLiveStatusLimited:   true,
 			},
 		},
 	}
@@ -286,6 +344,8 @@ func TestAgentCapability186JSONKeys(t *testing.T) {
 	t.Parallel()
 
 	cap := protocol.AgentCapability{
+		MCPReconnect:           true,
+		MCPLiveStatusLimited:   true,
 		SessionScopedApproval:  true,
 		AnswerQuestionFreeText: false,
 	}
@@ -296,6 +356,8 @@ func TestAgentCapability186JSONKeys(t *testing.T) {
 	payload := string(raw)
 
 	wantKeys := []string{
+		`"mcp_reconnect":true`,
+		`"mcp_live_status_limited":true`,
 		`"session_scoped_approval":true`,
 		`"answer_question_free_text":false`,
 	}
