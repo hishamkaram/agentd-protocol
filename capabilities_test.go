@@ -24,14 +24,15 @@ func TestAgentCapabilityFields(t *testing.T) {
 	}
 
 	want := map[string]string{
-		"AnswerQuestion":         "answer_question",
-		"SendToolResult":         "send_tool_result",
-		"RewindFiles":            "rewind_files",
-		"MCPHotApply":            "mcp_hot_apply",
-		"MCPReconnect":           "mcp_reconnect",
-		"MCPLiveStatusLimited":   "mcp_live_status_limited",
-		"SessionScopedApproval":  "session_scoped_approval",
-		"AnswerQuestionFreeText": "answer_question_free_text",
+		"AnswerQuestion":            "answer_question",
+		"SendToolResult":            "send_tool_result",
+		"RewindFiles":               "rewind_files",
+		"MCPHotApply":               "mcp_hot_apply",
+		"MCPReconnect":              "mcp_reconnect",
+		"MCPLiveStatusLimited":      "mcp_live_status_limited",
+		"SessionScopedApproval":     "session_scoped_approval",
+		"AnswerQuestionFreeText":    "answer_question_free_text",
+		"SupportsBypassPermissions": "supports_bypass_permissions",
 	}
 
 	if got := typ.NumField(); got != len(want) {
@@ -162,7 +163,7 @@ func TestAgentCapabilityJSONKeys(t *testing.T) {
 	}
 
 	// Assert no CamelCase / PascalCase leakage.
-	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText"}
+	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText", "SupportsBypassPermissions"}
 	for _, k := range forbidden {
 		if strings.Contains(payload, k) {
 			t.Errorf("unexpected Go field name %q in JSON payload: %s", k, payload)
@@ -365,6 +366,135 @@ func TestAgentCapability186JSONKeys(t *testing.T) {
 		if !strings.Contains(payload, k) {
 			t.Errorf("missing key %q in JSON payload: %s", k, payload)
 		}
+	}
+}
+
+// Feature 195 — T002-T: new capability field `SupportsBypassPermissions`.
+// Pins the field's type, JSON tag, and zero-value semantics. The PWA reads
+// this to decide whether to include "bypass" in the Claude Code approval-mode
+// cycle. Daemon admin opt-in via `agents.claude_code.allow_bypass_permissions`
+// → Claude Code agent's `Capabilities()` returns this field equal to the
+// config flag; Codex returns false unconditionally.
+func TestAgentCapabilitySupportsBypassPermissionsField(t *testing.T) {
+	t.Parallel()
+
+	typ := reflect.TypeOf(protocol.AgentCapability{})
+	field, ok := typ.FieldByName("SupportsBypassPermissions")
+	if !ok {
+		t.Fatalf("AgentCapability missing field SupportsBypassPermissions")
+	}
+	if field.Type.Kind() != reflect.Bool {
+		t.Fatalf("SupportsBypassPermissions: want bool, got %s", field.Type.Kind())
+	}
+	if got := field.Tag.Get("json"); got != "supports_bypass_permissions" {
+		t.Fatalf("SupportsBypassPermissions: json tag want %q, got %q", "supports_bypass_permissions", got)
+	}
+
+	var zero protocol.AgentCapability
+	if zero.SupportsBypassPermissions != false {
+		t.Fatalf("zero-value SupportsBypassPermissions: want false, got %v", zero.SupportsBypassPermissions)
+	}
+}
+
+// TestAgentCapability195RoundTrip verifies the new field marshals and
+// unmarshals correctly alongside the other 8 fields across per-agent shapes.
+// Claude with bypass enabled: SupportsBypassPermissions=true; Claude default:
+// false; Codex: false unconditionally.
+func TestAgentCapability195RoundTrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		in   protocol.AgentCapability
+	}{
+		{
+			name: "claude with bypass enabled",
+			in: protocol.AgentCapability{
+				AnswerQuestion:            true,
+				SendToolResult:            true,
+				RewindFiles:               true,
+				MCPHotApply:               true,
+				MCPReconnect:              true,
+				MCPLiveStatusLimited:      false,
+				SessionScopedApproval:     false,
+				AnswerQuestionFreeText:    true,
+				SupportsBypassPermissions: true,
+			},
+		},
+		{
+			name: "claude default (bypass disabled)",
+			in: protocol.AgentCapability{
+				AnswerQuestion:            true,
+				SendToolResult:            true,
+				RewindFiles:               true,
+				MCPHotApply:               true,
+				MCPReconnect:              true,
+				MCPLiveStatusLimited:      false,
+				SessionScopedApproval:     false,
+				AnswerQuestionFreeText:    true,
+				SupportsBypassPermissions: false,
+			},
+		},
+		{
+			name: "codex (bypass always false)",
+			in: protocol.AgentCapability{
+				AnswerQuestion:            false,
+				SendToolResult:            false,
+				RewindFiles:               false,
+				MCPHotApply:               true,
+				MCPReconnect:              false,
+				MCPLiveStatusLimited:      true,
+				SessionScopedApproval:     true,
+				AnswerQuestionFreeText:    false,
+				SupportsBypassPermissions: false,
+			},
+		},
+		{
+			name: "bypass-only set",
+			in: protocol.AgentCapability{
+				SupportsBypassPermissions: true,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			raw, err := json.Marshal(tt.in)
+			if err != nil {
+				t.Fatalf("marshal: %v", err)
+			}
+
+			var got protocol.AgentCapability
+			if err := json.Unmarshal(raw, &got); err != nil {
+				t.Fatalf("unmarshal: %v", err)
+			}
+
+			if !reflect.DeepEqual(got, tt.in) {
+				t.Fatalf("round-trip mismatch\nwant: %+v\n got: %+v\n raw: %s", tt.in, got, raw)
+			}
+		})
+	}
+}
+
+// TestAgentCapability195JSONKeys verifies the new snake_case key appears in
+// the marshaled payload exactly per the contract (supports_bypass_permissions).
+func TestAgentCapability195JSONKeys(t *testing.T) {
+	t.Parallel()
+
+	cap := protocol.AgentCapability{
+		SupportsBypassPermissions: true,
+	}
+	raw, err := json.Marshal(cap)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	payload := string(raw)
+
+	if !strings.Contains(payload, `"supports_bypass_permissions":true`) {
+		t.Errorf("missing key %q in JSON payload: %s", `"supports_bypass_permissions":true`, payload)
 	}
 }
 
