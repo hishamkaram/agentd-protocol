@@ -41,6 +41,17 @@ package protocol
 //     a single MCP server. Claude: true; Codex: false.
 //   - MCPLiveStatusLimited — whether MCP status is inventory-derived / limited
 //     rather than a full live-health report. Claude: false; Codex: true.
+//
+// Feature 195 (bypass-mode-optin) adds one field:
+//   - SupportsBypassPermissions — whether the agent supports runtime switching
+//     to "bypass" approval mode. For Claude Code, true iff the daemon was
+//     configured with `agents.claude_code.allow_bypass_permissions: true`,
+//     which causes the CLI subprocess to launch with
+//     `--allow-dangerously-skip-permissions`. Codex: false unconditionally
+//     (Codex has its own approval semantics). The PWA reads this flag to
+//     decide whether to include "bypass" in the approval-mode cycle. See
+//     specs/195-bypass-mode-optin/contracts/agent-capability-bypass.md for
+//     the canonical contract.
 type AgentCapability struct {
 	// Deprecated: As of feature 186 (codex-remaining-gaps), consumers
 	// should read AnswerQuestionFreeText instead. This field is retained
@@ -51,12 +62,13 @@ type AgentCapability struct {
 	// favors claude-style rendering. See
 	// specs/186-codex-remaining-gaps/contracts/answer-question-free-text-capability.md
 	// for the full two-release deprecation plan.
-	AnswerQuestion         bool `json:"answer_question"`
-	SendToolResult         bool `json:"send_tool_result"`
-	RewindFiles            bool `json:"rewind_files"`
-	MCPHotApply            bool `json:"mcp_hot_apply"`
-	MCPReconnect           bool `json:"mcp_reconnect"`
-	MCPLiveStatusLimited   bool `json:"mcp_live_status_limited"`
-	SessionScopedApproval  bool `json:"session_scoped_approval"`
-	AnswerQuestionFreeText bool `json:"answer_question_free_text"`
+	AnswerQuestion            bool `json:"answer_question"`
+	SendToolResult            bool `json:"send_tool_result"`
+	RewindFiles               bool `json:"rewind_files"`
+	MCPHotApply               bool `json:"mcp_hot_apply"`
+	MCPReconnect              bool `json:"mcp_reconnect"`
+	MCPLiveStatusLimited      bool `json:"mcp_live_status_limited"`
+	SessionScopedApproval     bool `json:"session_scoped_approval"`
+	AnswerQuestionFreeText    bool `json:"answer_question_free_text"`
+	SupportsBypassPermissions bool `json:"supports_bypass_permissions"`
 }
