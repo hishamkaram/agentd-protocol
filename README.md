@@ -67,6 +67,24 @@ Both `agentd` and `agentd-relay` use type aliases to re-export these types under
 - **W3C trace IDs** — 32 lowercase hex chars, ready for OpenTelemetry upgrade
 - **Roundtrip tested** — every type has a JSON marshal/unmarshal roundtrip test
 
+## Versioning
+
+This module follows [Semantic Versioning](https://semver.org/) with one
+nuance: while in `v0.x` (initial development), wire-additive changes
+bump the **MINOR** version, not patch — since consumers (`agentd`,
+`agentd-relay`) are expected to opt in to each new field.
+
+| Bump | Trigger |
+|---|---|
+| **MAJOR** (`v0.x → v1.0`, `v1 → v2` requires `/v2` import path) | Removed field, renamed JSON tag, removed message type |
+| **MINOR** (`v0.1.0 → v0.2.0`) | Wire-additive change: new message type, new field on existing struct, new capability flag |
+| **PATCH** (`v0.1.0 → v0.1.1`) | No wire-format change: doc fix, test improvement, dep bump |
+
+See [`CHANGELOG.md`](./CHANGELOG.md) for the per-release wire-type
+inventory. Tags are pushed manually after a wire-additive PR merges to
+`main`. Consumers may pin via the tag (`v0.1.0`) or via a Go
+pseudo-version (`v0.0.0-<timestamp>-<sha>`) — both are supported.
+
 ## License
 
 [MIT](LICENSE)
