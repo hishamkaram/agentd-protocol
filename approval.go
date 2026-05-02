@@ -63,7 +63,7 @@ const (
 	ApprovalDecisionDeny = "deny"
 
 	// ApprovalDecisionTimeout — TTL elapsed without a user decision.
-	// Daemon emits this after the configured approval timeout (default 5m).
+	// Daemon emits this only for approvals with a positive configured timeout.
 	ApprovalDecisionTimeout = "timeout"
 
 	// ApprovalDecisionCanceled — SDK outer context was canceled (e.g.
@@ -76,7 +76,7 @@ const (
 	// single-pending-approval-per-session invariant: a newer approval
 	// arrived for the same session while this one was still pending.
 	// The daemon routes a synthetic deny through s.approvalCh to unblock
-	// the SDK immediately rather than waiting 5 minutes for timeout.
+	// the SDK immediately rather than waiting for a user decision or timeout.
 	// See feature 193 spec User Story 4 / INVARIANT A.
 	ApprovalDecisionSuperseded = "superseded"
 )
