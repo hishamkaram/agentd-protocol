@@ -14,7 +14,10 @@ Versioning convention (see [README.md](./README.md) for full policy):
 
 ## [Unreleased]
 
-(none)
+### Wire types
+
+- `MsgReplayRequest`, `MsgReplayComplete` constants for durable journal recovery
+- `ReplayRequest`, `ReplayCompletePayload`
 
 ## [v0.1.0] — 2026-04-29
 
@@ -28,7 +31,7 @@ module's inception. Captures the protocol surface as of agentd commit
 
 - `RelayEnvelope` — outer envelope for relay-routed messages (`envelope.go`)
 - `ControlMessage`, `ControlType` enum (`control.go`)
-- `RegisterPayload`, `JoinPayload`, `AckPayload`, `ErrorPayload`, `StatusUpdatePayload`, `AuditEntryPayload`, `DeactivateDeveloperPayload`
+- `RegisterPayload`, `JoinPayload`, `AckPayload`, `ErrorPayload`, `StatusUpdatePayload`, `AuditEntryPayload`, `DeactivateDeveloperPayload`, `ClientConnectedPayload`, `ClientCountPayload`, `KeyRotatePayload`, `SyncPoliciesPayload`
 
 #### Per-agent capabilities (features 185 / 186 / 195)
 
