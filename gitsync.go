@@ -2,7 +2,8 @@
 //
 // This file defines the request/response types, streaming progress events,
 // and classified error codes for the git sync action family (branch list,
-// branch switch, fetch, pull, push, cancel) introduced in feature 172.
+// branch switch, fetch, pull, push, cancel, stash management) introduced
+// in feature 172 and extended in feature 206.
 //
 // The DAEMON is the source of truth for every Msg* constant in this file.
 // A matching constant block lives in agentd/internal/session/wsserver_gitsync.go
@@ -27,6 +28,16 @@ const (
 	MsgGitSyncProgress         = "git_sync_progress"
 	MsgGitSyncCancel           = "git_sync_cancel"
 	MsgGitSyncCancelResponse   = "git_sync_cancel_response"
+	MsgGitStashList            = "git_stash_list"
+	MsgGitStashListResponse    = "git_stash_list_response"
+	MsgGitStashPush            = "git_stash_push"
+	MsgGitStashPushResponse    = "git_stash_push_response"
+	MsgGitStashApply           = "git_stash_apply"
+	MsgGitStashApplyResponse   = "git_stash_apply_response"
+	MsgGitStashPop             = "git_stash_pop"
+	MsgGitStashPopResponse     = "git_stash_pop_response"
+	MsgGitStashDrop            = "git_stash_drop"
+	MsgGitStashDropResponse    = "git_stash_drop_response"
 )
 
 // Classified error codes. Every GitSync*Response.ErrorCode field holds one
@@ -44,6 +55,7 @@ const (
 	GitSyncErrCanceled       = "canceled"
 	GitSyncErrTimeout        = "timeout"
 	GitSyncErrLockedIndex    = "locked_index"
+	GitSyncErrNotFound       = "not_found"
 	GitSyncErrInternal       = "internal"
 )
 
@@ -157,6 +169,103 @@ type GitPushResponse struct {
 	ErrorCode string `json:"error_code,omitempty"`
 	Stderr    string `json:"stderr,omitempty"`
 	PushedRef string `json:"pushed_ref,omitempty"`
+}
+
+// GitStashEntry is one row from Git's stash stack for the current repository.
+// Ref is the only action key; CommitSHA and Branch are display-only.
+type GitStashEntry struct {
+	Ref       string `json:"ref"`
+	Index     int    `json:"index"`
+	CommitSHA string `json:"commit_sha"`
+	CreatedAt int64  `json:"created_at"`
+	Subject   string `json:"subject"`
+	Branch    string `json:"branch,omitempty"`
+}
+
+// GitStashListRequest — PWA → daemon.
+type GitStashListRequest struct {
+	SessionID string `json:"session_id"`
+	RequestID string `json:"request_id"`
+}
+
+// GitStashListResponse — daemon → PWA. Echoes RequestID.
+type GitStashListResponse struct {
+	RequestID string          `json:"request_id"`
+	OK        bool            `json:"ok"`
+	Error     string          `json:"error,omitempty"`
+	ErrorCode string          `json:"error_code,omitempty"`
+	Stashes   []GitStashEntry `json:"stashes,omitempty"`
+}
+
+// GitStashPushRequest — PWA → daemon.
+type GitStashPushRequest struct {
+	SessionID string `json:"session_id"`
+	RequestID string `json:"request_id"`
+}
+
+// GitStashPushResponse — daemon → PWA.
+type GitStashPushResponse struct {
+	RequestID string `json:"request_id"`
+	OK        bool   `json:"ok"`
+	Error     string `json:"error,omitempty"`
+	ErrorCode string `json:"error_code,omitempty"`
+	Stderr    string `json:"stderr,omitempty"`
+	Stashed   bool   `json:"stashed"`
+	StashRef  string `json:"stash_ref,omitempty"`
+}
+
+// GitStashApplyRequest — PWA → daemon.
+type GitStashApplyRequest struct {
+	SessionID  string `json:"session_id"`
+	RequestID  string `json:"request_id"`
+	Ref        string `json:"ref"`
+	AllowDirty bool   `json:"allow_dirty,omitempty"`
+}
+
+// GitStashApplyResponse — daemon → PWA.
+type GitStashApplyResponse struct {
+	RequestID string `json:"request_id"`
+	OK        bool   `json:"ok"`
+	Error     string `json:"error,omitempty"`
+	ErrorCode string `json:"error_code,omitempty"`
+	Stderr    string `json:"stderr,omitempty"`
+	StashRef  string `json:"stash_ref,omitempty"`
+}
+
+// GitStashPopRequest — PWA → daemon.
+type GitStashPopRequest struct {
+	SessionID string `json:"session_id"`
+	RequestID string `json:"request_id"`
+	Ref       string `json:"ref"`
+}
+
+// GitStashPopResponse — daemon → PWA.
+type GitStashPopResponse struct {
+	RequestID string `json:"request_id"`
+	OK        bool   `json:"ok"`
+	Error     string `json:"error,omitempty"`
+	ErrorCode string `json:"error_code,omitempty"`
+	Stderr    string `json:"stderr,omitempty"`
+	StashRef  string `json:"stash_ref,omitempty"`
+	Removed   bool   `json:"removed"`
+}
+
+// GitStashDropRequest — PWA → daemon.
+type GitStashDropRequest struct {
+	SessionID string `json:"session_id"`
+	RequestID string `json:"request_id"`
+	Ref       string `json:"ref"`
+}
+
+// GitStashDropResponse — daemon → PWA.
+type GitStashDropResponse struct {
+	RequestID string `json:"request_id"`
+	OK        bool   `json:"ok"`
+	Error     string `json:"error,omitempty"`
+	ErrorCode string `json:"error_code,omitempty"`
+	Stderr    string `json:"stderr,omitempty"`
+	StashRef  string `json:"stash_ref,omitempty"`
+	Removed   bool   `json:"removed"`
 }
 
 // GitSyncProgressPayload is a streaming daemon → PWA event emitted during
