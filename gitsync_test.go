@@ -130,6 +130,75 @@ func TestGitSync_RoundTrip(t *testing.T) {
 			},
 		},
 		{
+			"GitStashEntry",
+			GitStashEntry{
+				Ref:       "stash@{1}",
+				Index:     1,
+				CommitSHA: "abc1234def5678",
+				CreatedAt: 1712346000,
+				Subject:   "On main: agentd-manual-stash-1712346000",
+				Branch:    "main",
+			},
+		},
+		{
+			"GitStashListRequest",
+			GitStashListRequest{SessionID: "s1", RequestID: "req-stash-list"},
+		},
+		{
+			"GitStashListResponse_OK",
+			GitStashListResponse{
+				RequestID: "req-stash-list",
+				OK:        true,
+				Stashes: []GitStashEntry{
+					{Ref: "stash@{0}", Index: 0, CommitSHA: "abc1234", CreatedAt: 1712346000, Subject: "On main: agentd-manual-stash-1712346000", Branch: "main"},
+				},
+			},
+		},
+		{
+			"GitStashListResponse_Err",
+			GitStashListResponse{RequestID: "req-stash-list", OK: false, ErrorCode: GitSyncErrNotAGitRepo, Error: "not a git repository"},
+		},
+		{
+			"GitStashPushRequest",
+			GitStashPushRequest{SessionID: "s1", RequestID: "req-stash-push"},
+		},
+		{
+			"GitStashPushResponse_Stashed",
+			GitStashPushResponse{RequestID: "req-stash-push", OK: true, Stashed: true, StashRef: "stash@{0}"},
+		},
+		{
+			"GitStashPushResponse_Clean",
+			GitStashPushResponse{RequestID: "req-stash-push", OK: true, Stashed: false},
+		},
+		{
+			"GitStashApplyRequest",
+			GitStashApplyRequest{SessionID: "s1", RequestID: "req-stash-apply", Ref: "stash@{0}", AllowDirty: true},
+		},
+		{
+			"GitStashApplyResponse_OK",
+			GitStashApplyResponse{RequestID: "req-stash-apply", OK: true, StashRef: "stash@{0}"},
+		},
+		{
+			"GitStashPopRequest",
+			GitStashPopRequest{SessionID: "s1", RequestID: "req-stash-pop", Ref: "0"},
+		},
+		{
+			"GitStashPopResponse_OK",
+			GitStashPopResponse{RequestID: "req-stash-pop", OK: true, StashRef: "stash@{0}", Removed: true},
+		},
+		{
+			"GitStashPopResponse_Conflict",
+			GitStashPopResponse{RequestID: "req-stash-pop", OK: false, ErrorCode: GitSyncErrMergeConflict, StashRef: "stash@{0}", Removed: false},
+		},
+		{
+			"GitStashDropRequest",
+			GitStashDropRequest{SessionID: "s1", RequestID: "req-stash-drop", Ref: "stash@{0}"},
+		},
+		{
+			"GitStashDropResponse_OK",
+			GitStashDropResponse{RequestID: "req-stash-drop", OK: true, StashRef: "stash@{0}", Removed: true},
+		},
+		{
 			"GitSyncProgressPayload_fetch",
 			GitSyncProgressPayload{
 				RequestID: "req-5",
@@ -161,7 +230,7 @@ func TestGitSync_RoundTrip(t *testing.T) {
 				RequestID: "req-cancel-1",
 				TargetID:  "req-unknown",
 				OK:        false,
-				ErrorCode: "not_found",
+				ErrorCode: GitSyncErrNotFound,
 			},
 		},
 	}
@@ -207,6 +276,16 @@ func TestGitSync_MsgConstants_NonEmpty(t *testing.T) {
 		"MsgGitSyncProgress":         MsgGitSyncProgress,
 		"MsgGitSyncCancel":           MsgGitSyncCancel,
 		"MsgGitSyncCancelResponse":   MsgGitSyncCancelResponse,
+		"MsgGitStashList":            MsgGitStashList,
+		"MsgGitStashListResponse":    MsgGitStashListResponse,
+		"MsgGitStashPush":            MsgGitStashPush,
+		"MsgGitStashPushResponse":    MsgGitStashPushResponse,
+		"MsgGitStashApply":           MsgGitStashApply,
+		"MsgGitStashApplyResponse":   MsgGitStashApplyResponse,
+		"MsgGitStashPop":             MsgGitStashPop,
+		"MsgGitStashPopResponse":     MsgGitStashPopResponse,
+		"MsgGitStashDrop":            MsgGitStashDrop,
+		"MsgGitStashDropResponse":    MsgGitStashDropResponse,
 	}
 	seen := map[string]string{}
 	for name, val := range consts {
@@ -234,6 +313,7 @@ func TestGitSync_ErrorCodes_NonEmpty(t *testing.T) {
 		"GitSyncErrCanceled":       GitSyncErrCanceled,
 		"GitSyncErrTimeout":        GitSyncErrTimeout,
 		"GitSyncErrLockedIndex":    GitSyncErrLockedIndex,
+		"GitSyncErrNotFound":       GitSyncErrNotFound,
 		"GitSyncErrInternal":       GitSyncErrInternal,
 	}
 	seen := map[string]string{}
