@@ -72,12 +72,11 @@ const (
 	// next terminal status. See feature 193 spec User Story 5.
 	ApprovalDecisionCanceled = "canceled"
 
-	// ApprovalDecisionSuperseded — daemon enforced the
-	// single-pending-approval-per-session invariant: a newer approval
-	// arrived for the same session while this one was still pending.
-	// The daemon routes a synthetic deny through s.approvalCh to unblock
-	// the SDK immediately rather than waiting for a user decision or timeout.
-	// See feature 193 spec User Story 4 / INVARIANT A.
+	// ApprovalDecisionSuperseded is retained as a stable wire value for
+	// backward compatibility with daemons that emitted synthetic denies before
+	// same-session approvals were queued independently. Current daemons should
+	// leave each approval_id pending until its own user decision, timeout, or
+	// cancellation.
 	ApprovalDecisionSuperseded = "superseded"
 )
 
@@ -85,10 +84,9 @@ const (
 // on every approval terminal state. Carried inside an AgentMessage envelope
 // with Type=MsgApprovalResolved.
 //
-// The PWA matches the payload's ApprovalID against its
-// pendingApprovals[sessionId].payload.approval_id and clears the modal if
-// they match. Idempotent — receiving the same tombstone twice is a no-op
-// on the consumer.
+// The PWA matches the payload's ApprovalID against its queued
+// pendingApprovals[sessionId] entries and clears only that approval_id.
+// Idempotent — receiving the same tombstone twice is a no-op on the consumer.
 //
 // SessionID is required so the PWA can scope the clear to the correct
 // session entry without an additional lookup.
