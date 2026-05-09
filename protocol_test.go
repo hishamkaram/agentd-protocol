@@ -84,6 +84,7 @@ func TestRegisterPayloadRoundtrip(t *testing.T) {
 	original := protocol.RegisterPayload{
 		SessionID:   "sess-123",
 		KeyHMAC:     "hmac-abc",
+		RelayAuth:   "opaque-hosted-relay-token",
 		AgentType:   "claude-code",
 		ProjectName: "my-project",
 		DisplayName: "My Session",
