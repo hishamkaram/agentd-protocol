@@ -34,6 +34,7 @@ type ControlMessage struct {
 type RegisterPayload struct {
 	SessionID   string `json:"sid"`
 	KeyHMAC     string `json:"key_hmac"`
+	RelayAuth   string `json:"relay_auth,omitempty"`
 	AgentType   string `json:"agent"`
 	ProjectName string `json:"project"`
 	DisplayName string `json:"display"`
