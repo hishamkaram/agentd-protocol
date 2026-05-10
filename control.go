@@ -10,18 +10,20 @@ type ControlType string
 
 // Control message types for the relay protocol.
 const (
-	CtrlRegister            ControlType = "register"
-	CtrlJoin                ControlType = "join"
-	CtrlHeartbeat           ControlType = "heartbeat" // reserved for future application-level keepalive; WebSocket ping/pong handles heartbeats
-	CtrlAck                 ControlType = "ack"
-	CtrlError               ControlType = "error"
-	CtrlSyncPolicies        ControlType = "sync_policies"
-	CtrlStatusUpdate        ControlType = "status_update"
-	CtrlAuditEntry          ControlType = "audit_entry"
-	CtrlDeactivateDeveloper ControlType = "deactivate_developer"
-	CtrlClientConnected     ControlType = "client_connected"
-	CtrlClientCount         ControlType = "client_count"
-	CtrlKeyRotate           ControlType = "key_rotate"
+	CtrlRegister             ControlType = "register"
+	CtrlJoin                 ControlType = "join"
+	CtrlHeartbeat            ControlType = "heartbeat" // reserved for future application-level keepalive; WebSocket ping/pong handles heartbeats
+	CtrlAck                  ControlType = "ack"
+	CtrlError                ControlType = "error"
+	CtrlSyncPolicies         ControlType = "sync_policies"
+	CtrlStatusUpdate         ControlType = "status_update"
+	CtrlAuditEntry           ControlType = "audit_entry"
+	CtrlDeactivateDeveloper  ControlType = "deactivate_developer"
+	CtrlClientConnected      ControlType = "client_connected"
+	CtrlClientCount          ControlType = "client_count"
+	CtrlKeyRotate            ControlType = "key_rotate"
+	CtrlEntitlementUpdate    ControlType = "entitlement_update"
+	CtrlEntitlementViolation ControlType = "entitlement_violation"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -124,4 +126,29 @@ type KeyRotatePayload struct {
 // Carries the current org/team policy set.
 type SyncPoliciesPayload struct {
 	Policies []PolicyJSON `json:"policies"`
+}
+
+// EntitlementUpdatePayload is sent by hosted relay to daemon after registration
+// and when hosted entitlement state changes. It is daemon-only and never sent to
+// PWA clients.
+type EntitlementUpdatePayload struct {
+	Plan                  string `json:"plan"`
+	BillingStatus         string `json:"billing_status"`
+	ActiveSessionLimit    int    `json:"active_session_limit"`
+	CurrentActiveSessions int    `json:"current_active_sessions"`
+	BufferTTLSeconds      int    `json:"buffer_ttl_seconds"`
+	BlockedReason         string `json:"blocked_reason,omitempty"`
+	UpdatedAt             int64  `json:"updated_at"`
+}
+
+// EntitlementViolationPayload is sent by hosted relay to daemon when one active
+// hosted agent session is rejected by the account entitlement limit.
+type EntitlementViolationPayload struct {
+	AgentSessionID        string `json:"agent_session_id"`
+	Reason                string `json:"reason"`
+	Plan                  string `json:"plan"`
+	ActiveSessionLimit    int    `json:"active_session_limit"`
+	CurrentActiveSessions int    `json:"current_active_sessions"`
+	Message               string `json:"message,omitempty"`
+	OccurredAt            int64  `json:"occurred_at"`
 }

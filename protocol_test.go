@@ -267,6 +267,96 @@ func TestSyncPoliciesPayloadRoundtrip(t *testing.T) {
 	assertRoundtrip(t, original)
 }
 
+func TestEntitlementUpdatePayloadRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		payload protocol.EntitlementUpdatePayload
+	}{
+		{
+			name: "active solo",
+			payload: protocol.EntitlementUpdatePayload{
+				Plan:                  "solo",
+				BillingStatus:         "active",
+				ActiveSessionLimit:    1,
+				CurrentActiveSessions: 0,
+				BufferTTLSeconds:      86400,
+				UpdatedAt:             1778419200000,
+			},
+		},
+		{
+			name: "blocked unpaid",
+			payload: protocol.EntitlementUpdatePayload{
+				Plan:                  "none",
+				BillingStatus:         "unpaid",
+				ActiveSessionLimit:    0,
+				CurrentActiveSessions: 0,
+				BufferTTLSeconds:      0,
+				BlockedReason:         "billing_inactive",
+				UpdatedAt:             1778419200000,
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assertRoundtrip(t, tt.payload)
+		})
+	}
+}
+
+func TestEntitlementViolationPayloadRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	original := protocol.EntitlementViolationPayload{
+		AgentSessionID:        "sess_abc",
+		Reason:                "active_session_limit_reached",
+		Plan:                  "solo",
+		ActiveSessionLimit:    1,
+		CurrentActiveSessions: 2,
+		Message:               "Hosted session limit reached",
+		OccurredAt:            1778419200000,
+	}
+	assertRoundtrip(t, original)
+}
+
+func TestEntitlementControlPayloadsBackwardCompat(t *testing.T) {
+	t.Parallel()
+
+	updateJSON := `{"type":"entitlement_update","payload":{"plan":"pro","billing_status":"active","active_session_limit":3,"current_active_sessions":2,"buffer_ttl_seconds":604800,"updated_at":1778419200000}}`
+	var msg protocol.ControlMessage
+	if err := json.Unmarshal([]byte(updateJSON), &msg); err != nil {
+		t.Fatalf("unmarshal update control: %v", err)
+	}
+	if msg.Type != protocol.CtrlEntitlementUpdate {
+		t.Fatalf("Type = %q, want %q", msg.Type, protocol.CtrlEntitlementUpdate)
+	}
+	var update protocol.EntitlementUpdatePayload
+	if err := json.Unmarshal(msg.Payload, &update); err != nil {
+		t.Fatalf("unmarshal update payload: %v", err)
+	}
+	if update.Plan != "pro" || update.ActiveSessionLimit != 3 || update.BufferTTLSeconds != 604800 {
+		t.Fatalf("unexpected update payload: %+v", update)
+	}
+
+	violationJSON := `{"type":"entitlement_violation","payload":{"agent_session_id":"sess_abc","reason":"active_session_limit_reached","plan":"solo","active_session_limit":1,"current_active_sessions":2,"occurred_at":1778419200000}}`
+	if err := json.Unmarshal([]byte(violationJSON), &msg); err != nil {
+		t.Fatalf("unmarshal violation control: %v", err)
+	}
+	if msg.Type != protocol.CtrlEntitlementViolation {
+		t.Fatalf("Type = %q, want %q", msg.Type, protocol.CtrlEntitlementViolation)
+	}
+	var violation protocol.EntitlementViolationPayload
+	if err := json.Unmarshal(msg.Payload, &violation); err != nil {
+		t.Fatalf("unmarshal violation payload: %v", err)
+	}
+	if violation.AgentSessionID != "sess_abc" || violation.Reason != "active_session_limit_reached" {
+		t.Fatalf("unexpected violation payload: %+v", violation)
+	}
+}
+
 func TestPolicyJSONRoundtrip(t *testing.T) {
 	t.Parallel()
 	original := protocol.PolicyJSON{
@@ -351,18 +441,20 @@ func TestKeyRotatePayloadOmitemptyNotUsed(t *testing.T) {
 func TestControlTypeConstants(t *testing.T) {
 	t.Parallel()
 	expected := map[protocol.ControlType]string{
-		protocol.CtrlRegister:            "register",
-		protocol.CtrlJoin:                "join",
-		protocol.CtrlHeartbeat:           "heartbeat",
-		protocol.CtrlAck:                 "ack",
-		protocol.CtrlError:               "error",
-		protocol.CtrlSyncPolicies:        "sync_policies",
-		protocol.CtrlStatusUpdate:        "status_update",
-		protocol.CtrlAuditEntry:          "audit_entry",
-		protocol.CtrlDeactivateDeveloper: "deactivate_developer",
-		protocol.CtrlClientConnected:     "client_connected",
-		protocol.CtrlClientCount:         "client_count",
-		protocol.CtrlKeyRotate:           "key_rotate",
+		protocol.CtrlRegister:             "register",
+		protocol.CtrlJoin:                 "join",
+		protocol.CtrlHeartbeat:            "heartbeat",
+		protocol.CtrlAck:                  "ack",
+		protocol.CtrlError:                "error",
+		protocol.CtrlSyncPolicies:         "sync_policies",
+		protocol.CtrlStatusUpdate:         "status_update",
+		protocol.CtrlAuditEntry:           "audit_entry",
+		protocol.CtrlDeactivateDeveloper:  "deactivate_developer",
+		protocol.CtrlClientConnected:      "client_connected",
+		protocol.CtrlClientCount:          "client_count",
+		protocol.CtrlKeyRotate:            "key_rotate",
+		protocol.CtrlEntitlementUpdate:    "entitlement_update",
+		protocol.CtrlEntitlementViolation: "entitlement_violation",
 	}
 	for ct, want := range expected {
 		if string(ct) != want {
