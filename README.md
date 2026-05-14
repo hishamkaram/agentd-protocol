@@ -28,6 +28,7 @@ A tiny Go module containing the shared wire protocol types used by both the [Age
 | `control.go` | `ControlMessage`, `ControlType` (12 constants), 11 payload structs | Relay control protocol |
 | `policy.go` | `PolicyJSON`, `PolicyMatchJSON` | Policy rule wire format |
 | `capabilities.go` | `AgentCapability` | Per-agent feature flags the daemon emits to the PWA (MCP reconnect, session-scoped approvals, free-text replies, etc.) |
+| `codex_sandbox.go` | `CodexSandboxMode` | Shared Codex per-session sandbox literals for daemon and PWA runtime controls |
 | `replay.go` | `ReplayRequest`, `ReplayCompletePayload` | Durable session journal replay recovery using inner per-session `AgentMessage.seq` values |
 | `trace.go` | `NewTraceID()`, `ValidTraceID()` | W3C-compatible trace ID generation |
 
