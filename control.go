@@ -24,6 +24,7 @@ const (
 	CtrlKeyRotate            ControlType = "key_rotate"
 	CtrlEntitlementUpdate    ControlType = "entitlement_update"
 	CtrlEntitlementViolation ControlType = "entitlement_violation"
+	CtrlPushNotify           ControlType = "push_notify"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -109,6 +110,16 @@ type ClientConnectedPayload struct {
 type ClientCountPayload struct {
 	Count     int    `json:"count"`
 	SessionID string `json:"session_id"`
+}
+
+// PushNotifyPayload is sent by a daemon to the relay over its authenticated
+// websocket to trigger a Web Push notification. It intentionally does not
+// carry the relay session ID; the relay derives that from the registered daemon
+// connection to prevent session spoofing.
+type PushNotifyPayload struct {
+	NavSessionID string `json:"nav_session_id,omitempty"`
+	Type         string `json:"type"`
+	Summary      string `json:"summary"`
 }
 
 // KeyRotatePayload is sent by the daemon to the relay to update the session's

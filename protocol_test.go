@@ -79,6 +79,48 @@ func TestControlMessageRoundtrip(t *testing.T) {
 	}
 }
 
+func TestPushNotifyPayloadRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	payload := protocol.PushNotifyPayload{
+		NavSessionID: "agent-session-1",
+		Type:         "approval_request",
+		Summary:      "AgentD needs your approval",
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("marshal PushNotifyPayload: %v", err)
+	}
+	var rawFields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &rawFields); err != nil {
+		t.Fatalf("unmarshal raw PushNotifyPayload fields: %v", err)
+	}
+	if _, ok := rawFields["session_id"]; ok {
+		t.Fatalf("PushNotifyPayload must not carry relay session_id; relay derives it from daemon connection: %s", raw)
+	}
+
+	msg := protocol.ControlMessage{Type: protocol.CtrlPushNotify, Payload: raw}
+	encoded, err := json.Marshal(msg)
+	if err != nil {
+		t.Fatalf("marshal ControlMessage: %v", err)
+	}
+
+	var decoded protocol.ControlMessage
+	if err := json.Unmarshal(encoded, &decoded); err != nil {
+		t.Fatalf("unmarshal ControlMessage: %v", err)
+	}
+	if decoded.Type != protocol.CtrlPushNotify {
+		t.Fatalf("Type = %q, want %q", decoded.Type, protocol.CtrlPushNotify)
+	}
+	var got protocol.PushNotifyPayload
+	if err := json.Unmarshal(decoded.Payload, &got); err != nil {
+		t.Fatalf("unmarshal PushNotifyPayload: %v", err)
+	}
+	if got != payload {
+		t.Fatalf("payload = %+v, want %+v", got, payload)
+	}
+}
+
 func TestRegisterPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
 	original := protocol.RegisterPayload{
@@ -455,6 +497,7 @@ func TestControlTypeConstants(t *testing.T) {
 		protocol.CtrlKeyRotate:            "key_rotate",
 		protocol.CtrlEntitlementUpdate:    "entitlement_update",
 		protocol.CtrlEntitlementViolation: "entitlement_violation",
+		protocol.CtrlPushNotify:           "push_notify",
 	}
 	for ct, want := range expected {
 		if string(ct) != want {
