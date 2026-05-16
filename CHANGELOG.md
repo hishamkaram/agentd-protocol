@@ -18,6 +18,9 @@ Versioning convention (see [README.md](./README.md) for full policy):
 
 - `MsgReplayRequest`, `MsgReplayComplete` constants for durable journal recovery
 - `ReplayRequest`, `ReplayCompletePayload`
+- `CtrlPushNotifyResult` control message for relay-to-daemon Web Push delivery results
+- `PushNotifyPayload` tracking fields: `notification_id`, `trace_id`, `created_at_unix_ms`, `attempt`
+- `PushNotifyResultPayload` for accepted/retryable/permanent Web Push result acknowledgements
 
 ## [v0.1.0] — 2026-04-29
 

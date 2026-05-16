@@ -25,6 +25,7 @@ const (
 	CtrlEntitlementUpdate    ControlType = "entitlement_update"
 	CtrlEntitlementViolation ControlType = "entitlement_violation"
 	CtrlPushNotify           ControlType = "push_notify"
+	CtrlPushNotifyResult     ControlType = "push_notify_result"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -117,9 +118,32 @@ type ClientCountPayload struct {
 // carry the relay session ID; the relay derives that from the registered daemon
 // connection to prevent session spoofing.
 type PushNotifyPayload struct {
-	NavSessionID string `json:"nav_session_id,omitempty"`
-	Type         string `json:"type"`
-	Summary      string `json:"summary"`
+	NavSessionID    string `json:"nav_session_id,omitempty"`
+	Type            string `json:"type"`
+	Summary         string `json:"summary"`
+	NotificationID  string `json:"notification_id,omitempty"`
+	TraceID         string `json:"trace_id,omitempty"`
+	CreatedAtUnixMS int64  `json:"created_at_unix_ms,omitempty"`
+	Attempt         int    `json:"attempt,omitempty"`
+}
+
+const (
+	PushNotifyStatusAccepted  = "accepted"
+	PushNotifyStatusRetryable = "retryable"
+	PushNotifyStatusPermanent = "permanent"
+)
+
+// PushNotifyResultPayload is sent by the relay to the daemon after a
+// daemon-originated push notification request reaches the relay. It reports the
+// relay/provider result so the daemon can stop or retry tracked attempts.
+type PushNotifyResultPayload struct {
+	NotificationID     string `json:"notification_id,omitempty"`
+	TraceID            string `json:"trace_id,omitempty"`
+	Type               string `json:"type"`
+	Status             string `json:"status"`
+	Reason             string `json:"reason,omitempty"`
+	ProviderStatusCode int    `json:"provider_status_code,omitempty"`
+	DeliveredAtUnixMS  int64  `json:"delivered_at_unix_ms,omitempty"`
 }
 
 // KeyRotatePayload is sent by the daemon to the relay to update the session's
