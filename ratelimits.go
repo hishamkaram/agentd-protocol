@@ -45,9 +45,13 @@ type RateLimitBucket struct {
 // MsgOutput text "rate limits updated" (preserves feature 185 behavior) and
 // logs `codex_rate_limits_parse_failed` at warn level.
 type RateLimitsUpdatedPayload struct {
-	PrimaryWindow    *RateLimitBucket            `json:"primary_window,omitempty"`
-	SecondaryWindow  *RateLimitBucket            `json:"secondary_window,omitempty"`
-	ByLimitID        map[string]*RateLimitBucket `json:"by_limit_id,omitempty"`
-	SessionID        string                      `json:"session_id"`
-	ReceivedAtMillis int64                       `json:"received_at_ms"`
+	PrimaryWindow     *RateLimitBucket            `json:"primary_window,omitempty"`
+	SecondaryWindow   *RateLimitBucket            `json:"secondary_window,omitempty"`
+	ByLimitID         map[string]*RateLimitBucket `json:"by_limit_id,omitempty"`
+	SessionID         string                      `json:"session_id"`
+	ReceivedAtMillis  int64                       `json:"received_at_ms"`
+	PlanType          string                      `json:"plan_type,omitempty"`
+	CreditsBalance    string                      `json:"credits_balance,omitempty"`
+	CreditsHasCredits *bool                       `json:"credits_has_credits,omitempty"`
+	CreditsUnlimited  *bool                       `json:"credits_unlimited,omitempty"`
 }
