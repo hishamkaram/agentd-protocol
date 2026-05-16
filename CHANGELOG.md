@@ -21,6 +21,8 @@ Versioning convention (see [README.md](./README.md) for full policy):
 - `CtrlPushNotifyResult` control message for relay-to-daemon Web Push delivery results
 - `PushNotifyPayload` tracking fields: `notification_id`, `trace_id`, `created_at_unix_ms`, `attempt`
 - `PushNotifyResultPayload` for accepted/retryable/permanent Web Push result acknowledgements
+- `CostPayload` shared wire type with additive cached-token, pricing-availability, and Codex credit estimate fields
+- `RateLimitsUpdatedPayload` additive Codex plan and actual credit snapshot fields
 
 ## [v0.1.0] — 2026-04-29
 

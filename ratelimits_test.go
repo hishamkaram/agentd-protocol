@@ -80,11 +80,15 @@ func TestRateLimitsUpdatedPayloadFields(t *testing.T) {
 		jsonTag   string
 	}
 	cases := map[string]want{
-		"PrimaryWindow":    {"*", "primary_window,omitempty"},
-		"SecondaryWindow":  {"*", "secondary_window,omitempty"},
-		"ByLimitID":        {"map[string]", "by_limit_id,omitempty"},
-		"SessionID":        {"string", "session_id"},
-		"ReceivedAtMillis": {"int64", "received_at_ms"},
+		"PrimaryWindow":     {"*", "primary_window,omitempty"},
+		"SecondaryWindow":   {"*", "secondary_window,omitempty"},
+		"ByLimitID":         {"map[string]", "by_limit_id,omitempty"},
+		"SessionID":         {"string", "session_id"},
+		"ReceivedAtMillis":  {"int64", "received_at_ms"},
+		"PlanType":          {"string", "plan_type,omitempty"},
+		"CreditsBalance":    {"string", "credits_balance,omitempty"},
+		"CreditsHasCredits": {"*", "credits_has_credits,omitempty"},
+		"CreditsUnlimited":  {"*", "credits_unlimited,omitempty"},
 	}
 
 	if got := typ.NumField(); got != len(cases) {
@@ -155,8 +159,12 @@ func TestRateLimitsUpdatedPayloadRoundTrip(t *testing.T) {
 					"rpm-5h": {UsedPercent: 42.5, LabelID: "rpm-5h"},
 					"weekly": {UsedPercent: 12.0, LabelID: "weekly"},
 				},
-				SessionID:        "sess-abc",
-				ReceivedAtMillis: 1713600000000,
+				SessionID:         "sess-abc",
+				ReceivedAtMillis:  1713600000000,
+				PlanType:          "plus",
+				CreditsBalance:    "1200",
+				CreditsHasCredits: boolPtr(true),
+				CreditsUnlimited:  boolPtr(false),
 			},
 		},
 		{
@@ -245,6 +253,10 @@ func TestRateLimitsUpdatedPayloadJSONKeys(t *testing.T) {
 	}
 }
 
+func boolPtr(v bool) *bool {
+	return &v
+}
+
 // TestRateLimitsUpdatedPayloadMalformedJSON verifies malformed input returns a
 // Go unmarshal error rather than panicking. Per data-model.md the daemon-side
 // parser falls back to the MsgOutput text path on error.
@@ -252,7 +264,7 @@ func TestRateLimitsUpdatedPayloadMalformedJSON(t *testing.T) {
 	t.Parallel()
 
 	badInputs := []string{
-		`{`,                                  // truncated
+		`{`,                                   // truncated
 		`{"primary_window": "not-an-object"}`, // type mismatch
 		`{"received_at_ms": "not-a-number"}`,
 		`null-garbage`,
