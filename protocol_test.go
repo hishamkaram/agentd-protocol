@@ -83,9 +83,13 @@ func TestPushNotifyPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
 
 	payload := protocol.PushNotifyPayload{
-		NavSessionID: "agent-session-1",
-		Type:         "approval_request",
-		Summary:      "AgentD needs your approval",
+		NavSessionID:    "agent-session-1",
+		Type:            "approval_request",
+		Summary:         "AgentD needs your approval",
+		NotificationID:  "push-123",
+		TraceID:         "4bf92f3577b34da6a3ce929d0e0e4736",
+		CreatedAtUnixMS: 1778915600000,
+		Attempt:         2,
 	}
 	raw, err := json.Marshal(payload)
 	if err != nil {
@@ -115,6 +119,60 @@ func TestPushNotifyPayloadRoundtrip(t *testing.T) {
 	var got protocol.PushNotifyPayload
 	if err := json.Unmarshal(decoded.Payload, &got); err != nil {
 		t.Fatalf("unmarshal PushNotifyPayload: %v", err)
+	}
+	if got != payload {
+		t.Fatalf("payload = %+v, want %+v", got, payload)
+	}
+}
+
+func TestPushNotifyPayloadBackwardCompatible(t *testing.T) {
+	t.Parallel()
+
+	raw := []byte(`{"nav_session_id":"agent-session-1","type":"question","summary":"AgentD has a question"}`)
+	var got protocol.PushNotifyPayload
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal legacy PushNotifyPayload: %v", err)
+	}
+	if got.NotificationID != "" || got.TraceID != "" || got.CreatedAtUnixMS != 0 || got.Attempt != 0 {
+		t.Fatalf("legacy optional fields = id:%q trace:%q created:%d attempt:%d, want zero values",
+			got.NotificationID, got.TraceID, got.CreatedAtUnixMS, got.Attempt)
+	}
+	if got.Type != "question" || got.Summary != "AgentD has a question" || got.NavSessionID != "agent-session-1" {
+		t.Fatalf("legacy payload decoded incorrectly: %+v", got)
+	}
+}
+
+func TestPushNotifyResultPayloadRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	payload := protocol.PushNotifyResultPayload{
+		NotificationID:     "push-123",
+		TraceID:            "4bf92f3577b34da6a3ce929d0e0e4736",
+		Type:               "question",
+		Status:             protocol.PushNotifyStatusAccepted,
+		Reason:             "provider_accepted",
+		ProviderStatusCode: 201,
+		DeliveredAtUnixMS:  1778915600123,
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("marshal PushNotifyResultPayload: %v", err)
+	}
+	msg := protocol.ControlMessage{Type: protocol.CtrlPushNotifyResult, Payload: raw}
+	encoded, err := json.Marshal(msg)
+	if err != nil {
+		t.Fatalf("marshal ControlMessage: %v", err)
+	}
+	var decoded protocol.ControlMessage
+	if err := json.Unmarshal(encoded, &decoded); err != nil {
+		t.Fatalf("unmarshal ControlMessage: %v", err)
+	}
+	if decoded.Type != protocol.CtrlPushNotifyResult {
+		t.Fatalf("Type = %q, want %q", decoded.Type, protocol.CtrlPushNotifyResult)
+	}
+	var got protocol.PushNotifyResultPayload
+	if err := json.Unmarshal(decoded.Payload, &got); err != nil {
+		t.Fatalf("unmarshal PushNotifyResultPayload: %v", err)
 	}
 	if got != payload {
 		t.Fatalf("payload = %+v, want %+v", got, payload)
@@ -498,6 +556,7 @@ func TestControlTypeConstants(t *testing.T) {
 		protocol.CtrlEntitlementUpdate:    "entitlement_update",
 		protocol.CtrlEntitlementViolation: "entitlement_violation",
 		protocol.CtrlPushNotify:           "push_notify",
+		protocol.CtrlPushNotifyResult:     "push_notify_result",
 	}
 	for ct, want := range expected {
 		if string(ct) != want {
