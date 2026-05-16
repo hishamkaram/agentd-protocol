@@ -25,7 +25,7 @@ A tiny Go module containing the shared wire protocol types used by both the [Age
 | File | Types | Purpose |
 |------|-------|---------|
 | `envelope.go` | `RelayEnvelope` | Encrypted message envelope (sid, seq, enc, tid) |
-| `control.go` | `ControlMessage`, `ControlType` (12 constants), 11 payload structs | Relay control protocol |
+| `control.go` | `ControlMessage`, `ControlType` (16 constants), 15 payload structs | Relay control protocol |
 | `policy.go` | `PolicyJSON`, `PolicyMatchJSON` | Policy rule wire format |
 | `capabilities.go` | `AgentCapability` | Per-agent feature flags the daemon emits to the PWA (MCP reconnect, session-scoped approvals, free-text replies, etc.) |
 | `codex_sandbox.go` | `CodexSandboxMode` | Shared Codex per-session sandbox literals for daemon and PWA runtime controls |
@@ -37,7 +37,8 @@ A tiny Go module containing the shared wire protocol types used by both the [Age
 ```
 register · join · heartbeat · ack · error · sync_policies
 status_update · audit_entry · deactivate_developer · client_connected
-client_count · key_rotate
+client_count · key_rotate · entitlement_update · entitlement_violation
+push_notify · push_notify_result
 ```
 
 ### Payload Types
@@ -46,7 +47,8 @@ client_count · key_rotate
 RegisterPayload · JoinPayload · AckPayload · ErrorPayload
 StatusUpdatePayload · AuditEntryPayload · DeactivateDeveloperPayload
 ClientConnectedPayload · ClientCountPayload · KeyRotatePayload
-SyncPoliciesPayload
+SyncPoliciesPayload · EntitlementUpdatePayload · EntitlementViolationPayload
+PushNotifyPayload · PushNotifyResultPayload
 ```
 
 ## Usage
