@@ -26,6 +26,8 @@ const (
 	CtrlEntitlementViolation ControlType = "entitlement_violation"
 	CtrlPushNotify           ControlType = "push_notify"
 	CtrlPushNotifyResult     ControlType = "push_notify_result"
+	CtrlTerminateSession     ControlType = "terminate_session"
+	CtrlTerminateSessionAck  ControlType = "terminate_session_ack"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -97,6 +99,23 @@ type AuditEntryPayload struct {
 // developer is deactivated via SCIM.
 type DeactivateDeveloperPayload struct {
 	DeveloperID string `json:"developer_id"`
+}
+
+// TerminateSessionPayload is sent by the relay to a daemon when an operator
+// terminates a single relay session from the dashboard. Unlike developer
+// deactivation, this is scoped to one relay session and should stop reconnects
+// for that relay session identity.
+type TerminateSessionPayload struct {
+	SessionID string `json:"session_id"`
+	Reason    string `json:"reason,omitempty"`
+}
+
+// TerminateSessionAckPayload is sent by the daemon after it has accepted a
+// terminate_session control message. The relay treats it as observability; the
+// durable termination tombstone is the reconnect-blocking authority.
+type TerminateSessionAckPayload struct {
+	SessionID string `json:"session_id"`
+	Stopped   int    `json:"stopped,omitempty"`
 }
 
 // ClientConnectedPayload is sent by the relay to the daemon when a PWA client

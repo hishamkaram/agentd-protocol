@@ -343,6 +343,12 @@ func TestDeactivateDeveloperPayloadRoundtrip(t *testing.T) {
 	assertRoundtrip(t, protocol.DeactivateDeveloperPayload{DeveloperID: "dev-1"})
 }
 
+func TestTerminateSessionPayloadRoundtrip(t *testing.T) {
+	t.Parallel()
+	assertRoundtrip(t, protocol.TerminateSessionPayload{SessionID: "relay-1", Reason: "operator"})
+	assertRoundtrip(t, protocol.TerminateSessionAckPayload{SessionID: "relay-1", Stopped: 2})
+}
+
 func TestClientConnectedPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
 	assertRoundtrip(t, protocol.ClientConnectedPayload{SessionID: "sess-123"})
@@ -557,6 +563,8 @@ func TestControlTypeConstants(t *testing.T) {
 		protocol.CtrlEntitlementViolation: "entitlement_violation",
 		protocol.CtrlPushNotify:           "push_notify",
 		protocol.CtrlPushNotifyResult:     "push_notify_result",
+		protocol.CtrlTerminateSession:     "terminate_session",
+		protocol.CtrlTerminateSessionAck:  "terminate_session_ack",
 	}
 	for ct, want := range expected {
 		if string(ct) != want {
