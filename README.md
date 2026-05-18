@@ -25,11 +25,11 @@ A tiny Go module containing the shared wire protocol types used by both the [Age
 | File | Types | Purpose |
 |------|-------|---------|
 | `envelope.go` | `RelayEnvelope` | Encrypted message envelope (sid, seq, enc, tid) |
-| `control.go` | `ControlMessage`, `ControlType` (16 constants), 15 payload structs | Relay control protocol |
+| `control.go` | `ControlMessage`, `ControlType` (18 constants), 17 payload structs | Relay control protocol |
 | `policy.go` | `PolicyJSON`, `PolicyMatchJSON` | Policy rule wire format |
 | `capabilities.go` | `AgentCapability` | Per-agent feature flags the daemon emits to the PWA (MCP reconnect, session-scoped approvals, free-text replies, etc.) |
 | `codex_sandbox.go` | `CodexSandboxMode` | Shared Codex per-session sandbox literals for daemon and PWA runtime controls |
-| `replay.go` | `ReplayRequest`, `ReplayCompletePayload` | Durable session journal replay recovery using inner per-session `AgentMessage.seq` values |
+| `replay.go` | `ReplayRequest`, `ReplayCompletePayload`, `SessionSnapshotRequest`, `SessionSnapshotPayload` | Durable session journal replay recovery and daemon-owned active-session snapshots |
 | `trace.go` | `NewTraceID()`, `ValidTraceID()` | W3C-compatible trace ID generation |
 
 ### Control Types
@@ -39,6 +39,7 @@ register · join · heartbeat · ack · error · sync_policies
 status_update · audit_entry · deactivate_developer · client_connected
 client_count · key_rotate · entitlement_update · entitlement_violation
 push_notify · push_notify_result
+terminate_session · terminate_session_ack
 ```
 
 ### Payload Types
@@ -46,6 +47,7 @@ push_notify · push_notify_result
 ```
 RegisterPayload · JoinPayload · AckPayload · ErrorPayload
 StatusUpdatePayload · AuditEntryPayload · DeactivateDeveloperPayload
+TerminateSessionPayload · TerminateSessionAckPayload
 ClientConnectedPayload · ClientCountPayload · KeyRotatePayload
 SyncPoliciesPayload · EntitlementUpdatePayload · EntitlementViolationPayload
 PushNotifyPayload · PushNotifyResultPayload
@@ -66,7 +68,9 @@ env := protocol.RelayEnvelope{
 
 Both `agentd` and `agentd-relay` use type aliases to re-export these types under their `internal/relay` package, so existing code using `relay.RelayEnvelope` continues to work unchanged.
 
-Replay recovery is daemon-owned: the PWA sends `ReplayRequest{after_seq}` when it detects a gap in the inner per-session `AgentMessage.seq`, and the daemon responds with replayed `AgentMessage` frames followed by `replay_complete`. `RelayEnvelope.seq` remains the outer transport sequence for relay delivery and is not the cursor used for UI replay.
+Replay recovery is daemon-owned: the PWA sends `ReplayRequest{after_seq}` when it detects a gap in the inner per-session `AgentMessage.seq`, and the daemon responds with replayed `AgentMessage` frames followed by `replay_complete`. Route-bound reconnects can request `SessionSnapshotRequest` first so the active chat view is rebuilt from daemon state before broad replay. `RelayEnvelope.seq` remains the outer transport sequence for relay delivery and is not the cursor used for UI replay.
+
+Relay joins may also carry optional `nav_session_id` metadata. The relay forwards that value in `ClientConnectedPayload` so the daemon can prioritize the active session snapshot, while legacy clients omit the field and keep the existing replay behavior.
 
 ## Design Principles
 

@@ -196,10 +196,36 @@ func TestRegisterPayloadRoundtrip(t *testing.T) {
 func TestJoinPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
 	original := protocol.JoinPayload{
-		SessionID: "sess-123",
-		JWT:       "eyJ...",
+		SessionID:    "sess-123",
+		JWT:          "eyJ...",
+		ClientID:     "client-1",
+		NavSessionID: "nav-456",
 	}
 	assertRoundtrip(t, original)
+}
+
+func TestJoinPayloadBackwardCompatibleWithoutNavSessionID(t *testing.T) {
+	t.Parallel()
+	const legacyJSON = `{"sid":"sess-123","jwt":"eyJ..."}`
+
+	var got protocol.JoinPayload
+	if err := json.Unmarshal([]byte(legacyJSON), &got); err != nil {
+		t.Fatalf("unmarshal legacy JoinPayload: %v", err)
+	}
+	if got.SessionID != "sess-123" || got.JWT != "eyJ..." {
+		t.Fatalf("legacy JoinPayload = %+v", got)
+	}
+	if got.NavSessionID != "" {
+		t.Fatalf("NavSessionID = %q, want empty for legacy payload", got.NavSessionID)
+	}
+
+	raw, err := json.Marshal(protocol.JoinPayload{SessionID: "sess-123", JWT: "eyJ..."})
+	if err != nil {
+		t.Fatalf("marshal JoinPayload: %v", err)
+	}
+	if string(raw) != legacyJSON {
+		t.Fatalf("JoinPayload without nav_session_id JSON = %s, want %s", raw, legacyJSON)
+	}
 }
 
 func TestAckPayloadRoundtrip(t *testing.T) {
@@ -351,7 +377,34 @@ func TestTerminateSessionPayloadRoundtrip(t *testing.T) {
 
 func TestClientConnectedPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
-	assertRoundtrip(t, protocol.ClientConnectedPayload{SessionID: "sess-123"})
+	assertRoundtrip(t, protocol.ClientConnectedPayload{
+		SessionID:    "sess-123",
+		NavSessionID: "nav-456",
+	})
+}
+
+func TestClientConnectedPayloadBackwardCompatibleWithoutNavSessionID(t *testing.T) {
+	t.Parallel()
+	const legacyJSON = `{"session_id":"sess-123"}`
+
+	var got protocol.ClientConnectedPayload
+	if err := json.Unmarshal([]byte(legacyJSON), &got); err != nil {
+		t.Fatalf("unmarshal legacy ClientConnectedPayload: %v", err)
+	}
+	if got.SessionID != "sess-123" {
+		t.Fatalf("SessionID = %q, want sess-123", got.SessionID)
+	}
+	if got.NavSessionID != "" {
+		t.Fatalf("NavSessionID = %q, want empty for legacy payload", got.NavSessionID)
+	}
+
+	raw, err := json.Marshal(protocol.ClientConnectedPayload{SessionID: "sess-123"})
+	if err != nil {
+		t.Fatalf("marshal ClientConnectedPayload: %v", err)
+	}
+	if string(raw) != legacyJSON {
+		t.Fatalf("ClientConnectedPayload without nav_session_id JSON = %s, want %s", raw, legacyJSON)
+	}
 }
 
 func TestSyncPoliciesPayloadRoundtrip(t *testing.T) {
