@@ -50,9 +50,10 @@ type RegisterPayload struct {
 // JoinPayload is sent by the mobile client to join a session.
 // JWT carries the clientToken from QRPayload.token.
 type JoinPayload struct {
-	SessionID string `json:"sid"`
-	JWT       string `json:"jwt"`
-	ClientID  string `json:"client_id,omitempty"`
+	SessionID    string `json:"sid"`
+	JWT          string `json:"jwt"`
+	ClientID     string `json:"client_id,omitempty"`
+	NavSessionID string `json:"nav_session_id,omitempty"`
 }
 
 // AckPayload is the relay's acknowledgement of a successful registration or join.
@@ -121,7 +122,8 @@ type TerminateSessionAckPayload struct {
 // ClientConnectedPayload is sent by the relay to the daemon when a PWA client
 // connects or reconnects. The daemon uses this to replay message history.
 type ClientConnectedPayload struct {
-	SessionID string `json:"session_id"`
+	SessionID    string `json:"session_id"`
+	NavSessionID string `json:"nav_session_id,omitempty"`
 }
 
 // ClientCountPayload is sent by the relay to the daemon after every client
