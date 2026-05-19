@@ -23,6 +23,7 @@ Versioning convention (see [README.md](./README.md) for full policy):
 - `PushNotifyResultPayload` for accepted/retryable/permanent Web Push result acknowledgements
 - `CostPayload` shared wire type with additive cached-token, pricing-availability, and Codex credit estimate fields
 - `RateLimitsUpdatedPayload` additive Codex plan and actual credit snapshot fields
+- `AgentCapability.supports_runtime_full_access` additive capability flag for Codex runtime Full access opt-in
 
 ## [v0.1.0] — 2026-04-29
 

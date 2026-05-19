@@ -52,6 +52,13 @@ package protocol
 //     decide whether to include "bypass" in the approval-mode cycle. See
 //     specs/195-bypass-mode-optin/contracts/agent-capability-bypass.md for
 //     the canonical contract.
+//
+// Feature 229 (codex-runtime-full-access) adds one field:
+//   - SupportsRuntimeFullAccess — whether the live session supports the
+//     Codex-only runtime transition to approval_policy=never plus
+//     sandbox=danger-full-access. This is true only when the daemon was
+//     configured with `agents.codex.allow_runtime_full_access_mode: true`.
+//     Claude remains false.
 type AgentCapability struct {
 	// Deprecated: As of feature 186 (codex-remaining-gaps), consumers
 	// should read AnswerQuestionFreeText instead. This field is retained
@@ -71,4 +78,5 @@ type AgentCapability struct {
 	SessionScopedApproval     bool `json:"session_scoped_approval"`
 	AnswerQuestionFreeText    bool `json:"answer_question_free_text"`
 	SupportsBypassPermissions bool `json:"supports_bypass_permissions"`
+	SupportsRuntimeFullAccess bool `json:"supports_runtime_full_access"`
 }

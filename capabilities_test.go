@@ -9,12 +9,13 @@ import (
 	protocol "github.com/hishamkaram/agentd-protocol"
 )
 
-// TestAgentCapabilityFields asserts the struct has exactly the eight required
+// TestAgentCapabilityFields asserts the struct has exactly the required
 // bool fields per specs/185-codex-parity-gaps/contracts/agent-capability.md
 // (original 4 fields) and specs/186-codex-remaining-gaps/contracts/
 // session-scoped-approval-capability.md + answer-question-free-text-capability.md
 // (2 new fields added by feature 186), plus feature 188's two MCP parity
-// flags.
+// flags, feature 195's bypass flag, and feature 229's Codex runtime full-access
+// flag.
 func TestAgentCapabilityFields(t *testing.T) {
 	t.Parallel()
 
@@ -33,6 +34,7 @@ func TestAgentCapabilityFields(t *testing.T) {
 		"SessionScopedApproval":     "session_scoped_approval",
 		"AnswerQuestionFreeText":    "answer_question_free_text",
 		"SupportsBypassPermissions": "supports_bypass_permissions",
+		"SupportsRuntimeFullAccess": "supports_runtime_full_access",
 	}
 
 	if got := typ.NumField(); got != len(want) {
@@ -163,7 +165,7 @@ func TestAgentCapabilityJSONKeys(t *testing.T) {
 	}
 
 	// Assert no CamelCase / PascalCase leakage.
-	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText", "SupportsBypassPermissions"}
+	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText", "SupportsBypassPermissions", "SupportsRuntimeFullAccess"}
 	for _, k := range forbidden {
 		if strings.Contains(payload, k) {
 			t.Errorf("unexpected Go field name %q in JSON payload: %s", k, payload)
@@ -261,6 +263,27 @@ func TestAgentCapabilityMCPLiveStatusLimitedField(t *testing.T) {
 	var zero protocol.AgentCapability
 	if zero.MCPLiveStatusLimited != false {
 		t.Fatalf("zero-value MCPLiveStatusLimited: want false, got %v", zero.MCPLiveStatusLimited)
+	}
+}
+
+func TestAgentCapabilitySupportsRuntimeFullAccessField(t *testing.T) {
+	t.Parallel()
+
+	typ := reflect.TypeOf(protocol.AgentCapability{})
+	field, ok := typ.FieldByName("SupportsRuntimeFullAccess")
+	if !ok {
+		t.Fatalf("AgentCapability missing field SupportsRuntimeFullAccess")
+	}
+	if field.Type.Kind() != reflect.Bool {
+		t.Fatalf("SupportsRuntimeFullAccess: want bool, got %s", field.Type.Kind())
+	}
+	if got := field.Tag.Get("json"); got != "supports_runtime_full_access" {
+		t.Fatalf("SupportsRuntimeFullAccess: json tag want %q, got %q", "supports_runtime_full_access", got)
+	}
+
+	var zero protocol.AgentCapability
+	if zero.SupportsRuntimeFullAccess != false {
+		t.Fatalf("zero-value SupportsRuntimeFullAccess: want false, got %v", zero.SupportsRuntimeFullAccess)
 	}
 }
 
