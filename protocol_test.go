@@ -137,8 +137,36 @@ func TestPushNotifyPayloadBackwardCompatible(t *testing.T) {
 		t.Fatalf("legacy optional fields = id:%q trace:%q created:%d attempt:%d, want zero values",
 			got.NotificationID, got.TraceID, got.CreatedAtUnixMS, got.Attempt)
 	}
+	if got.ApprovalID != "" {
+		t.Fatalf("legacy ApprovalID = %q, want empty", got.ApprovalID)
+	}
 	if got.Type != "question" || got.Summary != "AgentD has a question" || got.NavSessionID != "agent-session-1" {
 		t.Fatalf("legacy payload decoded incorrectly: %+v", got)
+	}
+}
+
+func TestPushNotifyPayloadCarriesApprovalID(t *testing.T) {
+	t.Parallel()
+
+	payload := protocol.PushNotifyPayload{
+		NavSessionID: "agent-session-1",
+		Type:         "approval_request",
+		Summary:      "AgentD needs your approval",
+		ApprovalID:   "approval-123",
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("marshal PushNotifyPayload: %v", err)
+	}
+	if !bytes.Contains(raw, []byte(`"approval_id":"approval-123"`)) {
+		t.Fatalf("PushNotifyPayload JSON = %s, want approval_id", raw)
+	}
+	var got protocol.PushNotifyPayload
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal PushNotifyPayload: %v", err)
+	}
+	if got.ApprovalID != payload.ApprovalID {
+		t.Fatalf("ApprovalID = %q, want %q", got.ApprovalID, payload.ApprovalID)
 	}
 }
 
