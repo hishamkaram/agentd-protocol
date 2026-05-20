@@ -142,6 +142,7 @@ type PushNotifyPayload struct {
 	NavSessionID    string `json:"nav_session_id,omitempty"`
 	Type            string `json:"type"`
 	Summary         string `json:"summary"`
+	ApprovalID      string `json:"approval_id,omitempty"`
 	NotificationID  string `json:"notification_id,omitempty"`
 	TraceID         string `json:"trace_id,omitempty"`
 	CreatedAtUnixMS int64  `json:"created_at_unix_ms,omitempty"`
