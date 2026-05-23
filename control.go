@@ -12,7 +12,7 @@ type ControlType string
 const (
 	CtrlRegister             ControlType = "register"
 	CtrlJoin                 ControlType = "join"
-	CtrlHeartbeat            ControlType = "heartbeat" // reserved for future application-level keepalive; WebSocket ping/pong handles heartbeats
+	CtrlHeartbeat            ControlType = "heartbeat"
 	CtrlAck                  ControlType = "ack"
 	CtrlError                ControlType = "error"
 	CtrlSyncPolicies         ControlType = "sync_policies"
@@ -28,6 +28,13 @@ const (
 	CtrlPushNotifyResult     ControlType = "push_notify_result"
 	CtrlTerminateSession     ControlType = "terminate_session"
 	CtrlTerminateSessionAck  ControlType = "terminate_session_ack"
+)
+
+const (
+	// MsgPing and MsgPong are application-level liveness probes forwarded over
+	// local and encrypted relay session transports.
+	MsgPing = "ping"
+	MsgPong = "pong"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.

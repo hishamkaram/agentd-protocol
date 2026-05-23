@@ -79,6 +79,17 @@ func TestControlMessageRoundtrip(t *testing.T) {
 	}
 }
 
+func TestApplicationLivenessMessageConstants(t *testing.T) {
+	t.Parallel()
+
+	if protocol.MsgPing != "ping" {
+		t.Fatalf("MsgPing = %q, want ping", protocol.MsgPing)
+	}
+	if protocol.MsgPong != "pong" {
+		t.Fatalf("MsgPong = %q, want pong", protocol.MsgPong)
+	}
+}
+
 func TestPushNotifyPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
 
