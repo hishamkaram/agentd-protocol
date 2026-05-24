@@ -26,6 +26,7 @@ const (
 const (
 	MethodProtocolHello Method = "protocol.hello"
 	MethodTransportPing Method = "transport.ping"
+	MethodSupportBundle Method = "support.bundle"
 
 	MethodSessionList      Method = "session.list"
 	MethodSessionStart     Method = "session.start"
@@ -51,6 +52,7 @@ const (
 	CapabilityJSONRPCCommands = "jsonrpc.commands"
 	CapabilityTypedEvents     = "typed.events"
 	CapabilityTransportPing   = "transport.ping"
+	CapabilitySupportBundle   = "support.bundle"
 	CapabilitySessionList     = "session.list"
 	CapabilitySessionReplay   = "session.replay"
 	CapabilitySessionSnapshot = "session.snapshot"
@@ -323,6 +325,7 @@ func FullProtocolHelloOffer() ProtocolHelloOffer {
 				CapabilityJSONRPCCommands,
 				CapabilityTypedEvents,
 				CapabilityTransportPing,
+				CapabilitySupportBundle,
 				CapabilitySessionList,
 				CapabilitySessionReplay,
 				CapabilitySessionSnapshot,

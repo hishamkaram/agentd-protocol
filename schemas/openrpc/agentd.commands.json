@@ -72,6 +72,50 @@
         }
       }
     },
+    {
+      "name": "support.bundle",
+      "summary": "Generate a bounded, redacted support bundle for local troubleshooting.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "event_limit",
+          "schema": { "type": "integer", "minimum": 0, "maximum": 200, "default": 50 }
+        },
+        {
+          "name": "include_recent_events",
+          "schema": { "type": "boolean", "default": true }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "type": "object",
+          "required": [
+            "schema_version",
+            "generated_at_unix_ms",
+            "bundle_id",
+            "transport",
+            "recent_events",
+            "last_errors",
+            "redaction",
+            "partial"
+          ],
+          "properties": {
+            "schema_version": { "const": "agentd.support_bundle.v1" },
+            "generated_at_unix_ms": { "type": "integer" },
+            "bundle_id": { "type": "string" },
+            "client": { "type": "object" },
+            "daemon": { "type": "object" },
+            "transport": { "type": "object" },
+            "recent_events": { "type": "array", "items": { "type": "object" } },
+            "last_errors": { "type": "array", "items": { "type": "object" } },
+            "redaction": { "type": "object" },
+            "partial": { "type": "boolean" },
+            "partial_reasons": { "type": "array", "items": { "type": "object" } }
+          }
+        }
+      }
+    },
     { "name": "session.list", "summary": "List daemon sessions.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
     { "name": "session.start", "summary": "Start a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
     { "name": "session.stop", "summary": "Stop a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },

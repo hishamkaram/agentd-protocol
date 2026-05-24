@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -162,6 +163,9 @@ func TestProtocolHelloNegotiatesDefaultV2(t *testing.T) {
 	if !containsStringValue(result.Capabilities, CapabilityTypedEvents) {
 		t.Fatalf("v2 capabilities missing typed.events: %v", result.Capabilities)
 	}
+	if !containsStringValue(result.Capabilities, CapabilitySupportBundle) {
+		t.Fatalf("v2 capabilities missing support.bundle: %v", result.Capabilities)
+	}
 }
 
 func TestProtocolHelloNegotiatesAgainstExplicitServerOffer(t *testing.T) {
@@ -233,8 +237,72 @@ func TestProtocolHelloNegotiatesV1WhenClientDoesNotSupportV2(t *testing.T) {
 	if !containsStringValue(result.SupportedProtocols, ProtocolV2) || !containsStringValue(result.SupportedProtocols, ProtocolV1) {
 		t.Fatalf("SupportedProtocols = %v, want both v2 and v1", result.SupportedProtocols)
 	}
-	if len(result.Capabilities) != 1 || result.Capabilities[0] != "transport.ping" {
-		t.Fatalf("v1 capabilities = %v, want [transport.ping]", result.Capabilities)
+	if !sameStringSet(result.Capabilities, []string{CapabilityTransportPing}) {
+		t.Fatalf("v1 capabilities = %v, want transport.ping only", result.Capabilities)
+	}
+}
+
+func TestSupportBundleParamsNormalizeDefaultsCapsAndZero(t *testing.T) {
+	normalized, err := NormalizeSupportBundleParams(SupportBundleParams{})
+	if err != nil {
+		t.Fatalf("NormalizeSupportBundleParams defaults error: %v", err)
+	}
+	if normalized.EventLimit != SupportBundleEventLimit || !normalized.IncludeRecentEvents {
+		t.Fatalf("defaults = %+v, want limit %d and include events", normalized, SupportBundleEventLimit)
+	}
+
+	zero := 0
+	include := false
+	normalized, err = NormalizeSupportBundleParams(SupportBundleParams{
+		EventLimit:          &zero,
+		IncludeRecentEvents: &include,
+	})
+	if err != nil {
+		t.Fatalf("NormalizeSupportBundleParams zero error: %v", err)
+	}
+	if normalized.EventLimit != 0 || normalized.IncludeRecentEvents {
+		t.Fatalf("zero/include=false = %+v", normalized)
+	}
+
+	tooHigh := SupportBundleMaxEventLimit + 50
+	normalized, err = NormalizeSupportBundleParams(SupportBundleParams{EventLimit: &tooHigh})
+	if err != nil {
+		t.Fatalf("NormalizeSupportBundleParams cap error: %v", err)
+	}
+	if normalized.EventLimit != SupportBundleMaxEventLimit {
+		t.Fatalf("capped EventLimit = %d, want %d", normalized.EventLimit, SupportBundleMaxEventLimit)
+	}
+}
+
+func TestSupportBundleParamsRejectNegativeLimit(t *testing.T) {
+	negative := -1
+	if _, err := NormalizeSupportBundleParams(SupportBundleParams{EventLimit: &negative}); err == nil {
+		t.Fatal("NormalizeSupportBundleParams accepted negative event_limit")
+	}
+}
+
+func TestSupportBundleMarshalKeepsRequiredListsAsArrays(t *testing.T) {
+	raw, err := json.Marshal(SupportBundle{
+		SchemaVersion:     SupportBundleSchemaVersion,
+		GeneratedAtUnixMS: 123,
+		BundleID:          "sb_123_1",
+		Transport: SupportBundleTransport{
+			ActiveMode: "local",
+			Connected:  true,
+		},
+		Redaction: SupportRedaction{
+			Applied:      true,
+			RulesVersion: 1,
+		},
+	})
+	if err != nil {
+		t.Fatalf("Marshal support bundle: %v", err)
+	}
+	if !strings.Contains(string(raw), `"recent_events":[]`) {
+		t.Fatalf("recent_events did not encode as empty array: %s", string(raw))
+	}
+	if !strings.Contains(string(raw), `"last_errors":[]`) {
+		t.Fatalf("last_errors did not encode as empty array: %s", string(raw))
 	}
 }
 
