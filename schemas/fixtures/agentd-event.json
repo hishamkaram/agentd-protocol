@@ -1,0 +1,15 @@
+{
+  "protocol": "agentd.event.v2",
+  "id": "evt_1",
+  "type": "session.replay.complete",
+  "seq": 123,
+  "session_id": "sess_1",
+  "trace_id": "0123456789abcdef0123456789abcdef",
+  "time": "2026-05-23T00:00:00Z",
+  "payload": {
+    "session_id": "sess_1",
+    "from_seq": 100,
+    "to_seq": 123,
+    "count": 24
+  }
+}

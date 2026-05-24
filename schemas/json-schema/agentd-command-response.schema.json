@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentd.dev/schemas/agentd-command-response.schema.json",
+  "title": "AgentD JSON-RPC Command Response",
+  "type": "object",
+  "required": ["jsonrpc", "id"],
+  "oneOf": [
+    { "required": ["result"], "not": { "required": ["error"] } },
+    { "required": ["error"], "not": { "required": ["result"] } }
+  ],
+  "properties": {
+    "jsonrpc": { "const": "2.0" },
+    "id": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "number" },
+        { "type": "null" }
+      ]
+    },
+    "result": {},
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "integer" },
+        "message": { "type": "string" },
+        "data": {
+          "type": "object",
+          "properties": {
+            "agentd_code": { "type": "string" },
+            "retryable": { "type": "boolean" },
+            "details": {}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "not": { "const": "00000000000000000000000000000000" }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentd.dev/schemas/relay-envelope.schema.json",
+  "title": "AgentD Relay Encrypted Envelope",
+  "type": "object",
+  "required": ["sid", "seq", "enc"],
+  "properties": {
+    "sid": { "type": "string", "minLength": 1 },
+    "seq": { "type": "integer", "minimum": 0 },
+    "enc": { "type": "string", "contentEncoding": "base64" },
+    "tid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "not": { "const": "00000000000000000000000000000000" }
+    }
+  },
+  "additionalProperties": false
+}

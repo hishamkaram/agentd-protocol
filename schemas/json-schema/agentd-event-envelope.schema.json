@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentd.dev/schemas/agentd-event-envelope.schema.json",
+  "title": "AgentD Typed Event Envelope",
+  "type": "object",
+  "required": ["protocol", "id", "type", "time", "payload"],
+  "properties": {
+    "protocol": { "const": "agentd.event.v2" },
+    "id": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "pattern": "^(error|[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+)$"
+    },
+    "seq": { "type": "integer", "minimum": 0 },
+    "session_id": { "type": "string" },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "not": { "const": "00000000000000000000000000000000" }
+    },
+    "time": { "type": "string", "format": "date-time" },
+    "payload": {}
+  },
+  "additionalProperties": false
+}
