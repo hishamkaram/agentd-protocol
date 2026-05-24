@@ -449,11 +449,6 @@ func openRPCMethod(t *testing.T, doc map[string]any, name string) map[string]any
 	return nil
 }
 
-func openRPCResultSchema(t *testing.T, doc map[string]any, name string) map[string]any {
-	t.Helper()
-	return openRPCResultSchemaFromMethod(t, openRPCMethod(t, doc, name), name)
-}
-
 func openRPCParams(t *testing.T, method map[string]any, name string) []any {
 	t.Helper()
 	params, ok := method["params"].([]any)
