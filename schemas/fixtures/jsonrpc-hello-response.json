@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": "req_hello_1",
+  "result": {
+    "protocol": "agentd.v2",
+    "selected_protocol": "agentd.v2",
+    "supported_protocols": ["agentd.v2", "agentd.v1"],
+    "capabilities": ["jsonrpc.commands", "typed.events", "transport.ping", "session.list", "session.replay", "session.snapshot", "relay.opaque"]
+  },
+  "trace_id": "0123456789abcdef0123456789abcdef"
+}

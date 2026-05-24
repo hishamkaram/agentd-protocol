@@ -1,0 +1,138 @@
+{
+  "openrpc": "1.3.2",
+  "info": {
+    "title": "AgentD v2 Command Plane",
+    "version": "2.0.0"
+  },
+  "methods": [
+    {
+      "name": "protocol.hello",
+      "summary": "Negotiate AgentD protocol version and capabilities.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "client",
+          "schema": { "type": "string" }
+        },
+        {
+          "name": "supported_protocols",
+          "schema": {
+            "type": "array",
+            "items": { "enum": ["agentd.v2", "agentd.v1"] }
+          }
+        },
+        {
+          "name": "capabilities",
+          "schema": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "type": "object",
+          "required": ["protocol", "selected_protocol", "supported_protocols", "capabilities"],
+          "properties": {
+            "protocol": { "const": "agentd.v2" },
+            "selected_protocol": { "enum": ["agentd.v2", "agentd.v1"] },
+            "supported_protocols": {
+              "type": "array",
+              "items": { "enum": ["agentd.v2", "agentd.v1"] }
+            },
+            "capabilities": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "transport.ping",
+      "summary": "Application-level liveness probe for foreground recovery.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "sent_at_unix_ms",
+          "schema": { "type": "integer" }
+        }
+      ],
+      "result": {
+        "name": "result",
+        "schema": {
+          "type": "object",
+          "required": ["type", "received_at_unix_ms"],
+          "properties": {
+            "type": { "const": "pong" },
+            "received_at_unix_ms": { "type": "integer" },
+            "sent_at_unix_ms": { "type": "integer" }
+          }
+        }
+      }
+    },
+    { "name": "session.list", "summary": "List daemon sessions.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.start", "summary": "Start a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.stop", "summary": "Stop a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.interrupt", "summary": "Interrupt a running session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.resume", "summary": "Resume a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.delete", "summary": "Delete a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.rename", "summary": "Rename a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "session.fork", "summary": "Fork a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    {
+      "name": "session.snapshot",
+      "summary": "Request daemon-authoritative session snapshot.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": { "type": "string", "minLength": 1 }
+        },
+        {
+          "name": "after_seq",
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        {
+          "name": "cursor",
+          "schema": { "type": "string" }
+        }
+      ],
+      "result": { "name": "result", "schema": { "type": "object" } }
+    },
+    {
+      "name": "session.replay",
+      "summary": "Request replay after a cursor.",
+      "paramStructure": "by-name",
+      "params": [
+        {
+          "name": "session_id",
+          "required": true,
+          "schema": { "type": "string", "minLength": 1 }
+        },
+        {
+          "name": "after_seq",
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        {
+          "name": "cursor",
+          "schema": { "type": "string" }
+        }
+      ],
+      "result": { "name": "result", "schema": { "type": "object" } }
+    },
+    { "name": "approval.decide", "summary": "Submit an approval decision.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "approval.setMode", "summary": "Set approval mode.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "prompt.answer", "summary": "Answer an interactive prompt.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "budget.extend", "summary": "Extend a session budget.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "models.list", "summary": "List available models.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
+    { "name": "providers.list", "summary": "List configured providers.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } }
+  ]
+}

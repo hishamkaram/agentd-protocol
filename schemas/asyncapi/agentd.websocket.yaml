@@ -1,0 +1,32 @@
+asyncapi: 3.0.0
+info:
+  title: AgentD v2 WebSocket Events
+  version: 2.0.0
+channels:
+  localDaemon:
+    address: /ws
+    messages:
+      AgentDEvent:
+        $ref: '#/components/messages/AgentDEvent'
+  relaySession:
+    address: /ws/client
+    messages:
+      RelayEnvelope:
+        $ref: '#/components/messages/RelayEnvelope'
+operations:
+  receiveLocalEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/localDaemon'
+  receiveRelayEnvelope:
+    action: receive
+    channel:
+      $ref: '#/channels/relaySession'
+components:
+  messages:
+    AgentDEvent:
+      payload:
+        $ref: '../json-schema/agentd-event-envelope.schema.json'
+    RelayEnvelope:
+      payload:
+        $ref: '../json-schema/relay-envelope.schema.json'

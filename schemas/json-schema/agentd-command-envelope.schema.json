@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentd.dev/schemas/agentd-command-envelope.schema.json",
+  "title": "AgentD JSON-RPC Command Envelope",
+  "type": "object",
+  "required": ["jsonrpc", "id", "method"],
+  "properties": {
+    "jsonrpc": { "const": "2.0" },
+    "id": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "number" },
+        { "type": "null" }
+      ]
+    },
+    "method": {
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z0-9]*(\\.[A-Za-z][A-Za-z0-9]*)+$"
+    },
+    "params": { "type": "object" },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "not": { "const": "00000000000000000000000000000000" }
+    }
+  },
+  "additionalProperties": false
+}

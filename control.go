@@ -35,6 +35,12 @@ const (
 	// local and encrypted relay session transports.
 	MsgPing = "ping"
 	MsgPong = "pong"
+
+	// MsgJSONRPCResponse is a migration bridge for encrypted relay responses.
+	// Local v2 transports may send JSON-RPC responses as raw frames; relay
+	// dispatch historically emits AgentMessage envelopes, so this type carries a
+	// JSON-RPC response payload without exposing decrypted content to the relay.
+	MsgJSONRPCResponse = "jsonrpc_response"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
