@@ -10,8 +10,9 @@ package protocol
 // between daemon and PWA via the relay. The relay routes by SessionID and
 // NEVER inspects the Encrypted payload.
 type RelayEnvelope struct {
-	SessionID string `json:"sid"`
-	Seq       uint64 `json:"seq"`
-	Encrypted []byte `json:"enc"`
-	TraceID   string `json:"tid,omitempty"` // W3C trace-id (32 hex chars); optional for backward compat
+	SessionID      string `json:"sid"`
+	Seq            uint64 `json:"seq"`
+	Encrypted      []byte `json:"enc"`
+	TraceID        string `json:"tid,omitempty"`       // W3C trace-id (32 hex chars); optional for backward compat
+	TargetClientID string `json:"client_id,omitempty"` // daemon->client only; empty means fan out to all clients
 }

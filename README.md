@@ -24,7 +24,7 @@ A tiny Go module containing the shared wire protocol types used by both the [Age
 
 | File | Types | Purpose |
 |------|-------|---------|
-| `envelope.go` | `RelayEnvelope` | Encrypted message envelope (sid, seq, enc, tid) |
+| `envelope.go` | `RelayEnvelope` | Encrypted message envelope (sid, seq, enc, tid, optional client_id for targeted replay) |
 | `control.go` | `ControlMessage`, `ControlType` (18 constants), 17 payload structs | Relay control protocol |
 | `policy.go` | `PolicyJSON`, `PolicyMatchJSON` | Policy rule wire format |
 | `capabilities.go` | `AgentCapability` | Per-agent feature flags the daemon emits to the PWA (MCP reconnect, session-scoped approvals, free-text replies, etc.) |
@@ -70,7 +70,7 @@ Both `agentd` and `agentd-relay` use type aliases to re-export these types under
 
 Replay recovery is daemon-owned: the PWA sends `ReplayRequest{after_seq}` when it detects a gap in the inner per-session `AgentMessage.seq`, and the daemon responds with replayed `AgentMessage` frames followed by `replay_complete`. Route-bound reconnects can request `SessionSnapshotRequest` first so the active chat view is rebuilt from daemon state before broad replay. `RelayEnvelope.seq` remains the outer transport sequence for relay delivery and is not the cursor used for UI replay.
 
-Relay joins may also carry optional `nav_session_id` metadata. The relay forwards that value in `ClientConnectedPayload` so the daemon can prioritize the active session snapshot, while legacy clients omit the field and keep the existing replay behavior.
+Relay joins may also carry optional `nav_session_id` metadata. The relay forwards that value in `ClientConnectedPayload` so the daemon can prioritize the active session snapshot, while legacy clients omit the field and keep the existing replay behavior. New relays also assign a per-connection `client_id`, return it in `AckPayload`, and forward it in `ClientConnectedPayload`; daemon replay can set `RelayEnvelope.client_id` to deliver join-bound history only to that PWA connection.
 
 ## Design Principles
 

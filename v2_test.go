@@ -287,8 +287,12 @@ func TestSupportBundleMarshalKeepsRequiredListsAsArrays(t *testing.T) {
 		GeneratedAtUnixMS: 123,
 		BundleID:          "sb_123_1",
 		Transport: SupportBundleTransport{
-			ActiveMode: "local",
-			Connected:  true,
+			ActiveMode:            "local",
+			Connected:             true,
+			ActiveSessionID:       "sess-active",
+			HistoryReplayState:    SupportHistoryReplayIncomplete,
+			LastRelayControlError: "session_not_found",
+			PendingJSONRPCRequest: 1,
 		},
 		Redaction: SupportRedaction{
 			Applied:      true,
@@ -303,6 +307,11 @@ func TestSupportBundleMarshalKeepsRequiredListsAsArrays(t *testing.T) {
 	}
 	if !strings.Contains(string(raw), `"last_errors":[]`) {
 		t.Fatalf("last_errors did not encode as empty array: %s", string(raw))
+	}
+	if !strings.Contains(string(raw), `"active_session_id":"sess-active"`) ||
+		!strings.Contains(string(raw), `"history_replay_state":"incomplete_retryable"`) ||
+		!strings.Contains(string(raw), `"last_relay_control_error":"session_not_found"`) {
+		t.Fatalf("support transport diagnostics missing from JSON: %s", string(raw))
 	}
 }
 
@@ -395,6 +404,10 @@ func TestRelayEnvelopeSchemaAllowsZeroSequence(t *testing.T) {
 	seq := schemaProperty(t, schema, "seq")
 	if got := seq["minimum"]; got != float64(0) {
 		t.Fatalf("relay envelope seq minimum = %v, want 0", got)
+	}
+	clientID := schemaProperty(t, schema, "client_id")
+	if got := clientID["type"]; got != "string" {
+		t.Fatalf("relay envelope client_id type = %v, want string", got)
 	}
 }
 

@@ -8,6 +8,10 @@
     "sid": { "type": "string", "minLength": 1 },
     "seq": { "type": "integer", "minimum": 0 },
     "enc": { "type": "string", "contentEncoding": "base64" },
+    "client_id": {
+      "type": "string",
+      "minLength": 1
+    },
     "tid": {
       "type": "string",
       "pattern": "^[0-9a-f]{32}$",
