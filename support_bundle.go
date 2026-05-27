@@ -116,15 +116,30 @@ const (
 )
 
 type SupportBundleTransport struct {
-	ActiveMode            string                  `json:"active_mode"`
-	Connected             bool                    `json:"connected"`
-	Stale                 bool                    `json:"stale"`
-	SelectedProtocol      string                  `json:"selected_protocol,omitempty"`
-	RelayURLCategory      SupportRelayURLCategory `json:"relay_url_category,omitempty"`
-	LastInboundAgeMS      *int64                  `json:"last_inbound_age_ms,omitempty"`
-	LastPongAgeMS         *int64                  `json:"last_pong_age_ms,omitempty"`
-	PendingJSONRPCRequest int                     `json:"pending_jsonrpc_request_count,omitempty"`
+	ActiveMode                string                    `json:"active_mode"`
+	Connected                 bool                      `json:"connected"`
+	Stale                     bool                      `json:"stale"`
+	SelectedProtocol          string                    `json:"selected_protocol,omitempty"`
+	RelayURLCategory          SupportRelayURLCategory   `json:"relay_url_category,omitempty"`
+	ActiveSessionID           string                    `json:"active_session_id,omitempty"`
+	ActiveSessionState        string                    `json:"active_session_state,omitempty"`
+	ActiveSessionStartupPhase string                    `json:"active_session_startup_phase,omitempty"`
+	HistoryReplayState        SupportHistoryReplayState `json:"history_replay_state,omitempty"`
+	LastRelayControlError     string                    `json:"last_relay_control_error,omitempty"`
+	LastInboundAgeMS          *int64                    `json:"last_inbound_age_ms,omitempty"`
+	LastPongAgeMS             *int64                    `json:"last_pong_age_ms,omitempty"`
+	PendingJSONRPCRequest     int                       `json:"pending_jsonrpc_request_count,omitempty"`
 }
+
+type SupportHistoryReplayState string
+
+const (
+	SupportHistoryReplayWaitingTransport SupportHistoryReplayState = "waiting_transport"
+	SupportHistoryReplayWaitingReplay    SupportHistoryReplayState = "waiting_replay"
+	SupportHistoryReplayRestored         SupportHistoryReplayState = "restored"
+	SupportHistoryReplayIncomplete       SupportHistoryReplayState = "incomplete_retryable"
+	SupportHistoryReplayFailed           SupportHistoryReplayState = "failed"
+)
 
 type SupportEventEntry struct {
 	TS        int64  `json:"ts"`

@@ -137,6 +137,7 @@ type TerminateSessionAckPayload struct {
 type ClientConnectedPayload struct {
 	SessionID    string `json:"session_id"`
 	NavSessionID string `json:"nav_session_id,omitempty"`
+	ClientID     string `json:"client_id,omitempty"`
 }
 
 // ClientCountPayload is sent by the relay to the daemon after every client

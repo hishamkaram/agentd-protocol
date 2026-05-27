@@ -20,10 +20,11 @@ func TestRelayEnvelopeRoundtrip(t *testing.T) {
 		{
 			name: "with trace ID",
 			envelope: protocol.RelayEnvelope{
-				SessionID: "sess-123",
-				Seq:       42,
-				Encrypted: []byte("ciphertext-bytes"),
-				TraceID:   "4bf92f3577b34da6a3ce929d0e0e4736",
+				SessionID:      "sess-123",
+				Seq:            42,
+				Encrypted:      []byte("ciphertext-bytes"),
+				TraceID:        "4bf92f3577b34da6a3ce929d0e0e4736",
+				TargetClientID: "client-1",
 			},
 		},
 		{
@@ -47,6 +48,11 @@ func TestRelayEnvelopeRoundtrip(t *testing.T) {
 			if tt.envelope.TraceID == "" {
 				if bytes.Contains(data, []byte(`"tid"`)) {
 					t.Errorf("empty TraceID should be omitted from JSON, got: %s", data)
+				}
+			}
+			if tt.envelope.TargetClientID == "" {
+				if bytes.Contains(data, []byte(`"client_id"`)) {
+					t.Errorf("empty TargetClientID should be omitted from JSON, got: %s", data)
 				}
 			}
 			var decoded protocol.RelayEnvelope
@@ -419,6 +425,7 @@ func TestClientConnectedPayloadRoundtrip(t *testing.T) {
 	assertRoundtrip(t, protocol.ClientConnectedPayload{
 		SessionID:    "sess-123",
 		NavSessionID: "nav-456",
+		ClientID:     "client-1",
 	})
 }
 
@@ -435,6 +442,9 @@ func TestClientConnectedPayloadBackwardCompatibleWithoutNavSessionID(t *testing.
 	}
 	if got.NavSessionID != "" {
 		t.Fatalf("NavSessionID = %q, want empty for legacy payload", got.NavSessionID)
+	}
+	if got.ClientID != "" {
+		t.Fatalf("ClientID = %q, want empty for legacy payload", got.ClientID)
 	}
 
 	raw, err := json.Marshal(protocol.ClientConnectedPayload{SessionID: "sess-123"})
