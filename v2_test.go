@@ -281,6 +281,35 @@ func TestSupportBundleParamsRejectNegativeLimit(t *testing.T) {
 	}
 }
 
+func TestSupportBundleParamsMarshalClientTransport(t *testing.T) {
+	raw, err := json.Marshal(SupportBundleParams{
+		ClientTransport: &SupportBundleTransport{
+			ActiveMode:            "relay",
+			Connected:             true,
+			Stale:                 true,
+			ActiveSessionID:       "sess-active",
+			HistoryReplayState:    SupportHistoryReplayWaitingReplay,
+			LastRelayControlError: "relay_clean_close",
+			PendingJSONRPCRequest: 2,
+		},
+	})
+	if err != nil {
+		t.Fatalf("Marshal support bundle params: %v", err)
+	}
+	for _, want := range []string{
+		`"client_transport":`,
+		`"active_mode":"relay"`,
+		`"active_session_id":"sess-active"`,
+		`"history_replay_state":"waiting_replay"`,
+		`"last_relay_control_error":"relay_clean_close"`,
+		`"pending_jsonrpc_request_count":2`,
+	} {
+		if !strings.Contains(string(raw), want) {
+			t.Fatalf("support bundle params JSON missing %s: %s", want, string(raw))
+		}
+	}
+}
+
 func TestSupportBundleMarshalKeepsRequiredListsAsArrays(t *testing.T) {
 	raw, err := json.Marshal(SupportBundle{
 		SchemaVersion:     SupportBundleSchemaVersion,

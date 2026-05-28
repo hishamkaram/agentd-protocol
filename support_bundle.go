@@ -13,8 +13,9 @@ const (
 )
 
 type SupportBundleParams struct {
-	EventLimit          *int  `json:"event_limit,omitempty"`
-	IncludeRecentEvents *bool `json:"include_recent_events,omitempty"`
+	EventLimit          *int                    `json:"event_limit,omitempty"`
+	IncludeRecentEvents *bool                   `json:"include_recent_events,omitempty"`
+	ClientTransport     *SupportBundleTransport `json:"client_transport,omitempty"`
 }
 
 type NormalizedSupportBundleParams struct {
@@ -43,11 +44,19 @@ func NormalizeSupportBundleParams(params SupportBundleParams) (NormalizedSupport
 }
 
 type SupportBundleContext struct {
-	TransportKind    TransportKind
-	Connected        bool
-	Stale            bool
-	SelectedProtocol string
-	Capabilities     []string
+	TransportKind              TransportKind
+	Connected                  bool
+	Stale                      bool
+	SelectedProtocol           string
+	Capabilities               []string
+	ActiveSessionID            string
+	ActiveSessionState         string
+	ActiveSessionStartupPhase  string
+	HistoryReplayState         SupportHistoryReplayState
+	LastRelayControlError      string
+	LastInboundAgeMS           *int64
+	LastPongAgeMS              *int64
+	PendingJSONRPCRequestCount int
 }
 
 type SupportBundle struct {

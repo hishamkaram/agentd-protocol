@@ -84,6 +84,31 @@
         {
           "name": "include_recent_events",
           "schema": { "type": "boolean", "default": true }
+        },
+        {
+          "name": "client_transport",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "active_mode": { "type": "string" },
+              "connected": { "type": "boolean" },
+              "stale": { "type": "boolean" },
+              "selected_protocol": { "type": "string" },
+              "relay_url_category": {
+                "enum": ["none", "localhost", "private_network", "hosted_agentd", "custom_domain", "invalid"]
+              },
+              "active_session_id": { "type": "string" },
+              "active_session_state": { "type": "string" },
+              "active_session_startup_phase": { "type": "string" },
+              "history_replay_state": {
+                "enum": ["waiting_transport", "waiting_replay", "restored", "incomplete_retryable", "failed"]
+              },
+              "last_relay_control_error": { "type": "string" },
+              "last_inbound_age_ms": { "type": "integer" },
+              "last_pong_age_ms": { "type": "integer" },
+              "pending_jsonrpc_request_count": { "type": "integer", "minimum": 0 }
+            }
+          }
         }
       ],
       "result": {
