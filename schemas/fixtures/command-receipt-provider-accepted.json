@@ -1,0 +1,12 @@
+{
+  "schema_version": "agentd.command_receipt.v1",
+  "receipt_id": "cmd_1:provider_accepted:1770000000000",
+  "command_id": "cmd_1",
+  "command_type": "user_message",
+  "session_id": "sess_1",
+  "trace_id": "0123456789abcdef0123456789abcdef",
+  "stage": "provider_accepted",
+  "terminal": false,
+  "retryable": false,
+  "observed_at_unix_ms": 1770000000000
+}

@@ -667,6 +667,7 @@ func TestControlTypeConstants(t *testing.T) {
 		protocol.CtrlPushNotifyResult:     "push_notify_result",
 		protocol.CtrlTerminateSession:     "terminate_session",
 		protocol.CtrlTerminateSessionAck:  "terminate_session_ack",
+		protocol.CtrlRouteReceipt:         "route_receipt",
 	}
 	for ct, want := range expected {
 		if string(ct) != want {
@@ -692,6 +693,16 @@ func TestRelayEnvelopeEdgeCases(t *testing.T) {
 				SessionID: "sess-nil-enc",
 				Seq:       7,
 				Encrypted: nil,
+			},
+		},
+		{
+			name: "opaque route envelope id",
+			envelope: protocol.RelayEnvelope{
+				SessionID:  "sess-route-id",
+				Seq:        8,
+				Encrypted:  []byte("ciphertext"),
+				TraceID:    "0123456789abcdef0123456789abcdef",
+				EnvelopeID: "cmd-123",
 			},
 		},
 	}
@@ -751,6 +762,20 @@ func TestControlMessageEdgeCases(t *testing.T) {
 			msg: protocol.ControlMessage{
 				Type:    protocol.CtrlAck,
 				Payload: json.RawMessage(`{}`),
+			},
+		},
+		{
+			name: "route receipt payload",
+			msg: protocol.ControlMessage{
+				Type: protocol.CtrlRouteReceipt,
+				Payload: mustJSON(t, protocol.RouteReceiptPayload{
+					EnvelopeID:       "cmd-123",
+					SessionID:        "relay-session",
+					TraceID:          "0123456789abcdef0123456789abcdef",
+					Routed:           false,
+					ReasonCode:       "relay_route_failed",
+					ObservedAtUnixMs: 1710000000000,
+				}),
 			},
 		},
 	}
@@ -908,4 +933,13 @@ func assertRoundtrip[T any](t *testing.T, original T) {
 	if !reflect.DeepEqual(original, decoded) {
 		t.Errorf("roundtrip mismatch:\n  got:  %+v\n  want: %+v", decoded, original)
 	}
+}
+
+func mustJSON(t *testing.T, value any) json.RawMessage {
+	t.Helper()
+	data, err := json.Marshal(value)
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+	return data
 }

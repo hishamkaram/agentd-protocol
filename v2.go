@@ -57,6 +57,7 @@ const (
 	CapabilitySessionReplay   = "session.replay"
 	CapabilitySessionSnapshot = "session.snapshot"
 	CapabilityRelayOpaque     = "relay.opaque"
+	CapabilityCommandReceipts = "command.receipts"
 )
 
 const (
@@ -71,6 +72,7 @@ const (
 	EventApprovalRequested     EventType = "approval.requested"
 	EventApprovalResolved      EventType = "approval.resolved"
 	EventPromptRequested       EventType = "prompt.requested"
+	EventCommandReceipt        EventType = "command.receipt"
 	EventError                 EventType = "error"
 )
 
@@ -330,6 +332,7 @@ func FullProtocolHelloOffer() ProtocolHelloOffer {
 				CapabilitySessionReplay,
 				CapabilitySessionSnapshot,
 				CapabilityRelayOpaque,
+				CapabilityCommandReceipts,
 			},
 			ProtocolV1: {CapabilityTransportPing},
 		},
