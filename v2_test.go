@@ -355,10 +355,13 @@ func TestProtocolHelloRejectsUnsupportedProtocols(t *testing.T) {
 
 func TestV2FixturesParse(t *testing.T) {
 	fixtures := map[string]any{
-		"jsonrpc-hello-request.json":  &JSONRPCRequest{},
-		"jsonrpc-hello-response.json": &JSONRPCResponse{},
-		"agentd-event.json":           &AgentDEventEnvelope{},
-		"relay-envelope.json":         &RelayEnvelope{},
+		"jsonrpc-hello-request.json":             &JSONRPCRequest{},
+		"jsonrpc-hello-response.json":            &JSONRPCResponse{},
+		"agentd-event.json":                      &AgentDEventEnvelope{},
+		"relay-envelope.json":                    &RelayEnvelope{},
+		"command-receipt-provider-accepted.json": &CommandReceiptPayload{},
+		"command-receipt-response-started.json":  &CommandReceiptPayload{},
+		"command-receipt-failed.json":            &CommandReceiptPayload{},
 	}
 
 	for name, dst := range fixtures {
@@ -369,6 +372,11 @@ func TestV2FixturesParse(t *testing.T) {
 			}
 			if err := json.Unmarshal(raw, dst); err != nil {
 				t.Fatalf("unmarshal fixture: %v", err)
+			}
+			if receipt, ok := dst.(*CommandReceiptPayload); ok {
+				if err := ValidateCommandReceipt(*receipt); err != nil {
+					t.Fatalf("validate receipt fixture: %v", err)
+				}
 			}
 		})
 	}
@@ -404,6 +412,9 @@ func TestV2SchemasMatchTraceAndEventRules(t *testing.T) {
 	if !regexp.MustCompile(eventTypePattern).MatchString(string(EventError)) {
 		t.Fatalf("event type pattern %q rejects exported event %q", eventTypePattern, EventError)
 	}
+	if !regexp.MustCompile(eventTypePattern).MatchString(string(EventCommandReceipt)) {
+		t.Fatalf("event type pattern %q rejects exported event %q", eventTypePattern, EventCommandReceipt)
+	}
 
 	for _, tc := range []struct {
 		file string
@@ -412,6 +423,7 @@ func TestV2SchemasMatchTraceAndEventRules(t *testing.T) {
 		{file: "agentd-command-envelope.schema.json", prop: "trace_id"},
 		{file: "agentd-command-response.schema.json", prop: "trace_id"},
 		{file: "agentd-event-envelope.schema.json", prop: "trace_id"},
+		{file: "command-receipt.schema.json", prop: "trace_id"},
 		{file: "relay-envelope.schema.json", prop: "tid"},
 	} {
 		t.Run(tc.file+"/"+tc.prop, func(t *testing.T) {

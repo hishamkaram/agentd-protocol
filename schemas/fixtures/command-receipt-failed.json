@@ -1,0 +1,12 @@
+{
+  "schema_version": "agentd.command_receipt.v1",
+  "receipt_id": "cmd_2:failed:1770000000200",
+  "command_id": "cmd_2",
+  "command_type": "session.start",
+  "trace_id": "0123456789abcdef0123456789abcdef",
+  "stage": "failed",
+  "terminal": true,
+  "retryable": false,
+  "reason_code": "invalid_payload",
+  "observed_at_unix_ms": 1770000000200
+}

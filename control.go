@@ -28,6 +28,7 @@ const (
 	CtrlPushNotifyResult     ControlType = "push_notify_result"
 	CtrlTerminateSession     ControlType = "terminate_session"
 	CtrlTerminateSessionAck  ControlType = "terminate_session_ack"
+	CtrlRouteReceipt         ControlType = "route_receipt"
 )
 
 const (
@@ -79,6 +80,18 @@ type AckPayload struct {
 type ErrorPayload struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+}
+
+// RouteReceiptPayload acknowledges relay routing for an encrypted envelope.
+// It is transport metadata only: the relay never decrypts or classifies the
+// business command carried inside RelayEnvelope.Encrypted.
+type RouteReceiptPayload struct {
+	EnvelopeID       string `json:"eid"`
+	SessionID        string `json:"sid,omitempty"`
+	TraceID          string `json:"tid,omitempty"`
+	Routed           bool   `json:"routed"`
+	ReasonCode       string `json:"reason_code,omitempty"`
+	ObservedAtUnixMs int64  `json:"observed_at_unix_ms"`
 }
 
 // StatusUpdatePayload is sent by the daemon to the relay every 30s with

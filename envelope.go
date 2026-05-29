@@ -14,5 +14,6 @@ type RelayEnvelope struct {
 	Seq            uint64 `json:"seq"`
 	Encrypted      []byte `json:"enc"`
 	TraceID        string `json:"tid,omitempty"`       // W3C trace-id (32 hex chars); optional for backward compat
+	EnvelopeID     string `json:"eid,omitempty"`       // opaque sender-selected id for route acknowledgement; relay never inspects Encrypted
 	TargetClientID string `json:"client_id,omitempty"` // daemon->client only; empty means fan out to all clients
 }

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentd.dev/schemas/command-receipt.schema.json",
+  "title": "AgentD Command Receipt Payload",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "command_id",
+    "command_type",
+    "stage",
+    "terminal",
+    "retryable",
+    "observed_at_unix_ms"
+  ],
+  "properties": {
+    "schema_version": { "const": "agentd.command_receipt.v1" },
+    "receipt_id": { "type": "string", "minLength": 1 },
+    "command_id": { "type": "string", "minLength": 1 },
+    "command_type": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "not": { "const": "00000000000000000000000000000000" }
+    },
+    "stage": {
+      "enum": [
+        "daemon_received",
+        "daemon_accepted",
+        "queued",
+        "dispatched",
+        "provider_accepted",
+        "response_started",
+        "completed",
+        "failed"
+      ]
+    },
+    "terminal": { "type": "boolean" },
+    "retryable": { "type": "boolean" },
+    "reason_code": {
+      "enum": [
+        "transport_send_failed",
+        "relay_route_failed",
+        "invalid_payload",
+        "session_not_found",
+        "session_not_active",
+        "queue_full",
+        "provider_not_ready",
+        "provider_send_failed",
+        "handler_failed",
+        "timeout_no_daemon_receipt"
+      ]
+    },
+    "observed_at_unix_ms": { "type": "integer", "minimum": 1 }
+  },
+  "additionalProperties": false
+}

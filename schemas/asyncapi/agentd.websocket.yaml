@@ -27,6 +27,9 @@ components:
     AgentDEvent:
       payload:
         $ref: '../json-schema/agentd-event-envelope.schema.json'
+    CommandReceipt:
+      payload:
+        $ref: '../json-schema/command-receipt.schema.json'
     RelayEnvelope:
       payload:
         $ref: '../json-schema/relay-envelope.schema.json'
