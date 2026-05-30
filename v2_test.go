@@ -415,6 +415,9 @@ func TestV2SchemasMatchTraceAndEventRules(t *testing.T) {
 	if !regexp.MustCompile(eventTypePattern).MatchString(string(EventCommandReceipt)) {
 		t.Fatalf("event type pattern %q rejects exported event %q", eventTypePattern, EventCommandReceipt)
 	}
+	if !regexp.MustCompile(eventTypePattern).MatchString(string(EventSessionFeatureStatus)) {
+		t.Fatalf("event type pattern %q rejects exported event %q", eventTypePattern, EventSessionFeatureStatus)
+	}
 
 	for _, tc := range []struct {
 		file string
