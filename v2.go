@@ -49,15 +49,16 @@ const (
 )
 
 const (
-	CapabilityJSONRPCCommands = "jsonrpc.commands"
-	CapabilityTypedEvents     = "typed.events"
-	CapabilityTransportPing   = "transport.ping"
-	CapabilitySupportBundle   = "support.bundle"
-	CapabilitySessionList     = "session.list"
-	CapabilitySessionReplay   = "session.replay"
-	CapabilitySessionSnapshot = "session.snapshot"
-	CapabilityRelayOpaque     = "relay.opaque"
-	CapabilityCommandReceipts = "command.receipts"
+	CapabilityJSONRPCCommands      = "jsonrpc.commands"
+	CapabilityTypedEvents          = "typed.events"
+	CapabilityTransportPing        = "transport.ping"
+	CapabilitySupportBundle        = "support.bundle"
+	CapabilitySessionList          = "session.list"
+	CapabilitySessionReplay        = "session.replay"
+	CapabilitySessionSnapshot      = "session.snapshot"
+	CapabilitySessionFeatureStatus = "session.feature_status"
+	CapabilityRelayOpaque          = "relay.opaque"
+	CapabilityCommandReceipts      = "command.receipts"
 )
 
 const (
@@ -66,6 +67,7 @@ const (
 	EventTransportPong         EventType = "transport.pong"
 	EventSessionListUpdated    EventType = "session.list.updated"
 	EventSessionSnapshot       EventType = "session.snapshot"
+	EventSessionFeatureStatus  EventType = "session.feature_status"
 	EventSessionReplayComplete EventType = "session.replay.complete"
 	EventSessionOutputDelta    EventType = "session.output.delta"
 	EventThinkingDelta         EventType = "session.thinking.delta"
@@ -331,6 +333,7 @@ func FullProtocolHelloOffer() ProtocolHelloOffer {
 				CapabilitySessionList,
 				CapabilitySessionReplay,
 				CapabilitySessionSnapshot,
+				CapabilitySessionFeatureStatus,
 				CapabilityRelayOpaque,
 				CapabilityCommandReceipts,
 			},

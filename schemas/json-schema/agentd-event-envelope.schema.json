@@ -9,7 +9,7 @@
     "id": { "type": "string", "minLength": 1 },
     "type": {
       "type": "string",
-      "pattern": "^(error|[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+)$"
+      "pattern": "^(error|[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+)$"
     },
     "seq": { "type": "integer", "minimum": 0 },
     "session_id": { "type": "string" },

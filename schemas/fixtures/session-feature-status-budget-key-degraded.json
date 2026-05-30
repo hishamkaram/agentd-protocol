@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "session_id": "sess-fixture",
+  "feature": "budget.virtual_key",
+  "state": "degraded",
+  "reason_code": "budget_key_failed",
+  "message": "virtual key creation failed",
+  "observed_at_unix_ms": 1710000004000
+}

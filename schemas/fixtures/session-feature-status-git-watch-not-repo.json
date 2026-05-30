@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "session_id": "sess-fixture",
+  "feature": "git.watch",
+  "state": "degraded",
+  "reason_code": "not_a_git_repo",
+  "message": "work directory is not a git repository",
+  "observed_at_unix_ms": 1710000002000
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "session_id": "sess-fixture",
+  "feature": "git.watch",
+  "state": "ready",
+  "observed_at_unix_ms": 1710000001000
+}
