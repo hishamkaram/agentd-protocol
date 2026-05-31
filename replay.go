@@ -20,6 +20,18 @@ const (
 	// MsgSessionSnapshot is the daemon->PWA response containing active-session
 	// transcript and pending state. Historical pending entries are state only.
 	MsgSessionSnapshot = "session_snapshot"
+
+	// MsgSessionHead is a daemon->PWA announcement of the current durable
+	// per-session head sequence.
+	MsgSessionHead = "session_head"
+
+	// MsgHistoryPageRequest is a PWA->daemon request for older durable
+	// transcript messages before a sequence boundary.
+	MsgHistoryPageRequest = "history_page_request"
+
+	// MsgHistoryPage is the daemon->PWA response containing a backward history
+	// page from durable storage.
+	MsgHistoryPage = "history_page"
 )
 
 // ReplayRequest is sent by the PWA when it detects a gap in the inner
@@ -30,14 +42,44 @@ type ReplayRequest struct {
 	AfterSeq  uint64 `json:"after_seq"`
 }
 
+// SessionHeadPayload is carried in an AgentMessage with Type MsgSessionHead.
+type SessionHeadPayload struct {
+	SessionID string `json:"session_id"`
+	HeadSeq   uint64 `json:"head_seq"`
+}
+
+// HistoryPageRequest is sent by the PWA when the user scrolls back before the
+// currently loaded transcript window.
+type HistoryPageRequest struct {
+	Type      string `json:"type"`
+	SessionID string `json:"session_id"`
+	BeforeSeq uint64 `json:"before_seq"`
+	Limit     int    `json:"limit,omitempty"`
+	RequestID string `json:"request_id"`
+}
+
+// HistoryPagePayload is carried in an AgentMessage with Type MsgHistoryPage.
+type HistoryPagePayload struct {
+	SessionID string            `json:"session_id"`
+	Messages  []json.RawMessage `json:"messages"`
+	OldestSeq uint64            `json:"oldest_seq"`
+	HasMore   bool              `json:"has_more"`
+	RequestID string            `json:"request_id"`
+	Error     string            `json:"error,omitempty"`
+	Trimmed   bool              `json:"trimmed,omitempty"`
+}
+
 // ReplayCompletePayload is carried in an AgentMessage with Type
 // MsgReplayComplete after the daemon finishes a requested replay.
 type ReplayCompletePayload struct {
 	SessionID string `json:"session_id"`
 	FromSeq   uint64 `json:"from_seq"`
 	ToSeq     uint64 `json:"to_seq"`
+	HeadSeq   uint64 `json:"head_seq,omitempty"`
 	Count     int    `json:"count"`
 	Error     string `json:"error,omitempty"`
+	Trimmed   bool   `json:"trimmed,omitempty"`
+	TrimFloor uint64 `json:"trim_floor,omitempty"`
 }
 
 // SessionSnapshotRequest is sent by the PWA when a route-bound active session
@@ -59,6 +101,7 @@ type SessionSnapshotPayload struct {
 	Messages         []json.RawMessage `json:"messages"`
 	PendingApprovals []json.RawMessage `json:"pending_approvals"`
 	PendingPrompts   []json.RawMessage `json:"pending_prompts"`
+	HeadSeq          uint64            `json:"head_seq,omitempty"`
 	Cursor           string            `json:"cursor,omitempty"`
 	Sequence         uint64            `json:"sequence,omitempty"`
 	Complete         bool              `json:"complete"`
