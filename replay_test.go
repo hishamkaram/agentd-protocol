@@ -69,15 +69,16 @@ func TestSessionHeadPayloadJSONRoundtrip(t *testing.T) {
 	t.Parallel()
 
 	in := SessionHeadPayload{
-		SessionID: "session-123",
-		HeadSeq:   99,
+		SessionID:         "session-123",
+		HeadSeq:           99,
+		RetainedOldestSeq: 7,
 	}
 
 	raw, err := json.Marshal(in)
 	if err != nil {
 		t.Fatalf("marshal SessionHeadPayload: %v", err)
 	}
-	const wantJSON = `{"session_id":"session-123","head_seq":99}`
+	const wantJSON = `{"session_id":"session-123","head_seq":99,"retained_oldest_seq":7}`
 	if string(raw) != wantJSON {
 		t.Fatalf("SessionHeadPayload JSON = %s, want %s", raw, wantJSON)
 	}
@@ -129,18 +130,19 @@ func TestHistoryPagePayloadJSONRoundtrip(t *testing.T) {
 			json.RawMessage(`{"type":"output","session_id":"session-123","seq":97}`),
 			json.RawMessage(`{"type":"output","session_id":"session-123","seq":98}`),
 		},
-		OldestSeq: 97,
-		HasMore:   true,
-		RequestID: "request-123",
-		Error:     "history unavailable",
-		Trimmed:   true,
+		OldestSeq:         97,
+		HasMore:           true,
+		RequestID:         "request-123",
+		Error:             "history unavailable",
+		Trimmed:           true,
+		RetainedOldestSeq: 97,
 	}
 
 	raw, err := json.Marshal(in)
 	if err != nil {
 		t.Fatalf("marshal HistoryPagePayload: %v", err)
 	}
-	const wantJSON = `{"session_id":"session-123","messages":[{"type":"output","session_id":"session-123","seq":97},{"type":"output","session_id":"session-123","seq":98}],"oldest_seq":97,"has_more":true,"request_id":"request-123","error":"history unavailable","trimmed":true}`
+	const wantJSON = `{"session_id":"session-123","messages":[{"type":"output","session_id":"session-123","seq":97},{"type":"output","session_id":"session-123","seq":98}],"oldest_seq":97,"has_more":true,"request_id":"request-123","error":"history unavailable","trimmed":true,"retained_oldest_seq":97}`
 	if string(raw) != wantJSON {
 		t.Fatalf("HistoryPagePayload JSON = %s, want %s", raw, wantJSON)
 	}
@@ -149,7 +151,7 @@ func TestHistoryPagePayloadJSONRoundtrip(t *testing.T) {
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatalf("unmarshal HistoryPagePayload: %v", err)
 	}
-	if out.SessionID != in.SessionID || out.OldestSeq != in.OldestSeq || out.HasMore != in.HasMore || out.RequestID != in.RequestID || out.Error != in.Error || out.Trimmed != in.Trimmed {
+	if out.SessionID != in.SessionID || out.OldestSeq != in.OldestSeq || out.HasMore != in.HasMore || out.RequestID != in.RequestID || out.Error != in.Error || out.Trimmed != in.Trimmed || out.RetainedOldestSeq != in.RetainedOldestSeq {
 		t.Fatalf("HistoryPagePayload scalar roundtrip = %+v, want %+v", out, in)
 	}
 	if len(out.Messages) != len(in.Messages) || string(out.Messages[0]) != string(in.Messages[0]) || string(out.Messages[1]) != string(in.Messages[1]) {
@@ -161,19 +163,20 @@ func TestReplayAndSnapshotHeadSeqJSONRoundtrip(t *testing.T) {
 	t.Parallel()
 
 	replay := ReplayCompletePayload{
-		SessionID: "session-123",
-		FromSeq:   43,
-		ToSeq:     99,
-		HeadSeq:   101,
-		Count:     57,
-		Trimmed:   true,
-		TrimFloor: 42,
+		SessionID:         "session-123",
+		FromSeq:           43,
+		ToSeq:             99,
+		HeadSeq:           101,
+		Count:             57,
+		Trimmed:           true,
+		TrimFloor:         42,
+		RetainedOldestSeq: 43,
 	}
 	replayRaw, err := json.Marshal(replay)
 	if err != nil {
 		t.Fatalf("marshal ReplayCompletePayload: %v", err)
 	}
-	const wantReplayJSON = `{"session_id":"session-123","from_seq":43,"to_seq":99,"head_seq":101,"count":57,"trimmed":true,"trim_floor":42}`
+	const wantReplayJSON = `{"session_id":"session-123","from_seq":43,"to_seq":99,"head_seq":101,"count":57,"trimmed":true,"trim_floor":42,"retained_oldest_seq":43}`
 	if string(replayRaw) != wantReplayJSON {
 		t.Fatalf("ReplayCompletePayload JSON = %s, want %s", replayRaw, wantReplayJSON)
 	}
@@ -187,18 +190,19 @@ func TestReplayAndSnapshotHeadSeqJSONRoundtrip(t *testing.T) {
 	}
 
 	snapshot := SessionSnapshotPayload{
-		SessionID:        "session-123",
-		Messages:         []json.RawMessage{},
-		PendingApprovals: []json.RawMessage{},
-		PendingPrompts:   []json.RawMessage{},
-		HeadSeq:          101,
-		Complete:         true,
+		SessionID:         "session-123",
+		Messages:          []json.RawMessage{},
+		PendingApprovals:  []json.RawMessage{},
+		PendingPrompts:    []json.RawMessage{},
+		HeadSeq:           101,
+		RetainedOldestSeq: 43,
+		Complete:          true,
 	}
 	snapshotRaw, err := json.Marshal(snapshot)
 	if err != nil {
 		t.Fatalf("marshal SessionSnapshotPayload: %v", err)
 	}
-	const wantSnapshotJSON = `{"session_id":"session-123","messages":[],"pending_approvals":[],"pending_prompts":[],"head_seq":101,"complete":true}`
+	const wantSnapshotJSON = `{"session_id":"session-123","messages":[],"pending_approvals":[],"pending_prompts":[],"head_seq":101,"retained_oldest_seq":43,"complete":true}`
 	if string(snapshotRaw) != wantSnapshotJSON {
 		t.Fatalf("SessionSnapshotPayload JSON = %s, want %s", snapshotRaw, wantSnapshotJSON)
 	}
@@ -207,7 +211,7 @@ func TestReplayAndSnapshotHeadSeqJSONRoundtrip(t *testing.T) {
 	if err := json.Unmarshal(snapshotRaw, &snapshotOut); err != nil {
 		t.Fatalf("unmarshal SessionSnapshotPayload: %v", err)
 	}
-	if snapshotOut.SessionID != snapshot.SessionID || snapshotOut.HeadSeq != snapshot.HeadSeq || snapshotOut.Complete != snapshot.Complete {
+	if snapshotOut.SessionID != snapshot.SessionID || snapshotOut.HeadSeq != snapshot.HeadSeq || snapshotOut.RetainedOldestSeq != snapshot.RetainedOldestSeq || snapshotOut.Complete != snapshot.Complete {
 		t.Fatalf("SessionSnapshotPayload roundtrip = %+v, want %+v", snapshotOut, snapshot)
 	}
 }
@@ -233,18 +237,20 @@ func TestHistoryPagePayloadOmitsOptionalFields(t *testing.T) {
 
 func TestReplayCompletePayloadJSONRoundtrip(t *testing.T) {
 	in := ReplayCompletePayload{
-		SessionID: "session-123",
-		FromSeq:   43,
-		ToSeq:     99,
-		Count:     57,
-		Error:     "replay unavailable",
+		SessionID:    "session-123",
+		FromSeq:      43,
+		ToSeq:        99,
+		Count:        57,
+		Error:        "replay unavailable",
+		ErrorCode:    "unavailable",
+		RetryAfterMS: 1500,
 	}
 
 	raw, err := json.Marshal(in)
 	if err != nil {
 		t.Fatalf("marshal ReplayCompletePayload: %v", err)
 	}
-	const wantJSON = `{"session_id":"session-123","from_seq":43,"to_seq":99,"count":57,"error":"replay unavailable"}`
+	const wantJSON = `{"session_id":"session-123","from_seq":43,"to_seq":99,"count":57,"error":"replay unavailable","error_code":"unavailable","retry_after_ms":1500}`
 	if string(raw) != wantJSON {
 		t.Fatalf("ReplayCompletePayload JSON = %s, want %s", raw, wantJSON)
 	}

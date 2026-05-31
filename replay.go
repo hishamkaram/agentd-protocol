@@ -44,8 +44,9 @@ type ReplayRequest struct {
 
 // SessionHeadPayload is carried in an AgentMessage with Type MsgSessionHead.
 type SessionHeadPayload struct {
-	SessionID string `json:"session_id"`
-	HeadSeq   uint64 `json:"head_seq"`
+	SessionID         string `json:"session_id"`
+	HeadSeq           uint64 `json:"head_seq"`
+	RetainedOldestSeq uint64 `json:"retained_oldest_seq,omitempty"`
 }
 
 // HistoryPageRequest is sent by the PWA when the user scrolls back before the
@@ -60,26 +61,30 @@ type HistoryPageRequest struct {
 
 // HistoryPagePayload is carried in an AgentMessage with Type MsgHistoryPage.
 type HistoryPagePayload struct {
-	SessionID string            `json:"session_id"`
-	Messages  []json.RawMessage `json:"messages"`
-	OldestSeq uint64            `json:"oldest_seq"`
-	HasMore   bool              `json:"has_more"`
-	RequestID string            `json:"request_id"`
-	Error     string            `json:"error,omitempty"`
-	Trimmed   bool              `json:"trimmed,omitempty"`
+	SessionID         string            `json:"session_id"`
+	Messages          []json.RawMessage `json:"messages"`
+	OldestSeq         uint64            `json:"oldest_seq"`
+	HasMore           bool              `json:"has_more"`
+	RequestID         string            `json:"request_id"`
+	Error             string            `json:"error,omitempty"`
+	Trimmed           bool              `json:"trimmed,omitempty"`
+	RetainedOldestSeq uint64            `json:"retained_oldest_seq,omitempty"`
 }
 
 // ReplayCompletePayload is carried in an AgentMessage with Type
 // MsgReplayComplete after the daemon finishes a requested replay.
 type ReplayCompletePayload struct {
-	SessionID string `json:"session_id"`
-	FromSeq   uint64 `json:"from_seq"`
-	ToSeq     uint64 `json:"to_seq"`
-	HeadSeq   uint64 `json:"head_seq,omitempty"`
-	Count     int    `json:"count"`
-	Error     string `json:"error,omitempty"`
-	Trimmed   bool   `json:"trimmed,omitempty"`
-	TrimFloor uint64 `json:"trim_floor,omitempty"`
+	SessionID         string `json:"session_id"`
+	FromSeq           uint64 `json:"from_seq"`
+	ToSeq             uint64 `json:"to_seq"`
+	HeadSeq           uint64 `json:"head_seq,omitempty"`
+	Count             int    `json:"count"`
+	Error             string `json:"error,omitempty"`
+	ErrorCode         string `json:"error_code,omitempty"`
+	RetryAfterMS      int    `json:"retry_after_ms,omitempty"`
+	Trimmed           bool   `json:"trimmed,omitempty"`
+	TrimFloor         uint64 `json:"trim_floor,omitempty"`
+	RetainedOldestSeq uint64 `json:"retained_oldest_seq,omitempty"`
 }
 
 // SessionSnapshotRequest is sent by the PWA when a route-bound active session
@@ -96,14 +101,15 @@ type SessionSnapshotRequest struct {
 // JSON here because their full structs are daemon/PWA-owned; this package pins
 // the cross-repo envelope and state semantics.
 type SessionSnapshotPayload struct {
-	SessionID        string            `json:"session_id"`
-	Session          json.RawMessage   `json:"session,omitempty"`
-	Messages         []json.RawMessage `json:"messages"`
-	PendingApprovals []json.RawMessage `json:"pending_approvals"`
-	PendingPrompts   []json.RawMessage `json:"pending_prompts"`
-	HeadSeq          uint64            `json:"head_seq,omitempty"`
-	Cursor           string            `json:"cursor,omitempty"`
-	Sequence         uint64            `json:"sequence,omitempty"`
-	Complete         bool              `json:"complete"`
-	Error            string            `json:"error,omitempty"`
+	SessionID         string            `json:"session_id"`
+	Session           json.RawMessage   `json:"session,omitempty"`
+	Messages          []json.RawMessage `json:"messages"`
+	PendingApprovals  []json.RawMessage `json:"pending_approvals"`
+	PendingPrompts    []json.RawMessage `json:"pending_prompts"`
+	HeadSeq           uint64            `json:"head_seq,omitempty"`
+	RetainedOldestSeq uint64            `json:"retained_oldest_seq,omitempty"`
+	Cursor            string            `json:"cursor,omitempty"`
+	Sequence          uint64            `json:"sequence,omitempty"`
+	Complete          bool              `json:"complete"`
+	Error             string            `json:"error,omitempty"`
 }
