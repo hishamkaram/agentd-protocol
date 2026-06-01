@@ -135,9 +135,20 @@ type SupportBundleTransport struct {
 	ActiveSessionStartupPhase string                    `json:"active_session_startup_phase,omitempty"`
 	HistoryReplayState        SupportHistoryReplayState `json:"history_replay_state,omitempty"`
 	LastRelayControlError     string                    `json:"last_relay_control_error,omitempty"`
+	RelayDiagnostics          *SupportRelayDiagnostics  `json:"relay_diagnostics,omitempty"`
 	LastInboundAgeMS          *int64                    `json:"last_inbound_age_ms,omitempty"`
 	LastPongAgeMS             *int64                    `json:"last_pong_age_ms,omitempty"`
 	PendingJSONRPCRequest     int                       `json:"pending_jsonrpc_request_count,omitempty"`
+}
+
+type SupportRelayDiagnostics struct {
+	RelaySessionIDFingerprint string `json:"relay_session_id_fingerprint,omitempty"`
+	RegistrationGeneration    uint64 `json:"registration_generation,omitempty"`
+	ReconnectCount            uint64 `json:"reconnect_count,omitempty"`
+	LastControlCode           string `json:"last_control_code,omitempty"`
+	ReplayRequestCount        uint64 `json:"replay_request_count,omitempty"`
+	QueueRejections           uint64 `json:"queue_rejections,omitempty"`
+	SerializerDrops           uint64 `json:"serializer_drops,omitempty"`
 }
 
 type SupportHistoryReplayState string

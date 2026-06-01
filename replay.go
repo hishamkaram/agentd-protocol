@@ -37,9 +37,10 @@ const (
 // ReplayRequest is sent by the PWA when it detects a gap in the inner
 // per-session AgentMessage sequence.
 type ReplayRequest struct {
-	Type      string `json:"type"`
-	SessionID string `json:"session_id"`
-	AfterSeq  uint64 `json:"after_seq"`
+	Type             string `json:"type"`
+	SessionID        string `json:"session_id"`
+	AfterSeq         uint64 `json:"after_seq"`
+	ClientGeneration string `json:"client_generation,omitempty"`
 }
 
 // SessionHeadPayload is carried in an AgentMessage with Type MsgSessionHead.

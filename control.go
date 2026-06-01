@@ -78,8 +78,9 @@ type AckPayload struct {
 
 // ErrorPayload is the relay's error response to a failed control operation.
 type ErrorPayload struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	Code         string `json:"code"`
+	Message      string `json:"message"`
+	RetryAfterMS int    `json:"retry_after_ms,omitempty"`
 }
 
 // RouteReceiptPayload acknowledges relay routing for an encrypted envelope.

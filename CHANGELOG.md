@@ -25,6 +25,9 @@ Versioning convention (see [README.md](./README.md) for full policy):
 - `RateLimitsUpdatedPayload` additive Codex plan and actual credit snapshot fields
 - `AgentCapability.supports_runtime_full_access` additive capability flag for Codex runtime Full access opt-in
 - `SupportBundleParams.client_transport` and additive support-bundle transport diagnostics for active session, replay state, relay control errors, inbound/pong age, and pending JSON-RPC count
+- `ErrorPayload.retry_after_ms` relay control retry hint for reconnecting and overloaded states
+- `ReplayRequest.client_generation` additive replay dedupe key for multi-device reconnect storms
+- `SupportBundleTransport.relay_diagnostics` redacted relay pairing, reconnect, replay, and pressure counters
 
 ## [v0.1.0] — 2026-04-29
 

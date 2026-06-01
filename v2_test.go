@@ -495,6 +495,49 @@ func TestV2OpenRPCDocumentsCursorParams(t *testing.T) {
 	}
 }
 
+func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("schemas", "openrpc", "agentd.commands.json"))
+	if err != nil {
+		t.Fatalf("read OpenRPC contract: %v", err)
+	}
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatalf("unmarshal OpenRPC contract: %v", err)
+	}
+	method := openRPCMethod(t, doc, string(MethodSupportBundle))
+	params := openRPCParams(t, method, string(MethodSupportBundle))
+	clientTransport := openRPCParam(t, params, "client_transport")
+	schema, ok := clientTransport["schema"].(map[string]any)
+	if !ok {
+		t.Fatal("client_transport schema missing")
+	}
+	props, ok := schema["properties"].(map[string]any)
+	if !ok {
+		t.Fatal("client_transport properties missing")
+	}
+	relayDiagnostics, ok := props["relay_diagnostics"].(map[string]any)
+	if !ok {
+		t.Fatal("client_transport relay_diagnostics schema missing")
+	}
+	diagProps, ok := relayDiagnostics["properties"].(map[string]any)
+	if !ok {
+		t.Fatal("relay_diagnostics properties missing")
+	}
+	for _, name := range []string{
+		"relay_session_id_fingerprint",
+		"registration_generation",
+		"reconnect_count",
+		"last_control_code",
+		"replay_request_count",
+		"queue_rejections",
+		"serializer_drops",
+	} {
+		if _, ok := diagProps[name]; !ok {
+			t.Fatalf("relay_diagnostics property %q missing", name)
+		}
+	}
+}
+
 func TestV2OpenRPCDocumentsProtocolHelloNegotiation(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join("schemas", "openrpc", "agentd.commands.json"))
 	if err != nil {
