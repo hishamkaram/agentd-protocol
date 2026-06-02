@@ -42,6 +42,32 @@ func TestDurableHistoryMessageTypeConstants(t *testing.T) {
 
 func TestReplayRequestJSONRoundtrip(t *testing.T) {
 	in := ReplayRequest{
+		Type:             MsgReplayRequest,
+		SessionID:        "session-123",
+		AfterSeq:         42,
+		ClientGeneration: "client-gen-1",
+	}
+
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal ReplayRequest: %v", err)
+	}
+	const wantJSON = `{"type":"replay_request","session_id":"session-123","after_seq":42,"client_generation":"client-gen-1"}`
+	if string(raw) != wantJSON {
+		t.Fatalf("ReplayRequest JSON = %s, want %s", raw, wantJSON)
+	}
+
+	var out ReplayRequest
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("unmarshal ReplayRequest: %v", err)
+	}
+	if out != in {
+		t.Fatalf("ReplayRequest roundtrip = %+v, want %+v", out, in)
+	}
+}
+
+func TestReplayRequestJSONOmitsClientGenerationWhenEmpty(t *testing.T) {
+	in := ReplayRequest{
 		Type:      MsgReplayRequest,
 		SessionID: "session-123",
 		AfterSeq:  42,
@@ -54,14 +80,6 @@ func TestReplayRequestJSONRoundtrip(t *testing.T) {
 	const wantJSON = `{"type":"replay_request","session_id":"session-123","after_seq":42}`
 	if string(raw) != wantJSON {
 		t.Fatalf("ReplayRequest JSON = %s, want %s", raw, wantJSON)
-	}
-
-	var out ReplayRequest
-	if err := json.Unmarshal(raw, &out); err != nil {
-		t.Fatalf("unmarshal ReplayRequest: %v", err)
-	}
-	if out != in {
-		t.Fatalf("ReplayRequest roundtrip = %+v, want %+v", out, in)
 	}
 }
 

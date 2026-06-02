@@ -104,6 +104,18 @@
                 "enum": ["waiting_transport", "waiting_replay", "restored", "incomplete_retryable", "failed"]
               },
               "last_relay_control_error": { "type": "string" },
+              "relay_diagnostics": {
+                "type": "object",
+                "properties": {
+                  "relay_session_id_fingerprint": { "type": "string" },
+                  "registration_generation": { "type": "integer", "minimum": 0 },
+                  "reconnect_count": { "type": "integer", "minimum": 0 },
+                  "last_control_code": { "type": "string" },
+                  "replay_request_count": { "type": "integer", "minimum": 0 },
+                  "queue_rejections": { "type": "integer", "minimum": 0 },
+                  "serializer_drops": { "type": "integer", "minimum": 0 }
+                }
+              },
               "last_inbound_age_ms": { "type": "integer" },
               "last_pong_age_ms": { "type": "integer" },
               "pending_jsonrpc_request_count": { "type": "integer", "minimum": 0 }
