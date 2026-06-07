@@ -57,6 +57,7 @@ type SupportBundleContext struct {
 	LastInboundAgeMS           *int64
 	LastPongAgeMS              *int64
 	PendingJSONRPCRequestCount int
+	ClientDiagnostics          *SupportClientDiagnostics
 }
 
 type SupportBundle struct {
@@ -136,9 +137,18 @@ type SupportBundleTransport struct {
 	HistoryReplayState        SupportHistoryReplayState `json:"history_replay_state,omitempty"`
 	LastRelayControlError     string                    `json:"last_relay_control_error,omitempty"`
 	RelayDiagnostics          *SupportRelayDiagnostics  `json:"relay_diagnostics,omitempty"`
+	ClientDiagnostics         *SupportClientDiagnostics `json:"client_diagnostics,omitempty"`
 	LastInboundAgeMS          *int64                    `json:"last_inbound_age_ms,omitempty"`
 	LastPongAgeMS             *int64                    `json:"last_pong_age_ms,omitempty"`
 	PendingJSONRPCRequest     int                       `json:"pending_jsonrpc_request_count,omitempty"`
+}
+
+type SupportClientDiagnostics struct {
+	OutboundCommandCounts       map[string]uint64 `json:"outbound_command_counts,omitempty"`
+	ReplayRequestsInFlight      uint64            `json:"replay_requests_in_flight,omitempty"`
+	PendingReplayRequests       uint64            `json:"pending_replay_requests,omitempty"`
+	HistoryPageRequestsInFlight uint64            `json:"history_page_requests_in_flight,omitempty"`
+	WebSocketBufferedAmount     uint64            `json:"websocket_buffered_amount,omitempty"`
 }
 
 type SupportRelayDiagnostics struct {
@@ -147,6 +157,10 @@ type SupportRelayDiagnostics struct {
 	ReconnectCount            uint64 `json:"reconnect_count,omitempty"`
 	LastControlCode           string `json:"last_control_code,omitempty"`
 	ReplayRequestCount        uint64 `json:"replay_request_count,omitempty"`
+	ReplayRequestCoalesced    uint64 `json:"replay_request_coalesced,omitempty"`
+	ReplayRequestRejected     uint64 `json:"replay_request_rejected,omitempty"`
+	ActiveReplayDrains        uint64 `json:"active_replay_drains,omitempty"`
+	RelayClientCount          uint64 `json:"relay_client_count,omitempty"`
 	QueueRejections           uint64 `json:"queue_rejections,omitempty"`
 	SerializerDrops           uint64 `json:"serializer_drops,omitempty"`
 }

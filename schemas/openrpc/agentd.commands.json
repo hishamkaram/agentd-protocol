@@ -112,8 +112,25 @@
                   "reconnect_count": { "type": "integer", "minimum": 0 },
                   "last_control_code": { "type": "string" },
                   "replay_request_count": { "type": "integer", "minimum": 0 },
+                  "replay_request_coalesced": { "type": "integer", "minimum": 0 },
+                  "replay_request_rejected": { "type": "integer", "minimum": 0 },
+                  "active_replay_drains": { "type": "integer", "minimum": 0 },
+                  "relay_client_count": { "type": "integer", "minimum": 0 },
                   "queue_rejections": { "type": "integer", "minimum": 0 },
                   "serializer_drops": { "type": "integer", "minimum": 0 }
+                }
+              },
+              "client_diagnostics": {
+                "type": "object",
+                "properties": {
+                  "outbound_command_counts": {
+                    "type": "object",
+                    "additionalProperties": { "type": "integer", "minimum": 0 }
+                  },
+                  "replay_requests_in_flight": { "type": "integer", "minimum": 0 },
+                  "pending_replay_requests": { "type": "integer", "minimum": 0 },
+                  "history_page_requests_in_flight": { "type": "integer", "minimum": 0 },
+                  "websocket_buffered_amount": { "type": "integer", "minimum": 0 }
                 }
               },
               "last_inbound_age_ms": { "type": "integer" },
