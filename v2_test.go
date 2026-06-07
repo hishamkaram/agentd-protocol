@@ -519,6 +519,27 @@ func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
 	if !ok {
 		t.Fatal("client_transport relay_diagnostics schema missing")
 	}
+	clientDiagnostics, ok := props["client_diagnostics"].(map[string]any)
+	if !ok {
+		t.Fatal("client_transport client_diagnostics schema missing")
+	}
+	clientDiagProps, ok := clientDiagnostics["properties"].(map[string]any)
+	if !ok {
+		t.Fatal("client_diagnostics properties missing")
+	}
+	for _, name := range []string{
+		"outbound_command_counts",
+		"chat_view_render_count",
+		"transcript_scroll_load_count",
+		"replay_requests_in_flight",
+		"pending_replay_requests",
+		"history_page_requests_in_flight",
+		"websocket_buffered_amount",
+	} {
+		if _, ok := clientDiagProps[name]; !ok {
+			t.Fatalf("client_diagnostics property %q missing", name)
+		}
+	}
 	diagProps, ok := relayDiagnostics["properties"].(map[string]any)
 	if !ok {
 		t.Fatal("relay_diagnostics properties missing")
@@ -529,6 +550,10 @@ func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
 		"reconnect_count",
 		"last_control_code",
 		"replay_request_count",
+		"replay_request_coalesced",
+		"replay_request_rejected",
+		"active_replay_drains",
+		"relay_client_count",
 		"queue_rejections",
 		"serializer_drops",
 	} {
