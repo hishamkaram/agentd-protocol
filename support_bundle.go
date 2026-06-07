@@ -145,6 +145,8 @@ type SupportBundleTransport struct {
 
 type SupportClientDiagnostics struct {
 	OutboundCommandCounts       map[string]uint64 `json:"outbound_command_counts,omitempty"`
+	ChatViewRenderCount         uint64            `json:"chat_view_render_count,omitempty"`
+	TranscriptScrollLoadCount   uint64            `json:"transcript_scroll_load_count,omitempty"`
 	ReplayRequestsInFlight      uint64            `json:"replay_requests_in_flight,omitempty"`
 	PendingReplayRequests       uint64            `json:"pending_replay_requests,omitempty"`
 	HistoryPageRequestsInFlight uint64            `json:"history_page_requests_in_flight,omitempty"`

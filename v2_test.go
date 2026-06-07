@@ -529,6 +529,8 @@ func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
 	}
 	for _, name := range []string{
 		"outbound_command_counts",
+		"chat_view_render_count",
+		"transcript_scroll_load_count",
 		"replay_requests_in_flight",
 		"pending_replay_requests",
 		"history_page_requests_in_flight",

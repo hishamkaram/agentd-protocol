@@ -127,6 +127,8 @@
                     "type": "object",
                     "additionalProperties": { "type": "integer", "minimum": 0 }
                   },
+                  "chat_view_render_count": { "type": "integer", "minimum": 0 },
+                  "transcript_scroll_load_count": { "type": "integer", "minimum": 0 },
                   "replay_requests_in_flight": { "type": "integer", "minimum": 0 },
                   "pending_replay_requests": { "type": "integer", "minimum": 0 },
                   "history_page_requests_in_flight": { "type": "integer", "minimum": 0 },
