@@ -20,17 +20,22 @@
 
 A tiny Go module containing the shared wire protocol types used by both the [AgentD daemon](https://github.com/hishamkaram/agentd) and [AgentD relay server](https://github.com/hishamkaram/agentd-relay). By importing from a single source of truth, wire format drift between repos is impossible — the Go compiler enforces type identity.
 
-## Types
+## Public Type Surface
 
-| File | Types | Purpose |
-|------|-------|---------|
-| `envelope.go` | `RelayEnvelope` | Encrypted message envelope (sid, seq, enc, tid, optional client_id for targeted replay) |
-| `control.go` | `ControlMessage`, `ControlType` (18 constants), 17 payload structs | Relay control protocol |
-| `policy.go` | `PolicyJSON`, `PolicyMatchJSON` | Policy rule wire format |
-| `capabilities.go` | `AgentCapability` | Per-agent feature flags the daemon emits to the PWA (MCP reconnect, session-scoped approvals, free-text replies, etc.) |
-| `codex_sandbox.go` | `CodexSandboxMode` | Shared Codex per-session sandbox literals for daemon and PWA runtime controls |
-| `replay.go` | `ReplayRequest`, `ReplayCompletePayload`, `SessionSnapshotRequest`, `SessionSnapshotPayload` | Durable session journal replay recovery and daemon-owned active-session snapshots |
-| `trace.go` | `NewTraceID()`, `ValidTraceID()` | W3C-compatible trace ID generation |
+The module groups wire contracts by feature area instead of exposing repo-specific aliases:
+
+| Area | Representative types | Purpose |
+|------|----------------------|---------|
+| Relay transport | `RelayEnvelope`, `ControlMessage`, `ControlType` | Encrypted relay envelopes plus register/join/status/audit/key-rotation/push/termination control frames |
+| Route receipts | `RouteReceiptPayload`, `CommandReceiptPayload`, `CommandReceiptStage`, `CommandReceiptReasonCode` | Transport and command acknowledgement metadata without decrypted payload content |
+| Replay and recovery | `ReplayRequest`, `SessionHeadPayload`, `HistoryPageRequest`, `HistoryPagePayload`, `ReplayCompletePayload`, `SessionSnapshotRequest`, `SessionSnapshotPayload`, `HistoryReplayCompletePayload` | Durable session journal replay, route reopen snapshots, and history pagination diagnostics |
+| Protocol v2 | `JSONRPCRequest`, `JSONRPCResponse`, `JSONRPCError`, `ProtocolHelloParams`, `ProtocolHelloResult`, `TransportPingParams`, `TransportPongResult`, `AgentDEventEnvelope`, `ReplayCursor` | JSON-RPC framing, protocol negotiation, ping/pong, and v2 event envelopes |
+| Session features | `AgentCapability`, `SessionFeatureStatusPayload`, `SessionInfo`, `CodexSandboxMode`, `RateLimitsUpdatedPayload`, `RateLimitBucket` | Per-agent capability and feature-health surfaces consumed by the PWA |
+| Git and worktrees | `GitStatusPayload`, `GitDiffRequest`, `GitDiffResponse`, git sync request/response types, `GitWorktree*`, `SessionWorktree*` | Git status, diff, branch/stash/fetch/pull/push, and worktree management contracts |
+| MCP | `MCPServerConfig`, `MCPServerStatusEntry`, `MCPListPayload`, `MCPMutationPayload`, `MCPServersChangedPayload` | MCP server inventory and mutation wire types |
+| Cost, prompt, and approvals | `CostPayload`, `InteractivePromptResolvedPayload`, `ApprovalResolvedPayload` | Runtime cost samples, interactive prompt completion, and approval tombstones |
+| Support bundles | `SupportBundleParams`, `SupportBundle`, `SupportBundleClient`, `SupportBundleDaemon`, `SupportRelayDiagnostics`, `SupportHistoryReplayState` | Redacted client/daemon/relay diagnostics for support export flows |
+| Policies and tracing | `PolicyJSON`, `PolicyMatchJSON`, `NewTraceID()`, `ValidTraceID()` | Policy sync payloads and W3C-compatible trace IDs |
 
 ### Control Types
 
@@ -40,6 +45,7 @@ status_update · audit_entry · deactivate_developer · client_connected
 client_count · key_rotate · entitlement_update · entitlement_violation
 push_notify · push_notify_result
 terminate_session · terminate_session_ack
+route_receipt
 ```
 
 ### Payload Types
@@ -50,7 +56,7 @@ StatusUpdatePayload · AuditEntryPayload · DeactivateDeveloperPayload
 TerminateSessionPayload · TerminateSessionAckPayload
 ClientConnectedPayload · ClientCountPayload · KeyRotatePayload
 SyncPoliciesPayload · EntitlementUpdatePayload · EntitlementViolationPayload
-PushNotifyPayload · PushNotifyResultPayload
+PushNotifyPayload · PushNotifyResultPayload · RouteReceiptPayload
 ```
 
 ## Usage
