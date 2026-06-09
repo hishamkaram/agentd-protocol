@@ -105,7 +105,7 @@ func TestSessionInfoProviderContractField(t *testing.T) {
 	if !ok {
 		t.Fatalf("SessionInfo missing ProviderContract field")
 	}
-	if field.Type.Kind() != reflect.Ptr {
+	if field.Type.Kind() != reflect.Pointer {
 		t.Fatalf("SessionInfo.ProviderContract: want pointer, got %s", field.Type.Kind())
 	}
 	if got := field.Tag.Get("json"); got != "provider_contract,omitempty" {
