@@ -133,6 +133,34 @@ func TestSessionInfoFeatureStatusesJSONRoundtrip(t *testing.T) {
 	}
 }
 
+func TestSessionInfoRecoveryJSONRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	in := SessionInfo{Recovery: &SessionRecoveryInfo{
+		Recoverable: true,
+		Reason:      SessionRecoveryReasonDaemonRestarted,
+		Action:      SessionRecoveryActionResume,
+		UserMessage: "AgentD restarted. Resume this session to reconnect.",
+		Provider:    "claude-code",
+	}}
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if !strings.Contains(string(raw), `"recovery"`) ||
+		!strings.Contains(string(raw), `"reason":"daemon_restarted"`) ||
+		!strings.Contains(string(raw), `"action":"resume"`) {
+		t.Fatalf("SessionInfo JSON missing recovery fields: %s", raw)
+	}
+	var got SessionInfo
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if !reflect.DeepEqual(got, in) {
+		t.Fatalf("roundtrip mismatch\nwant: %+v\n got: %+v", in, got)
+	}
+}
+
 func TestSessionFeatureStatusFixtures(t *testing.T) {
 	t.Parallel()
 

@@ -140,4 +140,5 @@ func IsKnownSessionFeatureReasonCode(code SessionFeatureReasonCode) bool {
 type SessionInfo struct {
 	FeatureStatuses  []SessionFeatureStatusPayload `json:"feature_statuses,omitempty"`
 	ProviderContract *ProviderCapabilityContract   `json:"provider_contract,omitempty"`
+	Recovery         *SessionRecoveryInfo          `json:"recovery,omitempty"`
 }

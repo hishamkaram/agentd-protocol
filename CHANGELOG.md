@@ -28,6 +28,7 @@ Versioning convention (see [README.md](./README.md) for full policy):
 - `ErrorPayload.retry_after_ms` relay control retry hint for reconnecting and overloaded states
 - `ReplayRequest.client_generation` additive replay dedupe key for multi-device reconnect storms
 - `SupportBundleTransport.relay_diagnostics` redacted relay pairing, reconnect, replay, and pressure counters
+- `SessionInfo.recovery`, `StatusPayload.recovery`, `SessionRecoveryInfo`, `SessionRecoveryReason`, and `SessionRecoveryAction` for durable paused session repair metadata
 
 ## [v0.1.0] — 2026-04-29
 
