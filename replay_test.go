@@ -50,19 +50,18 @@ func TestHistoryPageRequestJSONRoundtrip(t *testing.T) {
 	t.Parallel()
 
 	in := HistoryPageRequest{
-		Type:         MsgHistoryPageRequest,
-		SessionID:    "session-123",
-		BeforeSeq:    99,
-		Limit:        250,
-		RequestID:    "request-123",
-		KnownHeadSeq: 98,
+		Type:      MsgHistoryPageRequest,
+		SessionID: "session-123",
+		BeforeSeq: 99,
+		Limit:     250,
+		RequestID: "request-123",
 	}
 
 	raw, err := json.Marshal(in)
 	if err != nil {
 		t.Fatalf("marshal HistoryPageRequest: %v", err)
 	}
-	const wantJSON = `{"type":"history_page_request","session_id":"session-123","before_seq":99,"limit":250,"request_id":"request-123","known_head_seq":98}`
+	const wantJSON = `{"type":"history_page_request","session_id":"session-123","before_seq":99,"limit":250,"request_id":"request-123"}`
 	if string(raw) != wantJSON {
 		t.Fatalf("HistoryPageRequest JSON = %s, want %s", raw, wantJSON)
 	}

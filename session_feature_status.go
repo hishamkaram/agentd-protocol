@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	// MsgSessionFeatureStatus is the legacy AgentMessage type for per-session
-	// optional feature lifecycle updates.
+	// MsgSessionFeatureStatus is the AgentMessage type for per-session optional
+	// feature lifecycle updates.
 	MsgSessionFeatureStatus = "session_feature_status"
 
 	SessionFeatureStatusSchemaVersion = 1

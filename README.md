@@ -28,7 +28,7 @@ The module groups wire contracts by feature area instead of exposing repo-specif
 |------|----------------------|---------|
 | Relay transport | `RelayEnvelope`, `ControlMessage`, `ControlType` | Encrypted relay envelopes plus register/join/status/audit/key-rotation/push/termination control frames |
 | Route receipts | `RouteReceiptPayload`, `CommandReceiptPayload`, `CommandReceiptStage`, `CommandReceiptReasonCode` | Transport and command acknowledgement metadata without decrypted payload content |
-| Transcript recovery | `SessionHeadPayload`, `HistoryPageRequest`, `HistoryPagePayload` | Bounded selected-session transcript pagination, optional initial `known_head_seq`, and daemon-proven journal head metadata |
+| Transcript recovery | `SessionHeadPayload`, `HistoryPageRequest`, `HistoryPagePayload` | Bounded selected-session transcript pagination and daemon-proven journal head metadata |
 | Protocol v2 | `JSONRPCRequest`, `JSONRPCResponse`, `JSONRPCError`, `ProtocolHelloParams`, `ProtocolHelloResult`, `TransportPingParams`, `TransportPongResult`, `AgentDEventEnvelope` | JSON-RPC framing, protocol negotiation, ping/pong, and v2 event envelopes |
 | Session features | `AgentCapability`, `SessionFeatureStatusPayload`, `SessionInfo`, `SessionRecoveryInfo`, `CodexSandboxMode`, `RateLimitsUpdatedPayload`, `RateLimitBucket` | Per-agent capability, feature-health, and recoverability surfaces consumed by the PWA |
 | Git and worktrees | `GitStatusPayload`, `GitDiffRequest`, `GitDiffResponse`, git sync request/response types, `GitWorktree*`, `SessionWorktree*` | Git status, diff, branch/stash/fetch/pull/push, and worktree management contracts |
@@ -86,7 +86,7 @@ from terminal pairing/session failures without inferring from socket state alone
 ## Design Principles
 
 - **Zero dependencies** — only `encoding/json`, `time`, `crypto/rand`, `encoding/hex` from stdlib
-- **Backward compatible** — all new fields use `omitempty`; old clients produce identical JSON
+- **Pre-v1 lockstep** — coordinated contract removals and additions are expected while AgentD is still in foundation development
 - **W3C trace IDs** — 32 lowercase hex chars, ready for OpenTelemetry upgrade
 - **Roundtrip tested** — every type has a JSON marshal/unmarshal roundtrip test
 

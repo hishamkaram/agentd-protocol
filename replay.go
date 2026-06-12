@@ -26,16 +26,13 @@ type SessionHeadPayload struct {
 }
 
 // HistoryPageRequest is sent by the PWA when the user scrolls back before the
-// currently loaded transcript window. KnownHeadSeq is optional initial-hydration
-// context for daemons that need to translate cursors after local legacy
-// seqless-prefix migration.
+// currently loaded transcript window.
 type HistoryPageRequest struct {
-	Type         string `json:"type"`
-	SessionID    string `json:"session_id"`
-	BeforeSeq    uint64 `json:"before_seq"`
-	Limit        int    `json:"limit,omitempty"`
-	RequestID    string `json:"request_id"`
-	KnownHeadSeq uint64 `json:"known_head_seq,omitempty"`
+	Type      string `json:"type"`
+	SessionID string `json:"session_id"`
+	BeforeSeq uint64 `json:"before_seq"`
+	Limit     int    `json:"limit,omitempty"`
+	RequestID string `json:"request_id"`
 }
 
 // HistoryPagePayload is carried in an AgentMessage with Type MsgHistoryPage.

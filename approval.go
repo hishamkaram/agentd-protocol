@@ -36,11 +36,11 @@ const (
 	// terminal decision string, and the resolution timestamp.
 	MsgApprovalResolved = "approval_resolved"
 
-	// MsgPendingApprovalState is the daemon→PWA replay-only signal
-	// emitted on reconnect for any approval still pending in the
+	// MsgPendingApprovalState is the daemon→PWA control-state signal
+	// emitted during bootstrap for any approval still pending in the
 	// daemon's pendingApprovals map. Reuses the ApprovalPayload struct
 	// shape; only the wire-type constant differs from MsgApproval. PWA
-	// handler MUST early-return BEFORE addMessage so the replay does not
+	// handler MUST early-return BEFORE addMessage so the state frame does not
 	// duplicate chat-history bubbles (see ChatView.tsx filter
 	// behavior — approvals render as bubbles by default).
 	MsgPendingApprovalState = "pending_approval_state"
