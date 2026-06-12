@@ -27,6 +27,7 @@ Versioning convention (see [README.md](./README.md) for full policy):
 - `AgentCapability.supports_runtime_full_access` additive capability flag for Codex runtime Full access opt-in
 - `SupportBundleParams.client_transport` and additive support-bundle transport diagnostics for active session, bootstrap state, relay control errors, inbound/pong age, and pending JSON-RPC count
 - `ErrorPayload.retryable`, `ErrorPayload.terminal`, and `ErrorPayload.retry_after_ms` relay control retry metadata for reconnecting, overloaded, and terminal pairing states
+- `ClientConnectedPayload.client_id` is now required on current relay-to-daemon `client_connected` controls for targeted bootstrap and history responses
 - `SupportBundleTransport.relay_diagnostics` redacted relay pairing, reconnect, history hydration, and pressure counters
 - `SessionInfo.recovery`, `StatusPayload.recovery`, `SessionRecoveryInfo`, `SessionRecoveryReason`, and `SessionRecoveryAction` for durable paused session repair metadata
 

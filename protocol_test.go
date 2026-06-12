@@ -454,12 +454,11 @@ func TestClientConnectedPayloadRequiresClientIDOnMarshal(t *testing.T) {
 
 	raw, err := json.Marshal(protocol.ClientConnectedPayload{
 		SessionID: "sess-123",
-		ClientID:  "client-1",
 	})
 	if err != nil {
 		t.Fatalf("marshal ClientConnectedPayload: %v", err)
 	}
-	if !strings.Contains(string(raw), `"client_id":"client-1"`) {
+	if !strings.Contains(string(raw), `"client_id":""`) {
 		t.Fatalf("ClientConnectedPayload JSON = %s, want client_id", raw)
 	}
 }
