@@ -156,7 +156,7 @@ type SupportRelayDiagnostics struct {
 	RegistrationGeneration    uint64 `json:"registration_generation,omitempty"`
 	ReconnectCount            uint64 `json:"reconnect_count,omitempty"`
 	LastControlCode           string `json:"last_control_code,omitempty"`
-	ActiveBootstrapDrains        uint64 `json:"active_bootstrap_drains,omitempty"`
+	ActiveBootstrapDrains     uint64 `json:"active_bootstrap_drains,omitempty"`
 	RelayClientCount          uint64 `json:"relay_client_count,omitempty"`
 	QueueRejections           uint64 `json:"queue_rejections,omitempty"`
 	SerializerDrops           uint64 `json:"serializer_drops,omitempty"`
