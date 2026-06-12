@@ -3,7 +3,7 @@ package protocol
 import "fmt"
 
 const (
-	// MsgCommandReceipt is the legacy AgentMessage type carrying a
+	// MsgCommandReceipt is the AgentMessage control type carrying a
 	// CommandReceiptPayload from daemon to PWA.
 	MsgCommandReceipt = "command_receipt"
 

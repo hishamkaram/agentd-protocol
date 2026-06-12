@@ -280,7 +280,26 @@ func TestAckPayloadRoundtrip(t *testing.T) {
 
 func TestErrorPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
-	assertRoundtrip(t, protocol.ErrorPayload{Code: "invalid_session", Message: "not found"})
+	assertRoundtrip(t, protocol.ErrorPayload{
+		Code:         "daemon_reconnecting",
+		Message:      "daemon reconnecting",
+		Retryable:    true,
+		Terminal:     false,
+		RetryAfterMS: 1500,
+	})
+}
+
+func TestErrorPayloadLegacyShapeOmitsUnsetControlFlags(t *testing.T) {
+	t.Parallel()
+
+	raw, err := json.Marshal(protocol.ErrorPayload{Code: "invalid_session", Message: "not found"})
+	if err != nil {
+		t.Fatalf("marshal ErrorPayload: %v", err)
+	}
+	const legacyJSON = `{"code":"invalid_session","message":"not found"}`
+	if string(raw) != legacyJSON {
+		t.Fatalf("ErrorPayload legacy JSON = %s, want %s", raw, legacyJSON)
+	}
 }
 
 func TestStatusUpdatePayloadRoundtrip(t *testing.T) {

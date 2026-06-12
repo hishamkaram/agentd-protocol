@@ -100,8 +100,8 @@
               "active_session_id": { "type": "string" },
               "active_session_state": { "type": "string" },
               "active_session_startup_phase": { "type": "string" },
-              "history_replay_state": {
-                "enum": ["waiting_transport", "waiting_replay", "restored", "incomplete_retryable", "failed"]
+              "history_hydration_state": {
+                "enum": ["waiting_transport", "waiting_history", "restored", "incomplete_retryable", "failed"]
               },
               "last_relay_control_error": { "type": "string" },
               "relay_diagnostics": {
@@ -111,10 +111,7 @@
                   "registration_generation": { "type": "integer", "minimum": 0 },
                   "reconnect_count": { "type": "integer", "minimum": 0 },
                   "last_control_code": { "type": "string" },
-                  "replay_request_count": { "type": "integer", "minimum": 0 },
-                  "replay_request_coalesced": { "type": "integer", "minimum": 0 },
-                  "replay_request_rejected": { "type": "integer", "minimum": 0 },
-                  "active_replay_drains": { "type": "integer", "minimum": 0 },
+                  "active_bootstrap_drains": { "type": "integer", "minimum": 0 },
                   "relay_client_count": { "type": "integer", "minimum": 0 },
                   "queue_rejections": { "type": "integer", "minimum": 0 },
                   "serializer_drops": { "type": "integer", "minimum": 0 }
@@ -129,8 +126,6 @@
                   },
                   "chat_view_render_count": { "type": "integer", "minimum": 0 },
                   "transcript_scroll_load_count": { "type": "integer", "minimum": 0 },
-                  "replay_requests_in_flight": { "type": "integer", "minimum": 0 },
-                  "pending_replay_requests": { "type": "integer", "minimum": 0 },
                   "history_page_requests_in_flight": { "type": "integer", "minimum": 0 },
                   "websocket_buffered_amount": { "type": "integer", "minimum": 0 }
                 }
@@ -180,54 +175,6 @@
     { "name": "session.delete", "summary": "Delete a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
     { "name": "session.rename", "summary": "Rename a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
     { "name": "session.fork", "summary": "Fork a session.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
-    {
-      "name": "session.snapshot",
-      "summary": "Request daemon-authoritative session snapshot.",
-      "paramStructure": "by-name",
-      "params": [
-        {
-          "name": "session_id",
-          "required": true,
-          "schema": { "type": "string", "minLength": 1 }
-        },
-        {
-          "name": "after_seq",
-          "schema": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        {
-          "name": "cursor",
-          "schema": { "type": "string" }
-        }
-      ],
-      "result": { "name": "result", "schema": { "type": "object" } }
-    },
-    {
-      "name": "session.replay",
-      "summary": "Request replay after a cursor.",
-      "paramStructure": "by-name",
-      "params": [
-        {
-          "name": "session_id",
-          "required": true,
-          "schema": { "type": "string", "minLength": 1 }
-        },
-        {
-          "name": "after_seq",
-          "schema": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        {
-          "name": "cursor",
-          "schema": { "type": "string" }
-        }
-      ],
-      "result": { "name": "result", "schema": { "type": "object" } }
-    },
     { "name": "approval.decide", "summary": "Submit an approval decision.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
     { "name": "approval.setMode", "summary": "Set approval mode.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },
     { "name": "prompt.answer", "summary": "Answer an interactive prompt.", "params": [], "result": { "name": "result", "schema": { "type": "object" } } },

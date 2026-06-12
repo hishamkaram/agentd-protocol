@@ -36,8 +36,6 @@ const (
 	MethodSessionDelete    Method = "session.delete"
 	MethodSessionRename    Method = "session.rename"
 	MethodSessionFork      Method = "session.fork"
-	MethodSessionSnapshot  Method = "session.snapshot"
-	MethodSessionReplay    Method = "session.replay"
 
 	MethodApprovalDecide  Method = "approval.decide"
 	MethodApprovalSetMode Method = "approval.setMode"
@@ -54,8 +52,6 @@ const (
 	CapabilityTransportPing        = "transport.ping"
 	CapabilitySupportBundle        = "support.bundle"
 	CapabilitySessionList          = "session.list"
-	CapabilitySessionReplay        = "session.replay"
-	CapabilitySessionSnapshot      = "session.snapshot"
 	CapabilitySessionFeatureStatus = "session.feature_status"
 	CapabilityRelayOpaque          = "relay.opaque"
 	CapabilityCommandReceipts      = "command.receipts"
@@ -66,9 +62,7 @@ const (
 	EventTransportDisconnected EventType = "transport.disconnected"
 	EventTransportPong         EventType = "transport.pong"
 	EventSessionListUpdated    EventType = "session.list.updated"
-	EventSessionSnapshot       EventType = "session.snapshot"
 	EventSessionFeatureStatus  EventType = "session.feature_status"
-	EventSessionReplayComplete EventType = "session.replay.complete"
 	EventSessionOutputDelta    EventType = "session.output.delta"
 	EventThinkingDelta         EventType = "session.thinking.delta"
 	EventApprovalRequested     EventType = "approval.requested"
@@ -228,14 +222,8 @@ type TransportPongResult struct {
 	SentAtUnixMS int64  `json:"sent_at_unix_ms,omitempty"`
 }
 
-type ReplayCursor struct {
-	SessionID string `json:"session_id"`
-	AfterSeq  uint64 `json:"after_seq"`
-	Cursor    string `json:"cursor,omitempty"`
-}
-
 // AgentDEventEnvelope is the typed v2 streaming envelope used for session
-// output, replay, snapshots, approvals, prompts, and transport events.
+// output, approvals, prompts, and transport events.
 type AgentDEventEnvelope struct {
 	Protocol  string          `json:"protocol"`
 	ID        string          `json:"id"`
@@ -331,8 +319,6 @@ func FullProtocolHelloOffer() ProtocolHelloOffer {
 				CapabilityTransportPing,
 				CapabilitySupportBundle,
 				CapabilitySessionList,
-				CapabilitySessionReplay,
-				CapabilitySessionSnapshot,
 				CapabilitySessionFeatureStatus,
 				CapabilityRelayOpaque,
 				CapabilityCommandReceipts,

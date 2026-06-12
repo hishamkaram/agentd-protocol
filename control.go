@@ -80,6 +80,8 @@ type AckPayload struct {
 type ErrorPayload struct {
 	Code         string `json:"code"`
 	Message      string `json:"message"`
+	Retryable    bool   `json:"retryable,omitempty"`
+	Terminal     bool   `json:"terminal,omitempty"`
 	RetryAfterMS int    `json:"retry_after_ms,omitempty"`
 }
 
@@ -147,7 +149,8 @@ type TerminateSessionAckPayload struct {
 }
 
 // ClientConnectedPayload is sent by the relay to the daemon when a PWA client
-// connects or reconnects. The daemon uses this to replay message history.
+// connects or reconnects. The daemon uses this to prioritize active-session
+// metadata and bounded history paging.
 type ClientConnectedPayload struct {
 	SessionID    string `json:"session_id"`
 	NavSessionID string `json:"nav_session_id,omitempty"`
@@ -156,7 +159,7 @@ type ClientConnectedPayload struct {
 
 // ClientCountPayload is sent by the relay to the daemon after every client
 // join and disconnect. Informs the daemon of the current connected client count
-// for replay optimization (first client: full replay, subsequent: session list only).
+// for status and pressure decisions.
 type ClientCountPayload struct {
 	Count     int    `json:"count"`
 	SessionID string `json:"session_id"`

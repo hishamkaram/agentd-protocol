@@ -288,7 +288,7 @@ func TestSupportBundleParamsMarshalClientTransport(t *testing.T) {
 			Connected:             true,
 			Stale:                 true,
 			ActiveSessionID:       "sess-active",
-			HistoryReplayState:    SupportHistoryReplayWaitingReplay,
+			HistoryHydrationState: SupportHistoryHydrationWaitingHistory,
 			LastRelayControlError: "relay_clean_close",
 			PendingJSONRPCRequest: 2,
 		},
@@ -300,7 +300,7 @@ func TestSupportBundleParamsMarshalClientTransport(t *testing.T) {
 		`"client_transport":`,
 		`"active_mode":"relay"`,
 		`"active_session_id":"sess-active"`,
-		`"history_replay_state":"waiting_replay"`,
+		`"history_hydration_state":"waiting_history"`,
 		`"last_relay_control_error":"relay_clean_close"`,
 		`"pending_jsonrpc_request_count":2`,
 	} {
@@ -319,7 +319,7 @@ func TestSupportBundleMarshalKeepsRequiredListsAsArrays(t *testing.T) {
 			ActiveMode:            "local",
 			Connected:             true,
 			ActiveSessionID:       "sess-active",
-			HistoryReplayState:    SupportHistoryReplayIncomplete,
+			HistoryHydrationState: SupportHistoryHydrationIncomplete,
 			LastRelayControlError: "session_not_found",
 			PendingJSONRPCRequest: 1,
 		},
@@ -338,7 +338,7 @@ func TestSupportBundleMarshalKeepsRequiredListsAsArrays(t *testing.T) {
 		t.Fatalf("last_errors did not encode as empty array: %s", string(raw))
 	}
 	if !strings.Contains(string(raw), `"active_session_id":"sess-active"`) ||
-		!strings.Contains(string(raw), `"history_replay_state":"incomplete_retryable"`) ||
+		!strings.Contains(string(raw), `"history_hydration_state":"incomplete_retryable"`) ||
 		!strings.Contains(string(raw), `"last_relay_control_error":"session_not_found"`) {
 		t.Fatalf("support transport diagnostics missing from JSON: %s", string(raw))
 	}
@@ -455,46 +455,6 @@ func TestRelayEnvelopeSchemaAllowsZeroSequence(t *testing.T) {
 	}
 }
 
-func TestV2OpenRPCDocumentsCursorParams(t *testing.T) {
-	raw, err := os.ReadFile(filepath.Join("schemas", "openrpc", "agentd.commands.json"))
-	if err != nil {
-		t.Fatalf("read OpenRPC contract: %v", err)
-	}
-	var doc map[string]any
-	if err := json.Unmarshal(raw, &doc); err != nil {
-		t.Fatalf("unmarshal OpenRPC contract: %v", err)
-	}
-	for _, method := range []Method{MethodSessionSnapshot, MethodSessionReplay} {
-		t.Run(string(method), func(t *testing.T) {
-			methodDoc := openRPCMethod(t, doc, string(method))
-			if got := methodDoc["paramStructure"]; got != "by-name" {
-				t.Fatalf("%s paramStructure = %v, want by-name", method, got)
-			}
-			params := openRPCParams(t, methodDoc, string(method))
-			sessionID := openRPCParam(t, params, "session_id")
-			if required, ok := sessionID["required"].(bool); !ok || !required {
-				t.Fatalf("%s session_id param required = %v, want true", method, sessionID["required"])
-			}
-			sessionIDSchema, ok := sessionID["schema"].(map[string]any)
-			if !ok {
-				t.Fatalf("%s session_id schema missing", method)
-			}
-			if got := sessionIDSchema["minLength"]; got != float64(1) {
-				t.Fatalf("%s session_id minLength = %v, want 1", method, got)
-			}
-			afterSeq := openRPCParam(t, params, "after_seq")
-			afterSeqSchema, ok := afterSeq["schema"].(map[string]any)
-			if !ok {
-				t.Fatalf("%s after_seq schema missing", method)
-			}
-			if got := afterSeqSchema["minimum"]; got != float64(0) {
-				t.Fatalf("%s after_seq minimum = %v, want 0", method, got)
-			}
-			openRPCParam(t, params, "cursor")
-		})
-	}
-}
-
 func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join("schemas", "openrpc", "agentd.commands.json"))
 	if err != nil {
@@ -531,8 +491,6 @@ func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
 		"outbound_command_counts",
 		"chat_view_render_count",
 		"transcript_scroll_load_count",
-		"replay_requests_in_flight",
-		"pending_replay_requests",
 		"history_page_requests_in_flight",
 		"websocket_buffered_amount",
 	} {
@@ -549,10 +507,7 @@ func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
 		"registration_generation",
 		"reconnect_count",
 		"last_control_code",
-		"replay_request_count",
-		"replay_request_coalesced",
-		"replay_request_rejected",
-		"active_replay_drains",
+		"active_bootstrap_drains",
 		"relay_client_count",
 		"queue_rejections",
 		"serializer_drops",
