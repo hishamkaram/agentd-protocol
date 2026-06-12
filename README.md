@@ -28,13 +28,13 @@ The module groups wire contracts by feature area instead of exposing repo-specif
 |------|----------------------|---------|
 | Relay transport | `RelayEnvelope`, `ControlMessage`, `ControlType` | Encrypted relay envelopes plus register/join/status/audit/key-rotation/push/termination control frames |
 | Route receipts | `RouteReceiptPayload`, `CommandReceiptPayload`, `CommandReceiptStage`, `CommandReceiptReasonCode` | Transport and command acknowledgement metadata without decrypted payload content |
-| Replay and recovery | `ReplayRequest`, `SessionHeadPayload`, `HistoryPageRequest`, `HistoryPagePayload`, `ReplayCompletePayload`, `SessionSnapshotRequest`, `SessionSnapshotPayload`, `HistoryReplayCompletePayload` | Durable session journal replay, route reopen snapshots, and history pagination diagnostics |
-| Protocol v2 | `JSONRPCRequest`, `JSONRPCResponse`, `JSONRPCError`, `ProtocolHelloParams`, `ProtocolHelloResult`, `TransportPingParams`, `TransportPongResult`, `AgentDEventEnvelope`, `ReplayCursor` | JSON-RPC framing, protocol negotiation, ping/pong, and v2 event envelopes |
+| Transcript recovery | `SessionHeadPayload`, `HistoryPageRequest`, `HistoryPagePayload` | Bounded selected-session transcript pagination and daemon-proven journal head metadata |
+| Protocol v2 | `JSONRPCRequest`, `JSONRPCResponse`, `JSONRPCError`, `ProtocolHelloParams`, `ProtocolHelloResult`, `TransportPingParams`, `TransportPongResult`, `AgentDEventEnvelope` | JSON-RPC framing, protocol negotiation, ping/pong, and v2 event envelopes |
 | Session features | `AgentCapability`, `SessionFeatureStatusPayload`, `SessionInfo`, `SessionRecoveryInfo`, `CodexSandboxMode`, `RateLimitsUpdatedPayload`, `RateLimitBucket` | Per-agent capability, feature-health, and recoverability surfaces consumed by the PWA |
 | Git and worktrees | `GitStatusPayload`, `GitDiffRequest`, `GitDiffResponse`, git sync request/response types, `GitWorktree*`, `SessionWorktree*` | Git status, diff, branch/stash/fetch/pull/push, and worktree management contracts |
 | MCP | `MCPServerConfig`, `MCPServerStatusEntry`, `MCPListPayload`, `MCPMutationPayload`, `MCPServersChangedPayload` | MCP server inventory and mutation wire types |
 | Cost, prompt, and approvals | `CostPayload`, `InteractivePromptResolvedPayload`, `ApprovalResolvedPayload` | Runtime cost samples, interactive prompt completion, and approval tombstones |
-| Support bundles | `SupportBundleParams`, `SupportBundle`, `SupportBundleClient`, `SupportBundleDaemon`, `SupportRelayDiagnostics`, `SupportHistoryReplayState` | Redacted client/daemon/relay diagnostics for support export flows |
+| Support bundles | `SupportBundleParams`, `SupportBundle`, `SupportBundleClient`, `SupportBundleDaemon`, `SupportRelayDiagnostics`, `SupportHistoryHydrationState` | Redacted client/daemon/relay diagnostics for support export flows |
 | Policies and tracing | `PolicyJSON`, `PolicyMatchJSON`, `NewTraceID()`, `ValidTraceID()` | Policy sync payloads and W3C-compatible trace IDs |
 
 ### Control Types
@@ -74,28 +74,34 @@ env := protocol.RelayEnvelope{
 
 Both `agentd` and `agentd-relay` use type aliases to re-export these types under their `internal/relay` package, so existing code using `relay.RelayEnvelope` continues to work unchanged.
 
-Replay recovery is daemon-owned: the PWA sends `ReplayRequest{after_seq}` when it detects a gap in the inner per-session `AgentMessage.seq`, and the daemon responds with replayed `AgentMessage` frames followed by `replay_complete`. Route-bound reconnects can request `SessionSnapshotRequest` first so the active chat view is rebuilt from daemon state before broad replay. `RelayEnvelope.seq` remains the outer transport sequence for relay delivery and is not the cursor used for UI replay.
+Transcript recovery is selected-session and bounded. The daemon emits
+`session_head` metadata during connection bootstrap, and the PWA requests
+`history_page` slices for the active session only. `RelayEnvelope.seq` remains
+the outer transport sequence for relay delivery and is not the transcript cursor.
 
-Relay joins may also carry optional `nav_session_id` metadata. The relay forwards that value in `ClientConnectedPayload` so the daemon can prioritize the active session snapshot, while legacy clients omit the field and keep the existing replay behavior. New relays also assign a per-connection `client_id`, return it in `AckPayload`, and forward it in `ClientConnectedPayload`; daemon replay can set `RelayEnvelope.client_id` to deliver join-bound history only to that PWA connection.
+Relay control errors carry structured `retryable`, `terminal`, and
+`retry_after_ms` fields so clients can distinguish transient daemon reconnects
+from terminal pairing/session failures without inferring from socket state alone.
 
 ## Design Principles
 
 - **Zero dependencies** — only `encoding/json`, `time`, `crypto/rand`, `encoding/hex` from stdlib
-- **Backward compatible** — all new fields use `omitempty`; old clients produce identical JSON
+- **Pre-v1 lockstep** — coordinated contract removals and additions are expected while AgentD is still in foundation development
 - **W3C trace IDs** — 32 lowercase hex chars, ready for OpenTelemetry upgrade
 - **Roundtrip tested** — every type has a JSON marshal/unmarshal roundtrip test
 
 ## Versioning
 
 This module follows [Semantic Versioning](https://semver.org/) with one
-nuance: while in `v0.x` (initial development), wire-additive changes
-bump the **MINOR** version, not patch — since consumers (`agentd`,
-`agentd-relay`) are expected to opt in to each new field.
+nuance: while in `v0.x` (initial development), coordinated AgentD wire
+contract removals and wire-additive changes both bump the **MINOR** version.
+Consumers (`agentd`, `agentd-relay`, and `agentd-web`) are expected to update
+in lockstep across pre-v1 breaking cleanups.
 
 | Bump | Trigger |
 |---|---|
-| **MAJOR** (`v0.x → v1.0`, `v1 → v2` requires `/v2` import path) | Removed field, renamed JSON tag, removed message type |
-| **MINOR** (`v0.1.0 → v0.2.0`) | Wire-additive change: new message type, new field on existing struct, new capability flag |
+| **MAJOR** (`v0.x → v1.0`, `v1 → v2` requires `/v2` import path) | Stable-contract break after v1.0 |
+| **MINOR** (`v0.1.0 → v0.2.0`) | Pre-v1 breaking cleanup, new message type, new field on existing struct, new capability flag |
 | **PATCH** (`v0.1.0 → v0.1.1`) | No wire-format change: doc fix, test improvement, dep bump |
 
 See [`CHANGELOG.md`](./CHANGELOG.md) for the per-release wire-type

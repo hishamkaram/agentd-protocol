@@ -23,9 +23,8 @@ const (
 	SessionRecoveryActionRestorePath    SessionRecoveryAction = "restore_path"
 )
 
-// SessionRecoveryInfo is additive metadata on SessionInfo and StatusPayload.
-// Older clients can keep using the legacy resumable/retryable booleans; newer
-// clients should prefer this structured recovery object.
+// SessionRecoveryInfo is the structured recovery metadata on SessionInfo and
+// StatusPayload.
 type SessionRecoveryInfo struct {
 	Recoverable bool                  `json:"recoverable"`
 	Reason      SessionRecoveryReason `json:"reason,omitempty"`

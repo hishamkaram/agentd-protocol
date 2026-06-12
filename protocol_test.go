@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -280,7 +281,26 @@ func TestAckPayloadRoundtrip(t *testing.T) {
 
 func TestErrorPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
-	assertRoundtrip(t, protocol.ErrorPayload{Code: "invalid_session", Message: "not found"})
+	assertRoundtrip(t, protocol.ErrorPayload{
+		Code:         "daemon_reconnecting",
+		Message:      "daemon reconnecting",
+		Retryable:    true,
+		Terminal:     false,
+		RetryAfterMS: 1500,
+	})
+}
+
+func TestErrorPayloadLegacyShapeOmitsUnsetControlFlags(t *testing.T) {
+	t.Parallel()
+
+	raw, err := json.Marshal(protocol.ErrorPayload{Code: "invalid_session", Message: "not found"})
+	if err != nil {
+		t.Fatalf("marshal ErrorPayload: %v", err)
+	}
+	const legacyJSON = `{"code":"invalid_session","message":"not found"}`
+	if string(raw) != legacyJSON {
+		t.Fatalf("ErrorPayload legacy JSON = %s, want %s", raw, legacyJSON)
+	}
 }
 
 func TestStatusUpdatePayloadRoundtrip(t *testing.T) {
@@ -429,30 +449,17 @@ func TestClientConnectedPayloadRoundtrip(t *testing.T) {
 	})
 }
 
-func TestClientConnectedPayloadBackwardCompatibleWithoutNavSessionID(t *testing.T) {
+func TestClientConnectedPayloadRequiresClientIDOnMarshal(t *testing.T) {
 	t.Parallel()
-	const legacyJSON = `{"session_id":"sess-123"}`
 
-	var got protocol.ClientConnectedPayload
-	if err := json.Unmarshal([]byte(legacyJSON), &got); err != nil {
-		t.Fatalf("unmarshal legacy ClientConnectedPayload: %v", err)
-	}
-	if got.SessionID != "sess-123" {
-		t.Fatalf("SessionID = %q, want sess-123", got.SessionID)
-	}
-	if got.NavSessionID != "" {
-		t.Fatalf("NavSessionID = %q, want empty for legacy payload", got.NavSessionID)
-	}
-	if got.ClientID != "" {
-		t.Fatalf("ClientID = %q, want empty for legacy payload", got.ClientID)
-	}
-
-	raw, err := json.Marshal(protocol.ClientConnectedPayload{SessionID: "sess-123"})
+	raw, err := json.Marshal(protocol.ClientConnectedPayload{
+		SessionID: "sess-123",
+	})
 	if err != nil {
 		t.Fatalf("marshal ClientConnectedPayload: %v", err)
 	}
-	if string(raw) != legacyJSON {
-		t.Fatalf("ClientConnectedPayload without nav_session_id JSON = %s, want %s", raw, legacyJSON)
+	if !strings.Contains(string(raw), `"client_id":""`) {
+		t.Fatalf("ClientConnectedPayload JSON = %s, want client_id", raw)
 	}
 }
 

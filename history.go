@@ -1,39 +1,48 @@
-// Package protocol — history replay sync wire protocol (feature 192).
-//
-// This file defines the daemon→PWA `history_replay_complete` sentinel sent
-// once per session after the daemon finishes replaying that session's
-// `s.history` entries. The PWA uses the sentinel to dismiss the loading
-// skeleton, which closes the empty-session hang reported in feature 192.
-//
-// The DAEMON is the source of truth for the Msg* constant in this file.
-// A matching constant lives in agentd/internal/session/wsserver_history.go
-// with an init() panic that cross-checks equality at daemon startup — the
-// explicit drift prevention for the feature 169→170 wire-type-drift incident
-// class. Same pattern as agentd-protocol/gitsync.go ↔
-// agentd/internal/session/wsserver_gitsync.go:46-75.
+// Package protocol - selected-session transcript history paging wire protocol.
 package protocol
 
-// Message-type constant — DAEMON-side source of truth.
-// Mirror MUST exist in agentd/internal/session/wsserver_history.go with an
-// init() panic cross-check that the two values agree at daemon startup.
+import "encoding/json"
+
+// Message-type constants for daemon-owned transcript history recovery.
 const (
-	MsgHistoryReplayComplete = "history_replay_complete"
+	// MsgSessionHead is a daemon->PWA announcement of the current durable
+	// per-session head sequence.
+	MsgSessionHead = "session_head"
+
+	// MsgHistoryPageRequest is a PWA->daemon request for older durable
+	// transcript messages before a sequence boundary.
+	MsgHistoryPageRequest = "history_page_request"
+
+	// MsgHistoryPage is the daemon->PWA response containing a backward history
+	// page from durable storage.
+	MsgHistoryPage = "history_page"
 )
 
-// HistoryReplayCompletePayload is the daemon→PWA push emitted exactly once
-// per session after the daemon's history-replay loop finishes draining
-// `s.history` to that connection. It carries no replay content — only the
-// session identifier — so the PWA can flip the per-session
-// `historyReplayedAt[sid]` flag and dismiss the loading skeleton.
-//
-// Ordering invariant (FR-003): the sentinel MUST arrive AFTER all replayed
-// `s.history` entries on the same WS connection. The daemon emits inside
-// the same `s.mu.Lock()` window as the replay loop to preserve order.
-//
-// SessionID is required and non-empty in production (the daemon writes from
-// the map key in `s.history`, which is non-empty by construction). The
-// payload type itself round-trips an empty value defensively — validation
-// is the consumer handler's responsibility, not the wire type's.
-type HistoryReplayCompletePayload struct {
+// SessionHeadPayload is carried in an AgentMessage with Type MsgSessionHead.
+type SessionHeadPayload struct {
+	SessionID         string `json:"session_id"`
+	HeadSeq           uint64 `json:"head_seq"`
+	RetainedOldestSeq uint64 `json:"retained_oldest_seq,omitempty"`
+}
+
+// HistoryPageRequest is sent by the PWA when the user scrolls back before the
+// currently loaded transcript window.
+type HistoryPageRequest struct {
+	Type      string `json:"type"`
 	SessionID string `json:"session_id"`
+	BeforeSeq uint64 `json:"before_seq"`
+	Limit     int    `json:"limit,omitempty"`
+	RequestID string `json:"request_id"`
+}
+
+// HistoryPagePayload is carried in an AgentMessage with Type MsgHistoryPage.
+type HistoryPagePayload struct {
+	SessionID         string            `json:"session_id"`
+	Messages          []json.RawMessage `json:"messages"`
+	OldestSeq         uint64            `json:"oldest_seq"`
+	HasMore           bool              `json:"has_more"`
+	RequestID         string            `json:"request_id"`
+	Error             string            `json:"error,omitempty"`
+	Trimmed           bool              `json:"trimmed,omitempty"`
+	RetainedOldestSeq uint64            `json:"retained_oldest_seq,omitempty"`
 }

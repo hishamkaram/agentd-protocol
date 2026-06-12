@@ -2,96 +2,132 @@ package protocol
 
 import (
 	"encoding/json"
-	"strings"
 	"testing"
 )
 
-// TestHistoryReplayCompleteConstant verifies the exact wire-type literal.
-// The byte-for-byte string equality is the entire reason this constant lives
-// in agentd-protocol and is mirrored in agentd/internal/session/ with an
-// init() panic cross-check (per the feature 169→170 wire-type-drift incident).
-func TestHistoryReplayCompleteConstant(t *testing.T) {
+func TestDurableHistoryMessageTypeConstants(t *testing.T) {
 	t.Parallel()
 
-	const want = "history_replay_complete"
-	if MsgHistoryReplayComplete != want {
-		t.Errorf("MsgHistoryReplayComplete = %q, want %q", MsgHistoryReplayComplete, want)
+	if MsgSessionHead != "session_head" {
+		t.Fatalf("MsgSessionHead = %q, want session_head", MsgSessionHead)
 	}
-	if MsgHistoryReplayComplete == "" {
-		t.Errorf("MsgHistoryReplayComplete is empty")
+	if MsgHistoryPageRequest != "history_page_request" {
+		t.Fatalf("MsgHistoryPageRequest = %q, want history_page_request", MsgHistoryPageRequest)
+	}
+	if MsgHistoryPage != "history_page" {
+		t.Fatalf("MsgHistoryPage = %q, want history_page", MsgHistoryPage)
 	}
 }
 
-// TestHistoryReplayCompletePayloadRoundtrip verifies JSON marshal/unmarshal
-// round-tripping for the daemon→PWA `history_replay_complete` payload.
-// Per the contract (specs/192-history-replay-sync/contracts/history-replay-complete.md):
-//   - SessionID maps to JSON tag "session_id"
-//   - SessionID is required and non-empty in production but the payload type
-//     itself must round-trip even an empty value (defensive — the consumer's
-//     handler is responsible for validation, not the wire type).
-func TestHistoryReplayCompletePayloadRoundtrip(t *testing.T) {
+func TestSessionHeadPayloadJSONRoundtrip(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name string
-		in   HistoryReplayCompletePayload
-	}{
-		{
-			name: "typical session id",
-			in:   HistoryReplayCompletePayload{SessionID: "test-sid-123"},
-		},
-		{
-			name: "uuid shape",
-			in:   HistoryReplayCompletePayload{SessionID: "550e8400-e29b-41d4-a716-446655440000"},
-		},
-		{
-			name: "empty session id (edge case — preserved through roundtrip)",
-			in:   HistoryReplayCompletePayload{SessionID: ""},
-		},
+	in := SessionHeadPayload{
+		SessionID:         "session-123",
+		HeadSeq:           99,
+		RetainedOldestSeq: 7,
 	}
 
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			data, err := json.Marshal(tt.in)
-			if err != nil {
-				t.Fatalf("marshal: %v", err)
-			}
-
-			var out HistoryReplayCompletePayload
-			if err := json.Unmarshal(data, &out); err != nil {
-				t.Fatalf("unmarshal: %v", err)
-			}
-
-			if tt.in != out {
-				t.Errorf("roundtrip mismatch:\n in:  %+v\n out: %+v", tt.in, out)
-			}
-		})
-	}
-}
-
-// TestHistoryReplayCompletePayloadJSONShape verifies the on-wire JSON
-// matches the exact shape from the contract (the `session_id` field name).
-// This is the producer-side guard against accidental json-tag drift like
-// SessionId / sessionID / sessionId variants.
-func TestHistoryReplayCompletePayloadJSONShape(t *testing.T) {
-	t.Parallel()
-
-	in := HistoryReplayCompletePayload{SessionID: "test-sid-123"}
-	data, err := json.Marshal(in)
+	raw, err := json.Marshal(in)
 	if err != nil {
-		t.Fatalf("marshal: %v", err)
+		t.Fatalf("marshal SessionHeadPayload: %v", err)
+	}
+	const wantJSON = `{"session_id":"session-123","head_seq":99,"retained_oldest_seq":7}`
+	if string(raw) != wantJSON {
+		t.Fatalf("SessionHeadPayload JSON = %s, want %s", raw, wantJSON)
 	}
 
-	got := string(data)
-	if !strings.Contains(got, `"session_id":"test-sid-123"`) {
-		t.Errorf("expected JSON to contain `\"session_id\":\"test-sid-123\"`, got: %s", got)
+	var out SessionHeadPayload
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("unmarshal SessionHeadPayload: %v", err)
 	}
-	for _, banned := range []string{`"sessionID"`, `"sessionId"`, `"SessionID"`, `"session-id"`} {
-		if strings.Contains(got, banned) {
-			t.Errorf("JSON must not contain %s, got: %s", banned, got)
-		}
+	if out != in {
+		t.Fatalf("SessionHeadPayload roundtrip = %+v, want %+v", out, in)
+	}
+}
+
+func TestHistoryPageRequestJSONRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	in := HistoryPageRequest{
+		Type:      MsgHistoryPageRequest,
+		SessionID: "session-123",
+		BeforeSeq: 99,
+		Limit:     250,
+		RequestID: "request-123",
+	}
+
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal HistoryPageRequest: %v", err)
+	}
+	const wantJSON = `{"type":"history_page_request","session_id":"session-123","before_seq":99,"limit":250,"request_id":"request-123"}`
+	if string(raw) != wantJSON {
+		t.Fatalf("HistoryPageRequest JSON = %s, want %s", raw, wantJSON)
+	}
+
+	var out HistoryPageRequest
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("unmarshal HistoryPageRequest: %v", err)
+	}
+	if out != in {
+		t.Fatalf("HistoryPageRequest roundtrip = %+v, want %+v", out, in)
+	}
+}
+
+func TestHistoryPagePayloadJSONRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	in := HistoryPagePayload{
+		SessionID: "session-123",
+		Messages: []json.RawMessage{
+			json.RawMessage(`{"type":"output","session_id":"session-123","seq":97}`),
+			json.RawMessage(`{"type":"output","session_id":"session-123","seq":98}`),
+		},
+		OldestSeq:         97,
+		HasMore:           true,
+		RequestID:         "request-123",
+		Error:             "history unavailable",
+		Trimmed:           true,
+		RetainedOldestSeq: 97,
+	}
+
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal HistoryPagePayload: %v", err)
+	}
+	const wantJSON = `{"session_id":"session-123","messages":[{"type":"output","session_id":"session-123","seq":97},{"type":"output","session_id":"session-123","seq":98}],"oldest_seq":97,"has_more":true,"request_id":"request-123","error":"history unavailable","trimmed":true,"retained_oldest_seq":97}`
+	if string(raw) != wantJSON {
+		t.Fatalf("HistoryPagePayload JSON = %s, want %s", raw, wantJSON)
+	}
+
+	var out HistoryPagePayload
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatalf("unmarshal HistoryPagePayload: %v", err)
+	}
+	if out.SessionID != in.SessionID || out.OldestSeq != in.OldestSeq || out.HasMore != in.HasMore || out.RequestID != in.RequestID || out.Error != in.Error || out.Trimmed != in.Trimmed || out.RetainedOldestSeq != in.RetainedOldestSeq {
+		t.Fatalf("HistoryPagePayload scalar roundtrip = %+v, want %+v", out, in)
+	}
+	if len(out.Messages) != len(in.Messages) || string(out.Messages[0]) != string(in.Messages[0]) || string(out.Messages[1]) != string(in.Messages[1]) {
+		t.Fatalf("HistoryPagePayload messages = %s, want %s", out.Messages, in.Messages)
+	}
+}
+
+func TestHistoryPagePayloadOmitsOptionalFields(t *testing.T) {
+	t.Parallel()
+
+	raw, err := json.Marshal(HistoryPagePayload{
+		SessionID: "session-123",
+		Messages:  []json.RawMessage{},
+		OldestSeq: 1,
+		HasMore:   false,
+		RequestID: "request-123",
+	})
+	if err != nil {
+		t.Fatalf("marshal HistoryPagePayload: %v", err)
+	}
+	const wantJSON = `{"session_id":"session-123","messages":[],"oldest_seq":1,"has_more":false,"request_id":"request-123"}`
+	if string(raw) != wantJSON {
+		t.Fatalf("HistoryPagePayload JSON = %s, want %s", raw, wantJSON)
 	}
 }

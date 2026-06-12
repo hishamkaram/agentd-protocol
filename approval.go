@@ -11,9 +11,9 @@
 //     ApprovalGate modal upon receipt; ANY client that decided AND any other
 //     client showing the same approval converges via this single signal.
 //
-//   - MsgPendingApprovalReplay: replay-only signal emitted on reconnect after
-//     the per-session history_replay_complete sentinel. Triggers
-//     setPendingApproval on the PWA WITHOUT entering chat history. Reuses
+//   - MsgPendingApprovalState: control-state signal emitted during reconnect
+//     metadata bootstrap. Triggers setPendingApproval on the PWA WITHOUT
+//     entering chat history. Reuses
 //     the existing ApprovalPayload struct shape (defined in
 //     agentd/internal/session/types.go); only the outer wire-type constant
 //     differs from MsgApproval. The daemon re-stamps `ts` per emission so
@@ -36,14 +36,14 @@ const (
 	// terminal decision string, and the resolution timestamp.
 	MsgApprovalResolved = "approval_resolved"
 
-	// MsgPendingApprovalReplay is the daemon→PWA replay-only signal
-	// emitted on reconnect for any approval still pending in the
+	// MsgPendingApprovalState is the daemon→PWA control-state signal
+	// emitted during bootstrap for any approval still pending in the
 	// daemon's pendingApprovals map. Reuses the ApprovalPayload struct
 	// shape; only the wire-type constant differs from MsgApproval. PWA
-	// handler MUST early-return BEFORE addMessage so the replay does not
+	// handler MUST early-return BEFORE addMessage so the state frame does not
 	// duplicate chat-history bubbles (see ChatView.tsx filter
 	// behavior — approvals render as bubbles by default).
-	MsgPendingApprovalReplay = "pending_approval_replay"
+	MsgPendingApprovalState = "pending_approval_state"
 )
 
 // ApprovalDecision values used in ApprovalResolvedPayload.Decision.
