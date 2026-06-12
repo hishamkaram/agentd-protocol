@@ -72,10 +72,9 @@ func TestMsgApprovalResolvedConstant(t *testing.T) {
 	}
 }
 
-// TestMsgPendingApprovalStateConstant pins the wire-type string for the
-// reconnect-replay signal. Distinct from MsgApproval to allow the PWA
-// handler to early-return BEFORE addMessage (so chat history is not
-// duplicated on each reload).
+// TestMsgPendingApprovalStateConstant pins the wire-type string for reconnect
+// state hydration. Distinct from MsgApproval to allow the PWA handler to
+// early-return BEFORE addMessage (so chat history is not duplicated on reload).
 func TestMsgPendingApprovalStateConstant(t *testing.T) {
 	t.Parallel()
 	if MsgPendingApprovalState != "pending_approval_state" {

@@ -16,8 +16,8 @@ const (
 	ProtocolV2 = "agentd.v2"
 
 	// AgentDEventProtocolV2 identifies typed streaming event frames. These are
-	// intentionally not JSON-RPC notifications; replay and session output need a
-	// durable event contract with ordering metadata.
+	// intentionally not JSON-RPC notifications; history pages and session output
+	// need a durable event contract with ordering metadata.
 	AgentDEventProtocolV2 = "agentd.event.v2"
 
 	JSONRPCVersion = "2.0"
