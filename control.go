@@ -149,12 +149,13 @@ type TerminateSessionAckPayload struct {
 }
 
 // ClientConnectedPayload is sent by the relay to the daemon when a PWA client
-// connects or reconnects. The daemon uses this to prioritize active-session
-// metadata and bounded history paging.
+// connects or reconnects. ClientID is the relay-assigned connection identity
+// used for targeted bootstrap and history responses; current daemons reject
+// client_connected controls that omit it.
 type ClientConnectedPayload struct {
 	SessionID    string `json:"session_id"`
 	NavSessionID string `json:"nav_session_id,omitempty"`
-	ClientID     string `json:"client_id,omitempty"`
+	ClientID     string `json:"client_id"`
 }
 
 // ClientCountPayload is sent by the relay to the daemon after every client

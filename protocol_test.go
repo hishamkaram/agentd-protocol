@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -448,30 +449,18 @@ func TestClientConnectedPayloadRoundtrip(t *testing.T) {
 	})
 }
 
-func TestClientConnectedPayloadBackwardCompatibleWithoutNavSessionID(t *testing.T) {
+func TestClientConnectedPayloadRequiresClientIDOnMarshal(t *testing.T) {
 	t.Parallel()
-	const legacyJSON = `{"session_id":"sess-123"}`
 
-	var got protocol.ClientConnectedPayload
-	if err := json.Unmarshal([]byte(legacyJSON), &got); err != nil {
-		t.Fatalf("unmarshal legacy ClientConnectedPayload: %v", err)
-	}
-	if got.SessionID != "sess-123" {
-		t.Fatalf("SessionID = %q, want sess-123", got.SessionID)
-	}
-	if got.NavSessionID != "" {
-		t.Fatalf("NavSessionID = %q, want empty for legacy payload", got.NavSessionID)
-	}
-	if got.ClientID != "" {
-		t.Fatalf("ClientID = %q, want empty for legacy payload", got.ClientID)
-	}
-
-	raw, err := json.Marshal(protocol.ClientConnectedPayload{SessionID: "sess-123"})
+	raw, err := json.Marshal(protocol.ClientConnectedPayload{
+		SessionID: "sess-123",
+		ClientID:  "client-1",
+	})
 	if err != nil {
 		t.Fatalf("marshal ClientConnectedPayload: %v", err)
 	}
-	if string(raw) != legacyJSON {
-		t.Fatalf("ClientConnectedPayload without nav_session_id JSON = %s, want %s", raw, legacyJSON)
+	if !strings.Contains(string(raw), `"client_id":"client-1"`) {
+		t.Fatalf("ClientConnectedPayload JSON = %s, want client_id", raw)
 	}
 }
 
