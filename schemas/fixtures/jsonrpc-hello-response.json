@@ -5,7 +5,7 @@
     "protocol": "agentd.v2",
     "selected_protocol": "agentd.v2",
     "supported_protocols": ["agentd.v2", "agentd.v1"],
-    "capabilities": ["jsonrpc.commands", "typed.events", "transport.ping", "support.bundle", "session.list", "session.replay", "session.snapshot", "session.feature_status", "relay.opaque", "command.receipts"]
+    "capabilities": ["jsonrpc.commands", "typed.events", "transport.ping", "support.bundle", "session.list", "session.feature_status", "relay.opaque", "command.receipts"]
   },
   "trace_id": "0123456789abcdef0123456789abcdef"
 }

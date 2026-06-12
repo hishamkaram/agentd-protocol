@@ -8,25 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Versioning convention (see [README.md](./README.md) for full policy):
 
-- **MAJOR** (`v0.x → v1.x`, then `v1 → v2` requires `/v2` import path) — removed field, renamed JSON tag, removed message type, type-shape change.
-- **MINOR** (`v0.1.0 → v0.2.0`) — wire-additive: new message types, new fields on existing structs, new capability flags. Pre-v1 minor bumps may also include localized breaking changes per the Go "anything goes pre-v1" convention.
+- **MAJOR** (`v0.x → v1.x`, then `v1 → v2` requires `/v2` import path) — stable-contract break after v1.0.
+- **MINOR** (`v0.1.0 → v0.2.0`) — pre-v1 breaking cleanup, new message types, new fields on existing structs, new capability flags.
 - **PATCH** (`v0.1.0 → v0.1.1`) — no wire-format change: doc fixes, test improvements, dependency bumps.
 
 ## [Unreleased]
 
 ### Wire types
 
-- `MsgReplayRequest`, `MsgReplayComplete` constants for durable journal recovery
-- `ReplayRequest`, `ReplayCompletePayload`
+- Breaking pre-v1 cleanup: removed obsolete transcript replay and snapshot wire
+  contracts after coordinated migration to selected-session `session_head` +
+  `history_page` paging.
 - `CtrlPushNotifyResult` control message for relay-to-daemon Web Push delivery results
 - `PushNotifyPayload` tracking fields: `notification_id`, `trace_id`, `created_at_unix_ms`, `attempt`
 - `PushNotifyResultPayload` for accepted/retryable/permanent Web Push result acknowledgements
 - `CostPayload` shared wire type with additive cached-token, pricing-availability, and Codex credit estimate fields
 - `RateLimitsUpdatedPayload` additive Codex plan and actual credit snapshot fields
 - `AgentCapability.supports_runtime_full_access` additive capability flag for Codex runtime Full access opt-in
-- `SupportBundleParams.client_transport` and additive support-bundle transport diagnostics for active session, replay state, relay control errors, inbound/pong age, and pending JSON-RPC count
-- `ErrorPayload.retry_after_ms` relay control retry hint for reconnecting and overloaded states
-- `ReplayRequest.client_generation` additive replay dedupe key for multi-device reconnect storms
+- `SupportBundleParams.client_transport` and additive support-bundle transport diagnostics for active session, bootstrap state, relay control errors, inbound/pong age, and pending JSON-RPC count
+- `ErrorPayload.retryable`, `ErrorPayload.terminal`, and `ErrorPayload.retry_after_ms` relay control retry metadata for reconnecting, overloaded, and terminal pairing states
 - `SupportBundleTransport.relay_diagnostics` redacted relay pairing, reconnect, replay, and pressure counters
 - `SessionInfo.recovery`, `StatusPayload.recovery`, `SessionRecoveryInfo`, `SessionRecoveryReason`, and `SessionRecoveryAction` for durable paused session repair metadata
 
@@ -54,13 +54,13 @@ module's inception. Captures the protocol surface as of agentd commit
 
 #### Approval lifecycle (feature 193)
 
-- `MsgApprovalResolved`, `MsgPendingApprovalReplay` constants
-- `ApprovalResolvedPayload`, `PendingApprovalReplayPayload`
+- `MsgApprovalResolved`, `MsgPendingApprovalState` constants
+- `ApprovalResolvedPayload`, `PendingApprovalStatePayload`
 
-#### History replay (feature 192)
+#### History hydration (feature 192)
 
-- `MsgHistoryReplayComplete` constant
-- `HistoryReplayCompletePayload`
+- `MsgHistoryPage` constant
+- `HistoryPagePayload`
 
 #### Rate limits (feature 184)
 
