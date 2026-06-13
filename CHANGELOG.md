@@ -14,6 +14,16 @@ Versioning convention (see [README.md](./README.md) for full policy):
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [v0.1.3] — 2026-06-13
+
+### Documentation
+
+- Preserve historical changelog symbols for tagged pre-v1 wire inventory.
+
+## [v0.1.2] — 2026-06-12
+
 ### Wire types
 
 - Breaking pre-v1 cleanup: removed obsolete transcript replay and snapshot wire
@@ -104,7 +114,9 @@ module's inception. Captures the protocol surface as of agentd commit
   serialize a field surface as `false` / zero-value to newer PWA bundles.
 - Protocol additions in this release are 100% wire-additive — no
   consumer that compiled against an earlier pseudo-version will break
-  when re-pinned to `v0.1.0`.
+  when re-pinned to `v0.1.2`.
 
-[Unreleased]: https://github.com/hishamkaram/agentd-protocol/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/hishamkaram/agentd-protocol/compare/v0.1.3...HEAD
+[v0.1.3]: https://github.com/hishamkaram/agentd-protocol/compare/v0.1.2...v0.1.3
+[v0.1.2]: https://github.com/hishamkaram/agentd-protocol/compare/v0.1.0...v0.1.2
 [v0.1.0]: https://github.com/hishamkaram/agentd-protocol/releases/tag/v0.1.0
