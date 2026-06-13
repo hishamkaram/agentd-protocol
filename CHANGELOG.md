@@ -19,6 +19,8 @@ Versioning convention (see [README.md](./README.md) for full policy):
 - Breaking pre-v1 cleanup: removed obsolete transcript replay and snapshot wire
   contracts after coordinated migration to selected-session `session_head` +
   `history_page` paging.
+- Replaced the historical `MsgPendingApprovalReplay` reconnect marker with
+  current control-state `MsgPendingApprovalState`.
 - `CtrlPushNotifyResult` control message for relay-to-daemon Web Push delivery results
 - `PushNotifyPayload` tracking fields: `notification_id`, `trace_id`, `created_at_unix_ms`, `attempt`
 - `PushNotifyResultPayload` for accepted/retryable/permanent Web Push result acknowledgements
@@ -55,13 +57,13 @@ module's inception. Captures the protocol surface as of agentd commit
 
 #### Approval lifecycle (feature 193)
 
-- `MsgApprovalResolved`, `MsgPendingApprovalReplay` constants
+- `MsgApprovalResolved`, historical `MsgPendingApprovalReplay` constants
 - `ApprovalResolvedPayload`
 
 #### History hydration (feature 192)
 
-- `MsgHistoryReplayComplete` constant
-- `HistoryReplayCompletePayload`
+- Historical `MsgHistoryReplayComplete` constant
+- Historical `HistoryReplayCompletePayload`
 
 #### Rate limits (feature 184)
 
