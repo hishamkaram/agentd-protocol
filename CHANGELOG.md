@@ -55,13 +55,13 @@ module's inception. Captures the protocol surface as of agentd commit
 
 #### Approval lifecycle (feature 193)
 
-- `MsgApprovalResolved`, `MsgPendingApprovalState` constants
-- `ApprovalResolvedPayload`, `PendingApprovalStatePayload`
+- `MsgApprovalResolved`, `MsgPendingApprovalReplay` constants
+- `ApprovalResolvedPayload`
 
 #### History hydration (feature 192)
 
-- `MsgHistoryPage` constant
-- `HistoryPagePayload`
+- `MsgHistoryReplayComplete` constant
+- `HistoryReplayCompletePayload`
 
 #### Rate limits (feature 184)
 
