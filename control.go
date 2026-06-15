@@ -122,6 +122,7 @@ type AuditEntryPayload struct {
 	InputHash   string    `json:"input_hash,omitempty"`
 	Decision    string    `json:"decision,omitempty"`
 	PolicyName  string    `json:"policy,omitempty"`
+	Reason      string    `json:"reason,omitempty"`
 	CostUSD     float64   `json:"cost_usd,omitempty"`
 }
 
