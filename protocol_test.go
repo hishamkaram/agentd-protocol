@@ -424,9 +424,30 @@ func TestAuditEntryPayloadRoundtrip(t *testing.T) {
 		InputHash:   "abc123",
 		Decision:    "allow",
 		PolicyName:  "default",
+		Reason:      "operator requested unblock",
 		CostUSD:     0.05,
 	}
 	assertRoundtrip(t, original)
+}
+
+func TestAuditEntryPayloadLegacyWithoutReason(t *testing.T) {
+	t.Parallel()
+
+	raw := []byte(`{"ts":"2026-03-31T12:00:00Z","session_id":"sess-legacy","developer_id":"dev-1","agent":"claude-code","event":"admin_terminate"}`)
+	var got protocol.AuditEntryPayload
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal legacy audit payload: %v", err)
+	}
+	if got.Reason != "" {
+		t.Fatalf("Reason = %q, want empty for legacy payload", got.Reason)
+	}
+	encoded, err := json.Marshal(got)
+	if err != nil {
+		t.Fatalf("marshal legacy audit payload: %v", err)
+	}
+	if bytes.Contains(encoded, []byte(`"reason"`)) {
+		t.Fatalf("zero reason should be omitted, got JSON: %s", string(encoded))
+	}
 }
 
 func TestDeactivateDeveloperPayloadRoundtrip(t *testing.T) {
