@@ -1,0 +1,7 @@
+{
+  "type": "history_page_request",
+  "session_id": "fixture-session",
+  "before_seq": 43,
+  "limit": 25,
+  "request_id": "redacted"
+}

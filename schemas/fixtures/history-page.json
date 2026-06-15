@@ -1,0 +1,40 @@
+{
+  "type": "history_page",
+  "session_id": "fixture-session",
+  "agent": "codex",
+  "ts": 1760000001001,
+  "seq": 43,
+  "payload": {
+    "session_id": "fixture-session",
+    "messages": [
+      {
+        "type": "output",
+        "session_id": "fixture-session",
+        "agent": "codex",
+        "ts": 1760000000900,
+        "seq": 40,
+        "message_id": "msg_fixture_040",
+        "payload": {
+          "text": "fixture output",
+          "raw": "fixture output"
+        }
+      },
+      {
+        "type": "result",
+        "session_id": "fixture-session",
+        "agent": "codex",
+        "ts": 1760000000950,
+        "seq": 41,
+        "message_id": "msg_fixture_041",
+        "payload": {
+          "success": true,
+          "exit_code": 0
+        }
+      }
+    ],
+    "oldest_seq": 40,
+    "has_more": false,
+    "request_id": "redacted",
+    "retained_oldest_seq": 7
+  }
+}

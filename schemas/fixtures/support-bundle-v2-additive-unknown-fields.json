@@ -1,0 +1,32 @@
+{
+  "schema_version": "agentd.support_bundle.v2",
+  "generated_at_unix_ms": 1760000001600,
+  "bundle_id": "sb_synthetic_protocol_v2_additive",
+  "client": {
+    "name": "agentd-web",
+    "version": "test",
+    "future_client_field": "ignored"
+  },
+  "transport": {
+    "active_mode": "local",
+    "connected": true,
+    "stale": false,
+    "selected_protocol": "agentd.v1",
+    "history_hydration_state": "restored",
+    "client_diagnostics": {
+      "history_page_requests_in_flight": 0,
+      "websocket_buffered_amount": 0,
+      "future_safe_counter": 3
+    },
+    "pending_jsonrpc_request_count": 0,
+    "future_safe_state": "ignored"
+  },
+  "recent_events": [],
+  "last_errors": [],
+  "redaction": {
+    "applied": true,
+    "rules_version": 1
+  },
+  "partial": false,
+  "future_safe_top_level": true
+}

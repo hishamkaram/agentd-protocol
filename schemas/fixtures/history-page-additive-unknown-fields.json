@@ -1,0 +1,18 @@
+{
+  "type": "history_page",
+  "session_id": "fixture-session",
+  "agent": "codex",
+  "ts": 1760000001002,
+  "seq": 44,
+  "payload": {
+    "session_id": "fixture-session",
+    "messages": [],
+    "oldest_seq": 0,
+    "has_more": false,
+    "request_id": "redacted",
+    "future_cursor": {
+      "safe": true
+    }
+  },
+  "future_top_level": "ignored"
+}

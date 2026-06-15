@@ -1,0 +1,13 @@
+{
+  "type": "session_head",
+  "session_id": "fixture-session",
+  "agent": "codex",
+  "ts": 1760000001000,
+  "seq": 42,
+  "payload": {
+    "session_id": "fixture-session",
+    "head_seq": 42,
+    "retained_oldest_seq": 7
+  },
+  "future_top_level": "ignored"
+}
