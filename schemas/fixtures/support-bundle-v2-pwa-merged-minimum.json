@@ -1,0 +1,42 @@
+{
+  "schema_version": "agentd.support_bundle.v2",
+  "generated_at_unix_ms": 1760000001500,
+  "bundle_id": "sb_synthetic_protocol_v2",
+  "client": {
+    "name": "agentd-web",
+    "version": "test"
+  },
+  "daemon": {
+    "version": "test",
+    "protocol_version": "agentd.v1",
+    "advertised_capabilities": [
+      "support.bundle"
+    ],
+    "config_source": {
+      "kind": "unknown",
+      "unknown_key_count": 0
+    },
+    "relay_url_category": "hosted_agentd"
+  },
+  "transport": {
+    "active_mode": "relay",
+    "connected": true,
+    "stale": false,
+    "selected_protocol": "agentd.v1",
+    "relay_url_category": "hosted_agentd",
+    "active_session_id": "redacted",
+    "history_hydration_state": "restored",
+    "client_diagnostics": {
+      "history_page_requests_in_flight": 0,
+      "websocket_buffered_amount": 0
+    },
+    "pending_jsonrpc_request_count": 0
+  },
+  "recent_events": [],
+  "last_errors": [],
+  "redaction": {
+    "applied": true,
+    "rules_version": 1
+  },
+  "partial": false
+}

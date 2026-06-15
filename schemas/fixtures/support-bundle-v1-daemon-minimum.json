@@ -1,0 +1,30 @@
+{
+  "schema_version": "agentd.support_bundle.v1",
+  "generated_at_unix_ms": 1760000001400,
+  "bundle_id": "sb_synthetic_protocol_v1",
+  "daemon": {
+    "version": "test",
+    "protocol_version": "agentd.v1",
+    "advertised_capabilities": [
+      "support.bundle"
+    ],
+    "config_source": {
+      "kind": "unknown",
+      "unknown_key_count": 0
+    },
+    "relay_url_category": "none"
+  },
+  "transport": {
+    "active_mode": "local",
+    "connected": true,
+    "stale": false,
+    "selected_protocol": "agentd.v1"
+  },
+  "recent_events": [],
+  "last_errors": [],
+  "redaction": {
+    "applied": true,
+    "rules_version": 1
+  },
+  "partial": false
+}

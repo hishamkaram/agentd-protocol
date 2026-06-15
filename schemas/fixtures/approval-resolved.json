@@ -1,0 +1,12 @@
+{
+  "type": "approval_resolved",
+  "session_id": "fixture-session",
+  "agent": "codex",
+  "ts": 1760000001200,
+  "payload": {
+    "approval_id": "approval_fixture_pending",
+    "session_id": "fixture-session",
+    "decision": "allow",
+    "resolved_at": 1760000001199
+  }
+}

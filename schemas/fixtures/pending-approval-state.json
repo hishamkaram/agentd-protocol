@@ -1,0 +1,16 @@
+{
+  "type": "pending_approval_state",
+  "session_id": "fixture-session",
+  "agent": "codex",
+  "ts": 1760000001300,
+  "payload": {
+    "approval_id": "approval_fixture_pending",
+    "session_id": "fixture-session",
+    "tool": "Bash",
+    "command": "printf fixture",
+    "context": "Fixture pending approval.",
+    "risk": "medium",
+    "timeout_s": 0,
+    "expires_at": 0
+  }
+}

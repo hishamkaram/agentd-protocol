@@ -1,0 +1,11 @@
+{
+  "type": "route_receipt",
+  "payload": {
+    "eid": "cmd_fixture_failed",
+    "sid": "fixture-relay-session",
+    "tid": "0123456789abcdef0123456789abcdef",
+    "routed": false,
+    "reason_code": "relay_route_failed",
+    "observed_at_unix_ms": 1760000001101
+  }
+}
