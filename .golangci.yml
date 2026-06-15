@@ -10,7 +10,25 @@ run:
   tests: true
 
 linters:
+  # `enable` augments the default ("standard") linter set in golangci-lint v2.
+  enable:
+    - depguard
   settings:
+    depguard:
+      rules:
+        # agentd-protocol is the shared LEAF of the dependency graph: it is the
+        # canonical wire-type module that everything imports and that imports no
+        # AgentD application module. Trailing slashes scope to each module's
+        # subpackages (depguard uses string-prefix matching). See this repo's
+        # CLAUDE.md "Zero Dependencies" / "Source of Truth".
+        protocol-is-leaf:
+          deny:
+            - pkg: github.com/hishamkaram/agentd/
+              desc: "agentd-protocol is the leaf wire-type module; it must not import the daemon"
+            - pkg: github.com/hishamkaram/agentd-relay/
+              desc: "agentd-protocol is the leaf wire-type module; it must not import the relay"
+            - pkg: github.com/hishamkaram/agentd-cloud/
+              desc: "agentd-protocol is the leaf wire-type module; it must not import the cloud control plane"
     staticcheck:
       checks:
         - all
