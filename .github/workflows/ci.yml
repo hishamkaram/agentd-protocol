@@ -27,11 +27,7 @@ jobs:
       - name: Test with race detector
         run: go test -race -count=1 -p 4 -coverprofile=coverage.out ./...
       - name: Enforce coverage minimum (83%)
-        run: |
-          set -euo pipefail
-          total=$(go tool cover -func=coverage.out | awk '/^total:/ {gsub(/%/,"",$3); print $3}')
-          echo "Total coverage: ${total}%"
-          awk -v t="$total" 'BEGIN { if (t == "" || (t+0) < 83) { print "::error::Coverage "t"% is below the 83% minimum"; exit 1 } }'
+        run: bash scripts/check-go-coverage.sh coverage.out 83
       - name: govulncheck
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
