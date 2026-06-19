@@ -195,15 +195,15 @@ var (
 
 // Validation constants used by the rules below.
 const (
-	mcpMaxNameLen       = 64
-	mcpMaxCommandLen    = 2048
-	mcpMaxArgs          = 64
-	mcpMaxArgLen        = 1024
-	mcpMaxEnvKeys       = 32
-	mcpMaxEnvValueLen   = 4096
-	mcpMaxHeaderKeys    = 32
-	mcpMaxHeaderValLen  = 4096
-	mcpMaxURLLen        = 2048
+	mcpMaxNameLen      = 64
+	mcpMaxCommandLen   = 2048
+	mcpMaxArgs         = 64
+	mcpMaxArgLen       = 1024
+	mcpMaxEnvKeys      = 32
+	mcpMaxEnvValueLen  = 4096
+	mcpMaxHeaderKeys   = 32
+	mcpMaxHeaderValLen = 4096
+	mcpMaxURLLen       = 2048
 )
 
 var (
@@ -327,13 +327,30 @@ func ValidateRemote(cfg *MCPServerConfig) error {
 	if cfg == nil {
 		return fmt.Errorf("protocol.ValidateRemote: cfg is nil: %w", ErrInvalidURL)
 	}
-	if cfg.URL == "" {
+	if err := validateRemoteURL(cfg.URL); err != nil {
+		return err
+	}
+	if err := validateRemoteHeaders(cfg.Headers); err != nil {
+		return err
+	}
+	if cfg.Command != "" || len(cfg.Args) > 0 || len(cfg.Env) > 0 {
+		return fmt.Errorf("protocol.ValidateRemote: sse/http transport must not set command/args/env: %w", ErrInvalidTransportFields)
+	}
+	return nil
+}
+
+// validateRemoteURL enforces the URL constraints for sse/http transports:
+// non-empty, within the length cap, parseable, scheme+host present, and
+// https-or-loopback. Error strings and sentinels are identical to the prior
+// inline checks in ValidateRemote.
+func validateRemoteURL(rawURL string) error {
+	if rawURL == "" {
 		return fmt.Errorf("protocol.ValidateRemote: url is empty: %w", ErrInvalidURL)
 	}
-	if len(cfg.URL) > mcpMaxURLLen {
+	if len(rawURL) > mcpMaxURLLen {
 		return fmt.Errorf("protocol.ValidateRemote: url exceeds %d bytes: %w", mcpMaxURLLen, ErrInvalidURL)
 	}
-	u, err := url.Parse(cfg.URL)
+	u, err := url.Parse(rawURL)
 	if err != nil {
 		return fmt.Errorf("protocol.ValidateRemote: parsing url: %v: %w", err, ErrInvalidURL)
 	}
@@ -352,11 +369,17 @@ func ValidateRemote(cfg *MCPServerConfig) error {
 	if u.Scheme != "https" && !isLoopback {
 		return fmt.Errorf("protocol.ValidateRemote: scheme %q requires https or loopback host: %w", u.Scheme, ErrInvalidURL)
 	}
+	return nil
+}
 
-	if len(cfg.Headers) > mcpMaxHeaderKeys {
-		return fmt.Errorf("protocol.ValidateRemote: headers has %d keys, max %d: %w", len(cfg.Headers), mcpMaxHeaderKeys, ErrInvalidHeaders)
+// validateRemoteHeaders enforces the header-count cap and the per-header
+// RFC 7230 token + value-length constraints. Header values are secrets and are
+// never logged. Error strings and sentinels match the prior inline checks.
+func validateRemoteHeaders(headers map[string]string) error {
+	if len(headers) > mcpMaxHeaderKeys {
+		return fmt.Errorf("protocol.ValidateRemote: headers has %d keys, max %d: %w", len(headers), mcpMaxHeaderKeys, ErrInvalidHeaders)
 	}
-	for k, v := range cfg.Headers {
+	for k, v := range headers {
 		if !mcpHeaderTokenRe.MatchString(k) {
 			return fmt.Errorf("protocol.ValidateRemote: header key %q is not a valid RFC 7230 token: %w", k, ErrInvalidHeaders)
 		}
@@ -364,10 +387,6 @@ func ValidateRemote(cfg *MCPServerConfig) error {
 			// Never log the value itself — it is a secret.
 			return fmt.Errorf("protocol.ValidateRemote: header[%s] value exceeds %d bytes: %w", k, mcpMaxHeaderValLen, ErrInvalidHeaders)
 		}
-	}
-
-	if cfg.Command != "" || len(cfg.Args) > 0 || len(cfg.Env) > 0 {
-		return fmt.Errorf("protocol.ValidateRemote: sse/http transport must not set command/args/env: %w", ErrInvalidTransportFields)
 	}
 	return nil
 }
