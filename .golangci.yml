@@ -19,7 +19,15 @@ linters:
     # fails CI — intended ratchet, full-strength (no incremental baseline ramp).
     - gocyclo
     - gocognit
+    # //nolint hygiene: every suppression must name a specific linter and carry
+    # an explanation; unused directives are reported. No suppressions exist in
+    # this leaf module today — this keeps it that way honestly.
+    - nolintlint
   settings:
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
     depguard:
       rules:
         # agentd-protocol is the shared LEAF of the dependency graph: it is the
