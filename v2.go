@@ -81,8 +81,10 @@ const (
 	JSONRPCServerBusy     = -32000
 )
 
-type Method string
-type EventType string
+type (
+	Method    string
+	EventType string
+)
 
 type ConnectionPhase string
 

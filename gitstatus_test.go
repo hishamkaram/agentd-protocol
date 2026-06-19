@@ -45,11 +45,11 @@ func TestGitFileStatusRoundtrip(t *testing.T) {
 		{
 			name: "redacted sensitive path",
 			in: protocol.GitFileStatus{
-				Path:       ".env",
-				XY:         "??",
+				Path:        ".env",
+				XY:          "??",
 				IsUntracked: true,
-				IsRedacted: true,
-				SizeBytes:  256,
+				IsRedacted:  true,
+				SizeBytes:   256,
 			},
 		},
 	}
@@ -249,11 +249,11 @@ func TestGitDiffResponseRoundtrip(t *testing.T) {
 		{
 			name: "normal modified",
 			in: protocol.GitDiffResponse{
-				RequestID: "r1",
-				Path:      "a.go",
-				Status:    protocol.GitDiffStatusModified,
-				DiffText:  "--- a/a.go\n+++ b/a.go\n@@ -1 +1 @@\n-old\n+new\n",
-				SizeBytes: 4,
+				RequestID:  "r1",
+				Path:       "a.go",
+				Status:     protocol.GitDiffStatusModified,
+				DiffText:   "--- a/a.go\n+++ b/a.go\n@@ -1 +1 @@\n-old\n+new\n",
+				SizeBytes:  4,
 				Insertions: 1,
 				Deletions:  1,
 			},
