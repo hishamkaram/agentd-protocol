@@ -13,6 +13,12 @@ linters:
   # `enable` augments the default ("standard") linter set in golangci-lint v2.
   enable:
     - depguard
+    # Complexity drift protection. All production code in this leaf module is
+    # under these thresholds (gocyclo 15 / gocognit 20); test files are carved
+    # out below. A future PR that adds an over-threshold production function
+    # fails CI — intended ratchet, full-strength (no new-from-merge-base ramp).
+    - gocyclo
+    - gocognit
   settings:
     depguard:
       rules:
@@ -34,3 +40,16 @@ linters:
         - all
         - -QF1001  # De Morgan's law suggestion
         - -QF1008  # omit embedded field suggestion
+    gocyclo:
+      min-complexity: 15
+    gocognit:
+      min-complexity: 20
+  exclusions:
+    rules:
+      # Test files are carved out of the complexity gates: table-driven tests
+      # and fixtures are intentionally long, and forcing extraction hurts test
+      # readability. Production code carries the gate.
+      - path: _test\.go
+        linters:
+          - gocyclo
+          - gocognit
