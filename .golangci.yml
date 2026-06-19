@@ -5,6 +5,10 @@
 # Run: golangci-lint run ./...
 version: "2"
 
+formatters:
+  enable:
+    - gofumpt
+
 run:
   timeout: 5m
   tests: true
@@ -13,7 +17,21 @@ linters:
   # `enable` augments the default ("standard") linter set in golangci-lint v2.
   enable:
     - depguard
+    # Complexity drift protection. All production code in this leaf module is
+    # under these thresholds (gocyclo 15 / gocognit 20); test files are carved
+    # out below. A future PR that adds an over-threshold production function
+    # fails CI — intended ratchet, full-strength (no incremental baseline ramp).
+    - gocyclo
+    - gocognit
+    # //nolint hygiene: every suppression must name a specific linter and carry
+    # an explanation; unused directives are reported. No suppressions exist in
+    # this leaf module today — this keeps it that way honestly.
+    - nolintlint
   settings:
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
     depguard:
       rules:
         # agentd-protocol is the shared LEAF of the dependency graph: it is the
@@ -34,3 +52,16 @@ linters:
         - all
         - -QF1001  # De Morgan's law suggestion
         - -QF1008  # omit embedded field suggestion
+    gocyclo:
+      min-complexity: 15
+    gocognit:
+      min-complexity: 20
+  exclusions:
+    rules:
+      # Test files are carved out of the complexity gates: table-driven tests
+      # and fixtures are intentionally long, and forcing extraction hurts test
+      # readability. Production code carries the gate.
+      - path: _test\.go
+        linters:
+          - gocyclo
+          - gocognit
