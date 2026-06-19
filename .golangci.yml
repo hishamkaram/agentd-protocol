@@ -16,7 +16,7 @@ linters:
     # Complexity drift protection. All production code in this leaf module is
     # under these thresholds (gocyclo 15 / gocognit 20); test files are carved
     # out below. A future PR that adds an over-threshold production function
-    # fails CI — intended ratchet, full-strength (no new-from-merge-base ramp).
+    # fails CI — intended ratchet, full-strength (no incremental baseline ramp).
     - gocyclo
     - gocognit
   settings:
