@@ -32,6 +32,48 @@ const (
 	EngineCodex = "codex"
 )
 
+// knownEngines is the canonical, ordered allow-list of recognized delegation
+// engine wire strings. It is the SINGLE source of truth shared by every module
+// that must validate an engine string: internal/delegation gates on it via
+// IsKnownEngine (the delegation package CANNOT import the daemon's
+// internal/session — a depguard boundary forbids delegation→session), and
+// internal/session's engineAgentPairs bijection is drift-guarded against
+// KnownEngines() so the allow-list and the engine↔AgentType mapping never
+// silently diverge across the 3 modules.
+//
+// It is a package-level slice literal (not a mutable var the callers handle
+// directly): IsKnownEngine reads it for membership and KnownEngines returns a
+// fresh copy on each call, so no caller can mutate the canonical set. WHEN
+// ADDING A NEW ENGINE, add its Engine* const here AND its {engine, AgentType}
+// pair to session.engineAgentPairs — the drift-guard test fails until both
+// land.
+var knownEngines = []string{EngineClaude, EngineCodex}
+
+// IsKnownEngine reports whether engine is one of the recognized delegation
+// engine wire strings (EngineClaude | EngineCodex). It is the shared,
+// cross-module allow-list check: internal/delegation's validateInput and the
+// daemon's session.IsKnownEngine both resolve through this one function so a
+// typo'd or hostile to_engine is rejected identically on every path, closing
+// the silent-drift risk of three independent hardcoded {claude,codex} switches.
+func IsKnownEngine(engine string) bool {
+	for _, e := range knownEngines {
+		if e == engine {
+			return true
+		}
+	}
+	return false
+}
+
+// KnownEngines returns a freshly allocated copy of the canonical engine
+// allow-list. Callers receive their own slice so the package-level source of
+// truth cannot be mutated. The daemon's session package drift-guards its
+// engineAgentPairs bijection against this set.
+func KnownEngines() []string {
+	out := make([]string, len(knownEngines))
+	copy(out, knownEngines)
+	return out
+}
+
 // ─── MessageType Constants ─────────────────────────────────────────────────────
 //
 // The DAEMON is the source of truth for these constants. Matching constants
@@ -130,6 +172,26 @@ type DelegationLinkPayload struct {
 	WorkDir        string `json:"work_dir,omitempty"`     // working directory scope for the delegation
 	TriggeredBy    string `json:"triggered_by,omitempty"` // DelegationTriggeredBy* — user | auto | system
 	CreatedAt      int64  `json:"created_at"`             // unix milliseconds
+	// Parked discriminates an await=true delegation (the source agent is PARKED —
+	// entry.delegating=true — and receives the delegate result as a synthetic
+	// follow-up turn) from an await=false fire-and-forget delegation (the source is
+	// NEVER parked and runs concurrently). The PWA derives isParkedSource /
+	// deleteSuppressed / delegate-list-hiding from this discriminator.
+	//
+	// THREE-STATE *bool (Finding #1): a plain bool+omitempty cannot satisfy the two
+	// back-compat goals simultaneously — Go's json.Marshal drops a false bool, so an
+	// await=false link and an OLD daemon that never set the field would BOTH serialize
+	// without a "parked" key (false and absent collapse to identical wire bytes), and
+	// the PWA's `parked !== false` rule would mislabel a concurrent await=false
+	// delegation as parked. The field is therefore a *bool (mirroring
+	// PersistedDelegationLink.Await / StartDelegationPayload.Await):
+	//   - &true  (await=true)  ⇒ `"parked":true`  — source is parked.
+	//   - &false (await=false) ⇒ `"parked":false` — fire-and-forget, NOT parked.
+	//   - nil    (legacy/old daemon) ⇒ key omitted — PWA's `parked !== false` reads
+	//     absent⇒undefined⇒true, preserving the pre-field assume-parked default.
+	// A daemon that DOES set the field always sends the truthful await value, so the
+	// PWA can distinguish all three states.
+	Parked *bool `json:"parked,omitempty"`
 }
 
 // DelegationStatusPayload reports a link state change from the delegate back to
