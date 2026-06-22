@@ -243,4 +243,15 @@ type PersistedDelegationLink struct {
 	State          string `json:"state,omitempty"`        // DelegationState* — pending | active | completed | cancelled
 	CreatedAt      int64  `json:"created_at"`             // unix milliseconds
 	UpdatedAt      int64  `json:"updated_at,omitempty"`   // unix milliseconds
+	// Await is the governed delegation lifecycle flag persisted so restart recovery
+	// can distinguish an await=true (parked source, returns result) delegation from
+	// an await=false (fire-and-forget, source never parked) one. It is a *bool with
+	// the same absent⇒true idiom as StartDelegationPayload.Await /
+	// StartDelegationAwaitOrDefault: a NIL (absent) value resolves to true on
+	// recovery, so a journal written before this field existed recovers as the safe
+	// parked default. omitempty drops a nil pointer entirely, so old daemons and old
+	// journals stay byte-compatible. Without this field, recovery hardcoded
+	// await=true and re-parked a fire-and-forget source — its turns would queue, the
+	// quiescence clamp would fire, and an unwanted synthetic result would be injected.
+	Await *bool `json:"await,omitempty"`
 }

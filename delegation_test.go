@@ -451,10 +451,67 @@ func TestPersistedDelegationLink_OmitemptyOptional(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"state"`, `"updated_at"`} {
+	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"state"`, `"updated_at"`, `"await"`} {
 		if strings.Contains(rawStr, absent) {
 			t.Errorf("expected %s to be omitted when empty; got %s", absent, rawStr)
 		}
+	}
+}
+
+// TestPersistedDelegationLink_AwaitRoundtrip validates the Await *bool tri-state
+// (Finding C): a NIL Await is omitted from the wire (so old journals stay
+// byte-compatible and recovery resolves absent⇒true), while an explicit true/false
+// round-trips through marshal/unmarshal preserving the fire-and-forget distinction.
+func TestPersistedDelegationLink_AwaitRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	boolPtr := func(b bool) *bool { return &b }
+
+	tests := []struct {
+		name       string
+		await      *bool
+		wantInJSON bool // whether `"await"` appears on the wire
+	}{
+		{name: "nil await omitted", await: nil, wantInJSON: false},
+		{name: "explicit false persists", await: boolPtr(false), wantInJSON: true},
+		{name: "explicit true persists", await: boolPtr(true), wantInJSON: true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			original := PersistedDelegationLink{
+				SourceSID:      "sess-src",
+				SourceEngine:   EngineClaude,
+				DelegateSID:    "sess-del",
+				DelegateEngine: EngineCodex,
+				CreatedAt:      1745692800000,
+				Await:          tt.await,
+			}
+			raw, err := json.Marshal(&original)
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			gotInJSON := strings.Contains(string(raw), `"await"`)
+			if gotInJSON != tt.wantInJSON {
+				t.Errorf("await-in-JSON = %v, want %v; raw=%s", gotInJSON, tt.wantInJSON, string(raw))
+			}
+
+			var decoded PersistedDelegationLink
+			if err := json.Unmarshal(raw, &decoded); err != nil {
+				t.Fatalf("json.Unmarshal: %v", err)
+			}
+			switch {
+			case tt.await == nil && decoded.Await != nil:
+				t.Errorf("nil await round-tripped to non-nil %v", *decoded.Await)
+			case tt.await != nil && decoded.Await == nil:
+				t.Errorf("explicit await %v round-tripped to nil", *tt.await)
+			case tt.await != nil && *decoded.Await != *tt.await:
+				t.Errorf("await round-trip mismatch: want %v, got %v", *tt.await, *decoded.Await)
+			}
+		})
 	}
 }
 
