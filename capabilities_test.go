@@ -35,6 +35,7 @@ func TestAgentCapabilityFields(t *testing.T) {
 		"AnswerQuestionFreeText":    "answer_question_free_text",
 		"SupportsBypassPermissions": "supports_bypass_permissions",
 		"SupportsRuntimeFullAccess": "supports_runtime_full_access",
+		"SupportsDelegation":        "supports_delegation",
 	}
 
 	if got := typ.NumField(); got != len(want) {
@@ -165,7 +166,7 @@ func TestAgentCapabilityJSONKeys(t *testing.T) {
 	}
 
 	// Assert no CamelCase / PascalCase leakage.
-	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText", "SupportsBypassPermissions", "SupportsRuntimeFullAccess"}
+	forbidden := []string{"AnswerQuestion", "SendToolResult", "RewindFiles", "MCPHotApply", "MCPReconnect", "MCPLiveStatusLimited", "SessionScopedApproval", "AnswerQuestionFreeText", "SupportsBypassPermissions", "SupportsRuntimeFullAccess", "SupportsDelegation"}
 	for _, k := range forbidden {
 		if strings.Contains(payload, k) {
 			t.Errorf("unexpected Go field name %q in JSON payload: %s", k, payload)
@@ -284,6 +285,31 @@ func TestAgentCapabilitySupportsRuntimeFullAccessField(t *testing.T) {
 	var zero protocol.AgentCapability
 	if zero.SupportsRuntimeFullAccess != false {
 		t.Fatalf("zero-value SupportsRuntimeFullAccess: want false, got %v", zero.SupportsRuntimeFullAccess)
+	}
+}
+
+// TestAgentCapabilitySupportsDelegationField pins the Finding #18 daemon-wide
+// delegation capability field's type, JSON tag, and zero-value-false default
+// (an older / killswitch-off daemon emits it absent → false → PWA hides the
+// hand-off START affordance).
+func TestAgentCapabilitySupportsDelegationField(t *testing.T) {
+	t.Parallel()
+
+	typ := reflect.TypeOf(protocol.AgentCapability{})
+	field, ok := typ.FieldByName("SupportsDelegation")
+	if !ok {
+		t.Fatalf("AgentCapability missing field SupportsDelegation")
+	}
+	if field.Type.Kind() != reflect.Bool {
+		t.Fatalf("SupportsDelegation: want bool, got %s", field.Type.Kind())
+	}
+	if got := field.Tag.Get("json"); got != "supports_delegation" {
+		t.Fatalf("SupportsDelegation: json tag want %q, got %q", "supports_delegation", got)
+	}
+
+	var zero protocol.AgentCapability
+	if zero.SupportsDelegation != false {
+		t.Fatalf("zero-value SupportsDelegation: want false, got %v", zero.SupportsDelegation)
 	}
 }
 

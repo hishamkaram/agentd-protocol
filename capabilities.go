@@ -79,4 +79,17 @@ type AgentCapability struct {
 	AnswerQuestionFreeText    bool `json:"answer_question_free_text"`
 	SupportsBypassPermissions bool `json:"supports_bypass_permissions"`
 	SupportsRuntimeFullAccess bool `json:"supports_runtime_full_access"`
+	// SupportsDelegation declares whether the daemon will honor a user-initiated
+	// cross-agent hand-off (start_delegation) for this session. It is a
+	// DAEMON-WIDE capability (true iff the daemon was started with
+	// delegation.enabled=true), NOT a per-agent CLI feature, so the Manager
+	// stamps it from the wired delegation coordinator rather than the per-agent
+	// adapter's Capabilities() method. The PWA gates the hand-off START affordance
+	// (SessionCard canStartHandoff) on this flag so a PWA pointed at an
+	// older / killswitch-off daemon does not render a button that does nothing
+	// over the relay (Finding #18). Older daemons that predate this field emit it
+	// absent → the zero value false → the PWA hides the affordance (fail-safe:
+	// never advertise a hand-off the daemon will silently drop). Default-false is
+	// the deliberate fallback for an unset capability.
+	SupportsDelegation bool `json:"supports_delegation"`
 }

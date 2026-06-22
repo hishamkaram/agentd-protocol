@@ -81,6 +81,19 @@ const (
 	DelegationStateActive    = "active"
 	DelegationStateCompleted = "completed"
 	DelegationStateCancelled = "cancelled"
+
+	// DelegationStateRejected is a DelegationStatusPayload-only state (it is
+	// NEVER persisted into PersistedDelegationLink.State — no link is ever
+	// created for a rejected start). It reports that a user-initiated
+	// start_delegation was refused by the daemon BEFORE any delegate session was
+	// spawned (delegation disabled / killswitch off, admission-depth-cycle-writer
+	// reject, unknown engine, source-not-found, quiescence failure). The frame is
+	// keyed by SourceSID (the would-be source session, NOT a delegate — no
+	// DelegateSID exists yet) and carries a redacted Error string the PWA
+	// reconciles onto its per-source delegationStartErrors cell. This closes the
+	// silent-failure gap where a rejected hand-off produced no negative frame and
+	// the StartDelegationSheet had already closed optimistically.
+	DelegationStateRejected = "rejected"
 )
 
 // Terminal statuses carried in DelegationResultPayload.Status.
@@ -122,11 +135,33 @@ type DelegationLinkPayload struct {
 // DelegationStatusPayload reports a link state change from the delegate back to
 // the source. Carried inside an AgentMessage envelope with
 // Type=MsgDelegationStatus.
+//
+// Two usage shapes share this struct:
+//   - Live link status (the original shape): keyed by DelegateSID, State is one
+//     of pending | active | completed | cancelled.
+//   - Daemon rejection of a user-initiated start_delegation (additive, backward
+//     compatible): State=DelegationStateRejected, SourceSID identifies the
+//     would-be source session, Error carries a redacted human-readable reason,
+//     and DelegateSID is EMPTY (no delegate was ever spawned). SourceSID and
+//     Error are both omitempty, so every pre-existing live-status emit marshals
+//     to exactly the bytes it did before this field pair was added — old daemons
+//     and old PWAs stay byte-compatible.
 type DelegationStatusPayload struct {
-	DelegateSID string `json:"delegate_sid"`           // delegate agent session ID
-	State       string `json:"state"`                  // DelegationState* — pending | active | completed | cancelled
+	DelegateSID string `json:"delegate_sid"`           // delegate agent session ID (EMPTY on a rejection frame)
+	State       string `json:"state"`                  // DelegationState* — pending | active | completed | cancelled | rejected
 	DiffSummary string `json:"diff_summary,omitempty"` // optional human-readable summary of changes so far
 	UpdatedAt   int64  `json:"updated_at,omitempty"`   // unix milliseconds
+	// SourceSID is populated ONLY on a DelegationStateRejected frame to key the
+	// rejection to the would-be source session (a normal live-status frame leaves
+	// it empty; omitempty drops it so the wire bytes are unchanged for the live
+	// path). The PWA reconciles a rejection onto delegationStartErrors[source_sid].
+	SourceSID string `json:"source_sid,omitempty"`
+	// Error is the redacted, human-readable rejection reason surfaced on the
+	// source SessionCard. Populated ONLY on a DelegationStateRejected frame;
+	// omitempty drops it for the live-status path. It MUST be a safe,
+	// client-appropriate string (no internal paths / state) per the
+	// redact-before-PWA error-handling rule.
+	Error string `json:"error,omitempty"`
 }
 
 // DelegationResultPayload terminates a delegation with its final status.

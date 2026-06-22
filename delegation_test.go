@@ -156,10 +156,49 @@ func TestDelegationStatusPayload_OmitemptyOptional(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, absent := range []string{`"diff_summary"`, `"updated_at"`} {
+	for _, absent := range []string{`"diff_summary"`, `"updated_at"`, `"source_sid"`, `"error"`} {
 		if strings.Contains(rawStr, absent) {
 			t.Errorf("expected %s to be omitted when empty; got %s", absent, rawStr)
 		}
+	}
+}
+
+// TestDelegationStatusPayload_RejectionRoundtrip verifies the additive rejection
+// shape (Finding #6): State=DelegationStateRejected with SourceSID + Error and an
+// EMPTY DelegateSID. The frame must round-trip and the rejection-only fields must
+// appear on the wire when set.
+func TestDelegationStatusPayload_RejectionRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	original := DelegationStatusPayload{
+		State:     DelegationStateRejected,
+		SourceSID: "sess-123-source",
+		Error:     "Delegation is disabled on this daemon.",
+	}
+
+	raw, err := json.Marshal(&original)
+	if err != nil {
+		t.Fatalf("json.Marshal: %v", err)
+	}
+
+	rawStr := string(raw)
+	for _, want := range []string{`"state":"rejected"`, `"source_sid"`, `"error"`} {
+		if !strings.Contains(rawStr, want) {
+			t.Errorf("rejection JSON missing %s; got %s", want, rawStr)
+		}
+	}
+	// A rejection frame carries no delegate; delegate_sid serializes as empty
+	// (no omitempty) but must never carry a value here.
+	if strings.Contains(rawStr, `"delegate_sid":"sess`) {
+		t.Errorf("rejection frame unexpectedly carries a delegate id; got %s", rawStr)
+	}
+
+	var decoded DelegationStatusPayload
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("json.Unmarshal: %v", err)
+	}
+	if decoded != original {
+		t.Errorf("roundtrip mismatch:\n  want=%+v\n  got =%+v", original, decoded)
 	}
 }
 
