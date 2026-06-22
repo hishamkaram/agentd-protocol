@@ -286,6 +286,111 @@ func TestDelegationCancelPayload_Roundtrip(t *testing.T) {
 	}
 }
 
+// TestStartDelegationPayload_Roundtrip validates marshal/unmarshal for the
+// user-initiated start-delegation command (the PWA "hand off" trigger).
+func TestStartDelegationPayload_Roundtrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		toEngine string
+		await    bool
+	}{
+		{name: "to_codex_await", toEngine: EngineCodex, await: true},
+		{name: "to_claude_fire_and_forget", toEngine: EngineClaude, await: false},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			original := StartDelegationPayload{
+				SourceSID: "sess-123-source",
+				ToEngine:  tt.toEngine,
+				Prompt:    "implement the plan",
+				Await:     tt.await,
+			}
+
+			raw, err := json.Marshal(&original)
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+
+			rawStr := string(raw)
+			for _, want := range []string{`"source_sid"`, `"to_engine"`, `"prompt"`} {
+				if !strings.Contains(rawStr, want) {
+					t.Errorf("marshaled JSON missing %s; got %s", want, rawStr)
+				}
+			}
+
+			var decoded StartDelegationPayload
+			if err := json.Unmarshal(raw, &decoded); err != nil {
+				t.Fatalf("json.Unmarshal: %v", err)
+			}
+
+			if decoded != original {
+				t.Errorf("roundtrip mismatch:\n  want=%+v\n  got =%+v", original, decoded)
+			}
+		})
+	}
+}
+
+// TestStartDelegationPayload_OmitemptyAwait verifies that await=false drops off
+// the wire (omitempty), which is exactly why the daemon decoder must resolve the
+// governed absent⇒true default from field PRESENCE rather than the Go zero value.
+func TestStartDelegationPayload_OmitemptyAwait(t *testing.T) {
+	t.Parallel()
+
+	minimal := StartDelegationPayload{
+		SourceSID: "sess-123-source",
+		ToEngine:  EngineCodex,
+		Prompt:    "do the thing",
+		Await:     false,
+	}
+
+	raw, err := json.Marshal(&minimal)
+	if err != nil {
+		t.Fatalf("json.Marshal: %v", err)
+	}
+
+	if strings.Contains(string(raw), `"await"`) {
+		t.Errorf("expected await to be omitted when false (omitempty); got %s", string(raw))
+	}
+}
+
+// TestStartDelegationAwaitOrDefault locks the governed absent⇒true await rule for
+// the user-initiated start_delegation frame, resolved from RAW JSON bytes (the
+// plain-bool struct field cannot distinguish absent from explicit-false). This is
+// the start_delegation analog of delegation.DelegateInput.AwaitOrDefault and is
+// the single source of truth both daemon dispatch handlers call.
+func TestStartDelegationAwaitOrDefault(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		raw  string
+		want bool
+	}{
+		{name: "absent_defaults_true", raw: `{"source_sid":"s1","to_engine":"codex","prompt":"go"}`, want: true},
+		{name: "explicit_true", raw: `{"source_sid":"s1","to_engine":"codex","prompt":"go","await":true}`, want: true},
+		{name: "explicit_false_is_honored", raw: `{"source_sid":"s1","to_engine":"codex","prompt":"go","await":false}`, want: false},
+		{name: "null_defaults_true", raw: `{"source_sid":"s1","await":null}`, want: true},
+		{name: "malformed_defaults_true", raw: `{not json`, want: true},
+		{name: "empty_object_defaults_true", raw: `{}`, want: true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := StartDelegationAwaitOrDefault(json.RawMessage(tt.raw)); got != tt.want {
+				t.Fatalf("StartDelegationAwaitOrDefault(%s) = %v, want %v", tt.raw, got, tt.want)
+			}
+		})
+	}
+}
+
 // TestPersistedDelegationLink_Roundtrip validates marshal/unmarshal for the
 // durable link schema replayed across daemon restarts (Phase 3 recovery, C3)
 // and rendered in PWA link history (Phase 4, C7).

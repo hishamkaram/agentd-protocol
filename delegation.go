@@ -1,11 +1,11 @@
 // Package protocol — bidirectional Claude↔Codex governed delegation wire
 // protocol (delegation feature, Phase 1).
 //
-// This file defines the four delegation MessageType payloads, the engine and
+// This file defines the delegation MessageType payloads, the engine and
 // lifecycle string constants, the additive approval-attribution fields, and the
 // durable delegation-link schema replayed across daemon restarts.
 //
-// These four wire types are MessageType frames (the outer AgentMessage.Type),
+// These wire types are MessageType frames (the outer AgentMessage.Type),
 // NOT ControlType frames. The relay forwards them opaquely; the daemon and PWA
 // discriminate by the outer AgentMessage.Type. They follow the same
 // daemon-is-source-of-truth convention as the approval wire types in
@@ -16,6 +16,8 @@
 // fields use json:",omitempty" so older producers/consumers stay byte
 // compatible (backward compatible per CLAUDE.md "Backward Compatible").
 package protocol
+
+import "encoding/json"
 
 // ─── Engine Constants ──────────────────────────────────────────────────────────
 
@@ -54,6 +56,16 @@ const (
 	// MsgDelegationCancel is sent by the source to the delegate to terminate
 	// an active link.
 	MsgDelegationCancel = "delegation_cancel"
+
+	// MsgStartDelegation is sent by the PWA to the daemon to USER-initiate a
+	// delegation (the "hand off" trigger): the daemon parks the named source
+	// session (when Await) and spawns a delegate of ToEngine in the source's
+	// working directory. This is the user-initiated counterpart to the
+	// agent-autonomous MCP `delegate` tool path; both converge on the same
+	// daemon spawn machinery. PWA→daemon command frame, forwarded opaquely by
+	// the relay, discriminated by the outer AgentMessage.Type — same convention
+	// as the other four delegation frames.
+	MsgStartDelegation = "start_delegation"
 )
 
 // ─── Delegation Lifecycle Constants ─────────────────────────────────────────────
@@ -132,6 +144,58 @@ type DelegationResultPayload struct {
 type DelegationCancelPayload struct {
 	DelegateSID string `json:"delegate_sid"`     // delegate agent session ID
 	Reason      string `json:"reason,omitempty"` // optional cancellation reason
+}
+
+// StartDelegationPayload is the PWA→daemon command that USER-initiates a
+// delegation. Carried inside an AgentMessage envelope with
+// Type=MsgStartDelegation. The daemon resolves the source session, parks it
+// (when Await), and spawns a delegate of ToEngine in the source's working
+// directory with Prompt as the delegate's first task.
+//
+// Await default note: the JSON bool zero-value is false, but the governed
+// product default is await=TRUE when the field is ABSENT. omitempty drops an
+// explicit false, so an absent field and an explicit false are
+// indistinguishable on the wire. The PWA start-delegation UI ALWAYS sends await
+// explicitly (Completion 2), so the daemon's start_delegation decoder treats the
+// PWA as always-explicit. The daemon-side handler resolves the absent⇒true
+// default by decoding into a *bool / inspecting the raw JSON, NOT by reading
+// this struct's Go zero value. If a future non-PWA producer needs absent⇒true,
+// switch this field to *bool then; keep omitempty so old consumers stay
+// byte-compatible.
+type StartDelegationPayload struct {
+	SourceSID string `json:"source_sid"`      // source session to park + delegate from
+	ToEngine  string `json:"to_engine"`       // EngineClaude | EngineCodex — the delegate engine
+	Prompt    string `json:"prompt"`          // task prompt delivered to the delegate as its first message
+	Await     bool   `json:"await,omitempty"` // park source + return result to source agent; daemon defaults absent⇒true
+}
+
+// StartDelegationAwaitOrDefault resolves the governed await semantics for a
+// start_delegation frame from the RAW JSON bytes, applying the absent⇒true rule
+// that the plain-bool StartDelegationPayload.Await field cannot express on its
+// own (omitempty drops an explicit false, so an absent field and an explicit
+// false are indistinguishable after decoding into the struct).
+//
+// This is the start_delegation analog of delegation.DelegateInput.AwaitOrDefault
+// for the MCP path: it is the SINGLE place the absent⇒true rule is applied for
+// the user-initiated trigger, so both daemon dispatch handlers (local WS and
+// relay) resolve await identically (pattern-consistency dual-path) and a future
+// non-PWA producer that omits await still gets the safe parked default rather
+// than the dangerous fire-and-forget false.
+//
+// Resolution:
+//   - the "await" key is ABSENT, JSON null, or the bytes do not decode      ⇒ true
+//   - the "await" key is present with an explicit boolean (true|false)      ⇒ that value
+//
+// A malformed frame is treated as absent (⇒ true): the safe default is to park,
+// and the caller has already validated the frame's required fields separately.
+func StartDelegationAwaitOrDefault(raw json.RawMessage) bool {
+	var probe struct {
+		Await *bool `json:"await"`
+	}
+	if err := json.Unmarshal(raw, &probe); err != nil || probe.Await == nil {
+		return true
+	}
+	return *probe.Await
 }
 
 // ─── Approval Attribution (additive wire fields) ────────────────────────────────
