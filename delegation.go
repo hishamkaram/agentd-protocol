@@ -312,6 +312,20 @@ func StartDelegationAwaitOrDefault(raw json.RawMessage) bool {
 type ApprovalAttribution struct {
 	SourceSID    string `json:"source_sid,omitempty"`    // session ID of the source agent that triggered the approval
 	SourceEngine string `json:"source_engine,omitempty"` // EngineClaude | EngineCodex
+	// InheritedApprovalMode / InheritedSandboxMode disclose, on a delegate-SPAWN
+	// approval card, the elevated posture a delegate WILL inherit from its source
+	// when the operator-enabled, per-call opt-in fires (agentd config
+	// delegation.inherit_source_approval_mode + the delegate tool's inherit_approval
+	// arg). They let the human approving the spawn see that the delegate will run
+	// with permission prompts disabled before granting it. Both omitempty: a spawn
+	// approval that does not inherit marshals to exactly the bytes it did before
+	// this feature shipped. Populated by the daemon on the source-session spawn
+	// approval only — distinct from SourceSID/SourceEngine above, which the daemon
+	// stamps on approvals raised BY a delegate. Values are agentd approval-mode /
+	// Codex sandbox-mode strings; this module stays dependency-free and does not
+	// validate them.
+	InheritedApprovalMode string `json:"inherited_approval_mode,omitempty"`
+	InheritedSandboxMode  string `json:"inherited_sandbox_mode,omitempty"`
 }
 
 // ─── Durable Persistence Schema (Phase 1 wire portion) ───────────────────────────
@@ -351,4 +365,12 @@ type PersistedDelegationLink struct {
 	// await=true and re-parked a fire-and-forget source — its turns would queue, the
 	// quiescence clamp would fire, and an unwanted synthetic result would be injected.
 	Await *bool `json:"await,omitempty"`
+	// InheritedApprovalMode / InheritedSandboxMode record the elevated posture a
+	// delegate inherited from its source at spawn (empty when no inheritance
+	// occurred — the default), persisted so an operator can audit which delegates
+	// ran with an inherited, permission-prompt-disabled posture after the fact.
+	// Companion to the daemon's INFO spawn log. omitempty keeps pre-feature
+	// journals byte-identical; an absent value recovers as "no inheritance".
+	InheritedApprovalMode string `json:"inherited_approval_mode,omitempty"`
+	InheritedSandboxMode  string `json:"inherited_sandbox_mode,omitempty"`
 }
