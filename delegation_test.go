@@ -618,10 +618,10 @@ func TestPersistedDelegationLink_Roundtrip(t *testing.T) {
 	t.Parallel()
 
 	original := PersistedDelegationLink{
-		SourceSID:      "sess-123-source",
-		SourceEngine:   EngineClaude,
-		DelegateSID:    "sess-456-delegate",
-		DelegateEngine: EngineCodex,
+		SourceSID:             "sess-123-source",
+		SourceEngine:          EngineClaude,
+		DelegateSID:           "sess-456-delegate",
+		DelegateEngine:        EngineCodex,
 		WorkDir:               "/tmp/workspace",
 		TriggeredBy:           DelegationTriggeredByUser,
 		State:                 DelegationStateActive,
