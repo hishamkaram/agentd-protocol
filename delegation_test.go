@@ -622,11 +622,13 @@ func TestPersistedDelegationLink_Roundtrip(t *testing.T) {
 		SourceEngine:   EngineClaude,
 		DelegateSID:    "sess-456-delegate",
 		DelegateEngine: EngineCodex,
-		WorkDir:        "/tmp/workspace",
-		TriggeredBy:    DelegationTriggeredByUser,
-		State:          DelegationStateActive,
-		CreatedAt:      1745692800000,
-		UpdatedAt:      1745692860000,
+		WorkDir:               "/tmp/workspace",
+		TriggeredBy:           DelegationTriggeredByUser,
+		State:                 DelegationStateActive,
+		CreatedAt:             1745692800000,
+		UpdatedAt:             1745692860000,
+		InheritedApprovalMode: "bypass",
+		InheritedSandboxMode:  "danger-full-access",
 	}
 
 	raw, err := json.Marshal(&original)
@@ -635,7 +637,7 @@ func TestPersistedDelegationLink_Roundtrip(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, want := range []string{`"source_sid"`, `"source_engine"`, `"delegate_sid"`, `"delegate_engine"`, `"created_at"`} {
+	for _, want := range []string{`"source_sid"`, `"source_engine"`, `"delegate_sid"`, `"delegate_engine"`, `"created_at"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`} {
 		if !strings.Contains(rawStr, want) {
 			t.Errorf("marshaled JSON missing %s; got %s", want, rawStr)
 		}
@@ -671,7 +673,7 @@ func TestPersistedDelegationLink_OmitemptyOptional(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"state"`, `"updated_at"`, `"await"`} {
+	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"state"`, `"updated_at"`, `"await"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`} {
 		if strings.Contains(rawStr, absent) {
 			t.Errorf("expected %s to be omitted when empty; got %s", absent, rawStr)
 		}
@@ -743,8 +745,10 @@ func TestApprovalAttribution_Roundtrip(t *testing.T) {
 	t.Parallel()
 
 	original := ApprovalAttribution{
-		SourceSID:    "sess-123-source",
-		SourceEngine: EngineClaude,
+		SourceSID:             "sess-123-source",
+		SourceEngine:          EngineClaude,
+		InheritedApprovalMode: "bypass",
+		InheritedSandboxMode:  "danger-full-access",
 	}
 
 	raw, err := json.Marshal(&original)
@@ -753,7 +757,7 @@ func TestApprovalAttribution_Roundtrip(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, want := range []string{`"source_sid"`, `"source_engine"`} {
+	for _, want := range []string{`"source_sid"`, `"source_engine"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`} {
 		if !strings.Contains(rawStr, want) {
 			t.Errorf("marshaled JSON missing %s; got %s", want, rawStr)
 		}
