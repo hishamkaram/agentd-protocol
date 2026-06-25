@@ -28,13 +28,14 @@ func TestDelegationLinkPayload_Roundtrip(t *testing.T) {
 			t.Parallel()
 
 			original := DelegationLinkPayload{
-				SourceSID:      "sess-123-source",
-				SourceEngine:   tt.sourceEngine,
-				DelegateSID:    "sess-456-delegate",
-				DelegateEngine: tt.delegateEngine,
-				WorkDir:        "/tmp/workspace",
-				TriggeredBy:    tt.triggeredBy,
-				CreatedAt:      1745692800000,
+				SourceSID:             "sess-123-source",
+				SourceEngine:          tt.sourceEngine,
+				DelegateSID:           "sess-456-delegate",
+				DelegateEngine:        tt.delegateEngine,
+				WorkDir:               "/tmp/workspace",
+				TriggeredBy:           tt.triggeredBy,
+				CreatedAt:             1745692800000,
+				InheritedStateSummary: "branch feat/x @ abc1234, claude/high",
 			}
 
 			raw, err := json.Marshal(&original)
@@ -43,7 +44,7 @@ func TestDelegationLinkPayload_Roundtrip(t *testing.T) {
 			}
 
 			rawStr := string(raw)
-			for _, want := range []string{`"source_sid"`, `"source_engine"`, `"delegate_sid"`, `"delegate_engine"`, `"work_dir"`, `"triggered_by"`, `"created_at"`} {
+			for _, want := range []string{`"source_sid"`, `"source_engine"`, `"delegate_sid"`, `"delegate_engine"`, `"work_dir"`, `"triggered_by"`, `"created_at"`, `"inherited_state_summary"`} {
 				if !strings.Contains(rawStr, want) {
 					t.Errorf("marshaled JSON missing %s; got %s", want, rawStr)
 				}
@@ -81,7 +82,7 @@ func TestDelegationLinkPayload_OmitemptyOptional(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"parked"`} {
+	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"parked"`, `"inherited_state_summary"`} {
 		if strings.Contains(rawStr, absent) {
 			t.Errorf("expected %s to be omitted when empty; got %s", absent, rawStr)
 		}
@@ -629,6 +630,8 @@ func TestPersistedDelegationLink_Roundtrip(t *testing.T) {
 		UpdatedAt:             1745692860000,
 		InheritedApprovalMode: "bypass",
 		InheritedSandboxMode:  "danger-full-access",
+		DeliveryState:         DelegationDeliveryStateDelivered,
+		ValidationState:       DelegationValidationStatePassed,
 	}
 
 	raw, err := json.Marshal(&original)
@@ -637,7 +640,7 @@ func TestPersistedDelegationLink_Roundtrip(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, want := range []string{`"source_sid"`, `"source_engine"`, `"delegate_sid"`, `"delegate_engine"`, `"created_at"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`} {
+	for _, want := range []string{`"source_sid"`, `"source_engine"`, `"delegate_sid"`, `"delegate_engine"`, `"created_at"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`, `"delivery_state"`, `"validation_state"`} {
 		if !strings.Contains(rawStr, want) {
 			t.Errorf("marshaled JSON missing %s; got %s", want, rawStr)
 		}
@@ -673,7 +676,7 @@ func TestPersistedDelegationLink_OmitemptyOptional(t *testing.T) {
 	}
 
 	rawStr := string(raw)
-	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"state"`, `"updated_at"`, `"await"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`} {
+	for _, absent := range []string{`"work_dir"`, `"triggered_by"`, `"state"`, `"updated_at"`, `"await"`, `"inherited_approval_mode"`, `"inherited_sandbox_mode"`, `"delivery_state"`, `"validation_state"`} {
 		if strings.Contains(rawStr, absent) {
 			t.Errorf("expected %s to be omitted when empty; got %s", absent, rawStr)
 		}
@@ -823,5 +826,224 @@ func TestEngineConstants(t *testing.T) {
 	}
 	if EngineCodex != "codex" {
 		t.Errorf("EngineCodex = %q, want %q", EngineCodex, "codex")
+	}
+}
+
+// ─── Delegation Context Transfer (task #58) Field Tests ──────────────────────────
+
+// TestDelegationLinkPayload_InheritedStateSummaryRoundtrip validates the additive
+// disclosure-only inherited_state_summary field: a non-empty summary appears on the
+// wire and survives round-trip, while an empty summary is omitted (omitempty) so a
+// pre-feature producer marshals to byte-identical JSON (backward compatible).
+func TestDelegationLinkPayload_InheritedStateSummaryRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		summary    string
+		wantOnWire bool
+	}{
+		{name: "with_summary", summary: "branch feat/x @ abc1234, claude/high", wantOnWire: true},
+		{name: "empty_summary_omitted", summary: "", wantOnWire: false},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			original := DelegationLinkPayload{
+				SourceSID:             "sess-123-source",
+				SourceEngine:          EngineClaude,
+				DelegateSID:           "sess-456-delegate",
+				DelegateEngine:        EngineCodex,
+				CreatedAt:             1745692800000,
+				InheritedStateSummary: tt.summary,
+			}
+
+			raw, err := json.Marshal(&original)
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			gotOnWire := strings.Contains(string(raw), `"inherited_state_summary"`)
+			if gotOnWire != tt.wantOnWire {
+				t.Errorf("inherited_state_summary-on-wire = %v, want %v; raw=%s", gotOnWire, tt.wantOnWire, string(raw))
+			}
+
+			var decoded DelegationLinkPayload
+			if err := json.Unmarshal(raw, &decoded); err != nil {
+				t.Fatalf("json.Unmarshal: %v", err)
+			}
+			if decoded.InheritedStateSummary != tt.summary {
+				t.Errorf("inherited_state_summary round-trip mismatch: want %q, got %q", tt.summary, decoded.InheritedStateSummary)
+			}
+			if decoded != original {
+				t.Errorf("roundtrip mismatch:\n  want=%+v\n  got =%+v", original, decoded)
+			}
+		})
+	}
+}
+
+// TestPersistedDelegationLink_DeliveryStateRoundtrip validates the additive scalar
+// delivery_state audit field across its three canonical states plus the legacy
+// empty (not-tracked) case. An empty value is omitted (omitempty) so journals
+// written before this field existed stay byte-identical and recover as not-tracked.
+func TestPersistedDelegationLink_DeliveryStateRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		state      string
+		wantOnWire bool
+	}{
+		{name: "pending", state: DelegationDeliveryStatePending, wantOnWire: true},
+		{name: "delivered", state: DelegationDeliveryStateDelivered, wantOnWire: true},
+		{name: "failed", state: DelegationDeliveryStateFailed, wantOnWire: true},
+		{name: "legacy_empty_omitted", state: "", wantOnWire: false},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			original := PersistedDelegationLink{
+				SourceSID:      "sess-123-source",
+				SourceEngine:   EngineClaude,
+				DelegateSID:    "sess-456-delegate",
+				DelegateEngine: EngineCodex,
+				CreatedAt:      1745692800000,
+				DeliveryState:  tt.state,
+			}
+
+			raw, err := json.Marshal(&original)
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			gotOnWire := strings.Contains(string(raw), `"delivery_state"`)
+			if gotOnWire != tt.wantOnWire {
+				t.Errorf("delivery_state-on-wire = %v, want %v; raw=%s", gotOnWire, tt.wantOnWire, string(raw))
+			}
+
+			var decoded PersistedDelegationLink
+			if err := json.Unmarshal(raw, &decoded); err != nil {
+				t.Fatalf("json.Unmarshal: %v", err)
+			}
+			if decoded.DeliveryState != tt.state {
+				t.Errorf("delivery_state round-trip mismatch: want %q, got %q", tt.state, decoded.DeliveryState)
+			}
+			if decoded != original {
+				t.Errorf("roundtrip mismatch:\n  want=%+v\n  got =%+v", original, decoded)
+			}
+		})
+	}
+}
+
+// TestDelegationDeliveryStateConstants pins the three durable handoff delivery-state
+// wire strings. These are stable wire values audited across daemon restarts;
+// changing any of them is a breaking change for any consumer that reads the
+// persisted delivery_state audit field.
+func TestDelegationDeliveryStateConstants(t *testing.T) {
+	t.Parallel()
+
+	// Pin each constant against a hardcoded string literal directly so a value
+	// rename (e.g. "pending" -> "queued") fails the test. Do NOT compare a
+	// constant against itself via a map — that weakens the pin.
+	cases := []struct {
+		name   string
+		got    string
+		expect string
+	}{
+		{"pending", DelegationDeliveryStatePending, "pending"},
+		{"delivered", DelegationDeliveryStateDelivered, "delivered"},
+		{"failed", DelegationDeliveryStateFailed, "failed"},
+	}
+	for _, tc := range cases {
+		if tc.got != tc.expect {
+			t.Errorf("delivery-state constant %s = %q, want %q", tc.name, tc.got, tc.expect)
+		}
+	}
+}
+
+// TestDelegationValidationStateConstants pins the three durable expected_output
+// validation-state wire strings. delegation.go documents these as stable wire
+// values persisted in the validation_state audit field; changing any of them is a
+// breaking change for any consumer that reads it across daemon restarts.
+func TestDelegationValidationStateConstants(t *testing.T) {
+	t.Parallel()
+
+	// Pin each constant against a hardcoded string literal directly so a value
+	// rename (e.g. "awaiting_validation" -> "pending_validation") fails the test.
+	// Do NOT compare a constant against itself via a map — that weakens the pin.
+	cases := []struct {
+		name   string
+		got    string
+		expect string
+	}{
+		{"awaiting", DelegationValidationStateAwaiting, "awaiting_validation"},
+		{"passed", DelegationValidationStatePassed, "passed"},
+		{"failed", DelegationValidationStateFailed, "failed"},
+	}
+	for _, tc := range cases {
+		if tc.got != tc.expect {
+			t.Errorf("validation-state constant %s = %q, want %q", tc.name, tc.got, tc.expect)
+		}
+	}
+}
+
+// TestPersistedDelegationLink_ValidationStateRoundtrip validates the additive scalar
+// validation_state audit field across its three canonical states plus the legacy
+// empty (validation-never-engaged) case. An empty value is omitted (omitempty) so
+// journals written before this field existed stay byte-identical and recover as
+// not-tracked. The "awaiting_validation" crash-recovery state (delegation.go) is the
+// state most worth a dedicated round-trip pin.
+func TestPersistedDelegationLink_ValidationStateRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		state      string
+		wantOnWire bool
+	}{
+		{name: "awaiting_validation", state: DelegationValidationStateAwaiting, wantOnWire: true},
+		{name: "passed", state: DelegationValidationStatePassed, wantOnWire: true},
+		{name: "failed", state: DelegationValidationStateFailed, wantOnWire: true},
+		{name: "legacy_empty_omitted", state: "", wantOnWire: false},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			original := PersistedDelegationLink{
+				SourceSID:       "sess-123-source",
+				SourceEngine:    EngineClaude,
+				DelegateSID:     "sess-456-delegate",
+				DelegateEngine:  EngineCodex,
+				CreatedAt:       1745692800000,
+				ValidationState: tt.state,
+			}
+
+			raw, err := json.Marshal(&original)
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			gotOnWire := strings.Contains(string(raw), `"validation_state"`)
+			if gotOnWire != tt.wantOnWire {
+				t.Errorf("validation_state-on-wire = %v, want %v; raw=%s", gotOnWire, tt.wantOnWire, string(raw))
+			}
+
+			var decoded PersistedDelegationLink
+			if err := json.Unmarshal(raw, &decoded); err != nil {
+				t.Fatalf("json.Unmarshal: %v", err)
+			}
+			if decoded.ValidationState != tt.state {
+				t.Errorf("validation_state round-trip mismatch: want %q, got %q", tt.state, decoded.ValidationState)
+			}
+			if decoded != original {
+				t.Errorf("roundtrip mismatch:\n  want=%+v\n  got =%+v", original, decoded)
+			}
+		})
 	}
 }
