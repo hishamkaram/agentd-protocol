@@ -99,6 +99,24 @@ const (
 	// an active link.
 	MsgDelegationCancel = "delegation_cancel"
 
+	// MsgDelegationCancelAck is sent by the daemon to the PWA acknowledging
+	// receipt of a MsgDelegationCancel: the cancel was accepted and graceful
+	// teardown has begun (the source delegation moves to DelegationStateCancelling).
+	// Modeled on the GitSyncCancelResponse ack→terminal split (gitsync.go): this
+	// ACK confirms receipt; the canonical terminal
+	// delegation_result{status:"cancelled"} follows when teardown completes. It
+	// carries ONLY session IDs + the request ID (+ a redacted reason on reject) —
+	// never any delegate output or inherited content.
+	MsgDelegationCancelAck = "delegation_cancel_ack"
+
+	// MsgDelegationForceAbort is sent by the PWA to the daemon to ESCALATE a
+	// stalled cancel to a hard stop — the named UX escape after the daemon
+	// reports DelegationStateCancelStalled. The daemon hard-stops the delegate
+	// (DelegationStateForceKilled) and still emits the canonical terminal
+	// delegation_result{status:"cancelled"} so old PWAs self-heal. Carries ONLY
+	// the delegate session ID + the request ID.
+	MsgDelegationForceAbort = "delegation_force_abort"
+
 	// MsgStartDelegation is sent by the PWA to the daemon to USER-initiate a
 	// delegation (the "hand off" trigger): the daemon parks the named source
 	// session (when Await) and spawns a delegate of ToEngine in the source's
@@ -136,6 +154,28 @@ const (
 	// silent-failure gap where a rejected hand-off produced no negative frame and
 	// the StartDelegationSheet had already closed optimistically.
 	DelegationStateRejected = "rejected"
+
+	// ── Intermediate cancel-teardown states (cancel-teardown feature) ──
+	//
+	// These three states are carried in DelegationStatusPayload.State (and may
+	// transiently appear in PersistedDelegationLink.State during teardown) to
+	// drive the TRANSIENT cancel UI. They are NEVER the terminal frame: the
+	// canonical terminal signal stays delegation_result{status:"cancelled"}, so
+	// an old PWA that only resolves status==="cancelled" still self-heals on the
+	// result frame and never sees a non-terminal dead-end. Changing any value is
+	// a breaking change across all 3 repos.
+
+	// DelegationStateCancelling reports that a cancel request was received and
+	// graceful teardown is in progress (emitted alongside MsgDelegationCancelAck).
+	DelegationStateCancelling = "cancelling"
+
+	// DelegationStateCancelStalled reports that graceful teardown exceeded the
+	// bounded grace window; the PWA surfaces the force-abort escape hatch.
+	DelegationStateCancelStalled = "cancel_stalled"
+
+	// DelegationStateForceKilled reports that a force-abort hard-stopped the
+	// delegate. The terminal delegation_result{status:"cancelled"} still follows.
+	DelegationStateForceKilled = "force_killed"
 )
 
 // Terminal statuses carried in DelegationResultPayload.Status.
@@ -278,6 +318,49 @@ type DelegationResultPayload struct {
 type DelegationCancelPayload struct {
 	DelegateSID string `json:"delegate_sid"`     // delegate agent session ID
 	Reason      string `json:"reason,omitempty"` // optional cancellation reason
+	// RequestID is an at-least-once idempotency key. The daemon de-dupes repeat
+	// cancels by (delegate_sid, request_id) so a re-sent cancel after a lost ack
+	// converges rather than double-tearing-down, and echoes it back on the
+	// MsgDelegationCancelAck so the PWA can reconcile the ack to its in-flight
+	// request. omitempty keeps a pre-feature cancel frame byte-identical; an
+	// absent request_id is treated by the daemon as a fresh (non-idempotent) cancel.
+	RequestID string `json:"request_id,omitempty"`
+}
+
+// DelegationCancelAckPayload acknowledges a MsgDelegationCancel. Carried inside an
+// AgentMessage envelope with Type=MsgDelegationCancelAck.
+//
+// This is the ack half of the ack→terminal split modeled on GitSyncCancelResponse
+// (gitsync.go): Accepted=true means the daemon found the link and began graceful
+// teardown (the source delegation moves to DelegationStateCancelling); the
+// canonical terminal delegation_result{status:"cancelled"} follows shortly.
+// Accepted=false with a redacted Error means the cancel could not be started.
+// An already-terminal link is acknowledged Accepted=true (idempotent no-op) so a
+// duplicate or late cancel converges rather than erroring.
+//
+// SECURITY (no-content-on-wire): carries ONLY session IDs + the request ID +
+// accepted + a redacted reason — never delegate output, inherited context, diffs,
+// or any other content.
+type DelegationCancelAckPayload struct {
+	DelegateSID string `json:"delegate_sid"`         // delegate agent session ID being cancelled
+	RequestID   string `json:"request_id,omitempty"` // echoes DelegationCancelPayload.RequestID for idempotent client reconcile
+	Accepted    bool   `json:"accepted"`             // true = teardown started OR already terminal (idempotent); false = could not start
+	Error       string `json:"error,omitempty"`      // redacted, client-safe reason when Accepted=false
+}
+
+// DelegationForceAbortPayload escalates a stalled cancel to a hard stop. Carried
+// inside an AgentMessage envelope with Type=MsgDelegationForceAbort.
+//
+// The PWA sends this only after a DelegationStateCancelStalled state (the named
+// escape hatch); the daemon hard-stops the delegate (DelegationStateForceKilled)
+// and emits the canonical terminal delegation_result{status:"cancelled"}.
+// Idempotent: a force-abort on an already-terminal delegate is a benign no-op.
+//
+// SECURITY (no-content-on-wire): carries ONLY the delegate session ID + the
+// request ID — no content.
+type DelegationForceAbortPayload struct {
+	DelegateSID string `json:"delegate_sid"`         // delegate agent session ID to hard-stop
+	RequestID   string `json:"request_id,omitempty"` // idempotency key, paired with the originating cancel
 }
 
 // StartDelegationPayload is the PWA→daemon command that USER-initiates a
