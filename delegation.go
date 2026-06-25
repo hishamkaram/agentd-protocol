@@ -159,6 +159,34 @@ const (
 	DelegationTriggeredBySystem = "system"
 )
 
+// Durable handoff first-message delivery states carried in the scalar audit field
+// PersistedDelegationLink.DeliveryState. Empty (absent) means legacy/not-tracked.
+// These are stable wire strings — changing any of them is a breaking change for any
+// consumer that reads the persisted delivery_state audit field.
+const (
+	DelegationDeliveryStatePending   = "pending"
+	DelegationDeliveryStateDelivered = "delivered"
+	DelegationDeliveryStateFailed    = "failed"
+)
+
+// Durable expected_output validation states carried in the scalar audit field
+// PersistedDelegationLink.ValidationState (task #58 Phase C). Empty (absent) means
+// validation was never engaged (the advisory default, max_validation_retries == 0).
+// These are stable wire strings — changing any of them is a breaking change for any
+// consumer that reads the persisted validation_state audit field.
+//
+//   - "awaiting_validation": a turn-end result did not match expected_output and the
+//     daemon issued a bounded re-prompt; a crash in this window recovers as a
+//     status-only result (the captured partial rides the encrypted blob, never here).
+//   - "passed": the (re-prompted) result matched the requested shape.
+//   - "failed": the retry budget was exhausted with the result still mismatching;
+//     the last captured result is returned advisory-style.
+const (
+	DelegationValidationStateAwaiting = "awaiting_validation"
+	DelegationValidationStatePassed   = "passed"
+	DelegationValidationStateFailed   = "failed"
+)
+
 // ─── Wire Payloads ───────────────────────────────────────────────────────────
 
 // DelegationLinkPayload initiates a delegation from the source agent to the
@@ -192,6 +220,15 @@ type DelegationLinkPayload struct {
 	// A daemon that DOES set the field always sends the truthful await value, so the
 	// PWA can distinguish all three states.
 	Parked *bool `json:"parked,omitempty"`
+	// InheritedStateSummary is a disclosure-only, compact, human-readable summary of
+	// the benign source state inherited by the delegate (e.g. "branch X @ <head>,
+	// model/effort"). It is NOT machine-parsed and carries no inherited context
+	// content — only a glanceable description for the human and for link history.
+	// Empty when no inheritance occurred (the default); omitempty keeps the wire
+	// byte-identical to a pre-feature producer. This follows the same disclosure
+	// pattern as ApprovalAttribution.InheritedApprovalMode / InheritedSandboxMode and
+	// the "all optional fields use omitempty" contract at the top of this file.
+	InheritedStateSummary string `json:"inherited_state_summary,omitempty"`
 }
 
 // DelegationStatusPayload reports a link state change from the delegate back to
@@ -373,4 +410,18 @@ type PersistedDelegationLink struct {
 	// journals byte-identical; an absent value recovers as "no inheritance".
 	InheritedApprovalMode string `json:"inherited_approval_mode,omitempty"`
 	InheritedSandboxMode  string `json:"inherited_sandbox_mode,omitempty"`
+	// DeliveryState records the durable handoff first-message delivery state, one of
+	// DelegationDeliveryState* — "pending" | "delivered" | "failed". Empty (absent)
+	// means legacy/not-tracked. omitempty keeps pre-feature journals byte-identical.
+	// This is a SCALAR audit field ONLY — it records WHETHER the inherited handoff
+	// first message reached the delegate, NEVER the inherited context content itself.
+	DeliveryState string `json:"delivery_state,omitempty"`
+	// ValidationState records the durable expected_output enforcement state, one of
+	// DelegationValidationState* — "awaiting_validation" | "passed" | "failed". Empty
+	// (absent) means validation was never engaged (max_validation_retries == 0, the
+	// advisory default). omitempty keeps pre-feature journals byte-identical. Like
+	// DeliveryState this is a SCALAR audit field ONLY — it records the validation
+	// PHASE, NEVER the result content or the requested shape (the captured partial
+	// rides the separate ENCRYPTED handoff blob store, never this plaintext link).
+	ValidationState string `json:"validation_state,omitempty"`
 }
