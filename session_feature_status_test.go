@@ -137,19 +137,23 @@ func TestSessionInfoRecoveryJSONRoundtrip(t *testing.T) {
 	t.Parallel()
 
 	in := SessionInfo{Recovery: &SessionRecoveryInfo{
-		Recoverable: true,
-		Reason:      SessionRecoveryReasonDaemonRestarted,
-		Action:      SessionRecoveryActionResume,
-		UserMessage: "AgentD restarted. Resume this session to reconnect.",
-		Provider:    "claude-code",
+		Recoverable:  true,
+		Reason:       SessionRecoveryReasonProviderLimit,
+		Action:       SessionRecoveryActionWaitThenRetry,
+		UserMessage:  "Provider usage limit reached. Wait, then retry this session.",
+		Provider:     "codex",
+		Code:         "rate_limited",
+		RetryAfterMS: 30_000,
 	}}
 	raw, err := json.Marshal(in)
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
 	if !strings.Contains(string(raw), `"recovery"`) ||
-		!strings.Contains(string(raw), `"reason":"daemon_restarted"`) ||
-		!strings.Contains(string(raw), `"action":"resume"`) {
+		!strings.Contains(string(raw), `"reason":"provider_limit"`) ||
+		!strings.Contains(string(raw), `"action":"wait_then_retry"`) ||
+		!strings.Contains(string(raw), `"code":"rate_limited"`) ||
+		!strings.Contains(string(raw), `"retry_after_ms":30000`) {
 		t.Fatalf("SessionInfo JSON missing recovery fields: %s", raw)
 	}
 	var got SessionInfo

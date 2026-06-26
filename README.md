@@ -83,6 +83,11 @@ Relay control errors carry structured `retryable`, `terminal`, and
 `retry_after_ms` fields so clients can distinguish transient daemon reconnects
 from terminal pairing/session failures without inferring from socket state alone.
 
+Recoverable session pauses carry `SessionRecoveryInfo` on both `SessionInfo` and
+status payloads. The additive `code` and `retry_after_ms` fields let clients
+distinguish budget, provider-limit, and hosted-capacity pauses while older
+clients continue to render `state: "paused"` plus the human message.
+
 ## Design Principles
 
 - **Zero dependencies** — only `encoding/json`, `time`, `crypto/rand`, `encoding/hex` from stdlib

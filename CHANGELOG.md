@@ -14,7 +14,12 @@ Versioning convention (see [README.md](./README.md) for full policy):
 
 ## [Unreleased]
 
-No unreleased changes.
+### Wire types
+
+- Additive recoverable-session fields and enum values: `budget_exceeded`,
+  `provider_limit`, `hosted_capacity`, `wait_then_retry`,
+  `increase_budget_then_retry`, plus optional `SessionRecoveryInfo.code` and
+  `SessionRecoveryInfo.retry_after_ms`.
 
 ## [v0.1.3] — 2026-06-13
 
