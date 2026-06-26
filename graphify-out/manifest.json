@@ -330,13 +330,13 @@
     "semantic_hash": ""
   },
   "session_feature_status_test.go": {
-    "mtime": 1781289718.9815743,
-    "ast_hash": "0a1305f4e1cfe02524b409a814735ece",
+    "mtime": 1782482763.491011,
+    "ast_hash": "f964418485d1f33bc0c15e3c21a60e6d",
     "semantic_hash": ""
   },
   "session_recovery.go": {
-    "mtime": 1781289718.9825742,
-    "ast_hash": "5848d2126ed2d298bc96acbe49bc0d88",
+    "mtime": 1782482763.491011,
+    "ast_hash": "ea131a8d49ad5f9155c63c5e3e08d5b5",
     "semantic_hash": ""
   },
   "support_bundle.go": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1781370509.7090106,
-    "ast_hash": "5efc909e49779c64fb2cfad22ff9d1ca",
+    "mtime": 1782481917.2138429,
+    "ast_hash": "210cd4893580fcf4de7fb94945481642",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -400,8 +400,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1781289718.9625747,
-    "ast_hash": "cea2e08191e954a975a5bdd5364192aa",
+    "mtime": 1782483114.9497178,
+    "ast_hash": "13c80eed23c2aee5d27ef4def03300fd",
     "semantic_hash": ""
   },
   "schemas/asyncapi/agentd.websocket.yaml": {
@@ -412,6 +412,16 @@
   "docs/icon.svg": {
     "mtime": 1781247745.2781107,
     "ast_hash": "b528539ded2fc225b180055f90771f99",
+    "semantic_hash": ""
+  },
+  ".githooks/codebase-memory-mcp-update": {
+    "mtime": 1782475588.9914258,
+    "ast_hash": "2846aeeb2999cea8c02639c1e0673025",
+    "semantic_hash": ""
+  },
+  ".githooks/install-codebase-memory-mcp-hooks": {
+    "mtime": 1782475512.5152957,
+    "ast_hash": "e9f181506a30cce84d3ec27a584b96ba",
     "semantic_hash": ""
   }
 }

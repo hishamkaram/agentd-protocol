@@ -10,6 +10,9 @@ const (
 	SessionRecoveryReasonAuthRequired        SessionRecoveryReason = "auth_required"
 	SessionRecoveryReasonProviderStartFailed SessionRecoveryReason = "provider_start_failed"
 	SessionRecoveryReasonWorkdirMissing      SessionRecoveryReason = "workdir_missing"
+	SessionRecoveryReasonBudgetExceeded      SessionRecoveryReason = "budget_exceeded"
+	SessionRecoveryReasonProviderLimit       SessionRecoveryReason = "provider_limit"
+	SessionRecoveryReasonHostedCapacity      SessionRecoveryReason = "hosted_capacity"
 )
 
 // SessionRecoveryAction is the user-visible repair action for a recoverable
@@ -21,16 +24,20 @@ const (
 	SessionRecoveryActionRetry          SessionRecoveryAction = "retry"
 	SessionRecoveryActionLoginThenRetry SessionRecoveryAction = "login_then_retry"
 	SessionRecoveryActionRestorePath    SessionRecoveryAction = "restore_path"
+	SessionRecoveryActionWaitThenRetry  SessionRecoveryAction = "wait_then_retry"
+	SessionRecoveryActionIncreaseBudget SessionRecoveryAction = "increase_budget_then_retry"
 )
 
 // SessionRecoveryInfo is the structured recovery metadata on SessionInfo and
 // StatusPayload.
 type SessionRecoveryInfo struct {
-	Recoverable bool                  `json:"recoverable"`
-	Reason      SessionRecoveryReason `json:"reason,omitempty"`
-	Action      SessionRecoveryAction `json:"action,omitempty"`
-	UserMessage string                `json:"user_message,omitempty"`
-	Provider    string                `json:"provider,omitempty"`
+	Recoverable  bool                  `json:"recoverable"`
+	Reason       SessionRecoveryReason `json:"reason,omitempty"`
+	Action       SessionRecoveryAction `json:"action,omitempty"`
+	UserMessage  string                `json:"user_message,omitempty"`
+	Provider     string                `json:"provider,omitempty"`
+	Code         string                `json:"code,omitempty"`
+	RetryAfterMS int64                 `json:"retry_after_ms,omitempty"`
 }
 
 // StatusPayload pins the cross-repo additive recovery field for daemon status
