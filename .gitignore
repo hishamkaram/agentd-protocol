@@ -1,3 +1,5 @@
 # Graphify local/cache artifacts
 graphify-out/cost.json
 graphify-out/cache/
+graphify-out/.rebuild.lock
+graphify-out/.pending_changes
