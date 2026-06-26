@@ -117,6 +117,17 @@ const (
 	// the delegate session ID + the request ID.
 	MsgDelegationForceAbort = "delegation_force_abort"
 
+	// MsgDelegationPreview is sent by the daemon to the PWA before any delegate is
+	// spawned. It carries the human-reviewable handoff draft for an explicit
+	// approve/deny decision. No delegation_link/status/result payload carries this
+	// plaintext body.
+	MsgDelegationPreview = "delegation_preview"
+
+	// MsgDelegationPreviewDecision is sent by the PWA to approve or deny a pending
+	// preview. Approval may include edited handoff fields; denial never spawns a
+	// delegate.
+	MsgDelegationPreviewDecision = "delegation_preview_decision"
+
 	// MsgStartDelegation is sent by the PWA to the daemon to USER-initiate a
 	// delegation (the "hand off" trigger): the daemon parks the named source
 	// session (when Await) and spawns a delegate of ToEngine in the source's
@@ -197,6 +208,12 @@ const (
 	DelegationTriggeredByUser   = "user"
 	DelegationTriggeredByAuto   = "auto"
 	DelegationTriggeredBySystem = "system"
+)
+
+// Preview decisions carried in DelegationPreviewDecisionPayload.Decision.
+const (
+	DelegationPreviewDecisionApprove = "approve"
+	DelegationPreviewDecisionDeny    = "deny"
 )
 
 // Durable handoff first-message delivery states carried in the scalar audit field
@@ -361,6 +378,97 @@ type DelegationCancelAckPayload struct {
 type DelegationForceAbortPayload struct {
 	DelegateSID string `json:"delegate_sid"`         // delegate agent session ID to hard-stop
 	RequestID   string `json:"request_id,omitempty"` // idempotency key, paired with the originating cancel
+}
+
+// DelegationPreviewPayload is the human-reviewable handoff draft emitted before a
+// delegate is spawned. It is intentionally richer than DelegationLinkPayload:
+// this is the only live plaintext preview surface, while link/status/result and
+// persisted-link payloads remain content-free.
+type DelegationPreviewPayload struct {
+	PreviewID             string                      `json:"preview_id"`
+	SourceSID             string                      `json:"source_sid"`
+	SourceEngine          string                      `json:"source_engine,omitempty"`
+	TargetEngine          string                      `json:"target_engine"`
+	Await                 bool                        `json:"await"`
+	TriggeredBy           string                      `json:"triggered_by,omitempty"`
+	Prompt                string                      `json:"prompt"`
+	Context               string                      `json:"context,omitempty"`
+	ExpectedOutput        string                      `json:"expected_output,omitempty"`
+	ApprovedPlan          string                      `json:"approved_plan,omitempty"`
+	GitContext            string                      `json:"git_context,omitempty"`
+	InheritedStateSummary string                      `json:"inherited_state_summary,omitempty"`
+	ByteStatus            DelegationPreviewByteStatus `json:"byte_status"`
+	TimeoutAt             int64                       `json:"timeout_at,omitempty"`
+	TimeoutRemainingMS    int64                       `json:"timeout_remaining_ms"`
+	CreatedAt             int64                       `json:"created_at"`
+}
+
+// DelegationPreviewByteStatus gives the PWA a bounded-size readout for the draft
+// handoff. It carries only sizes and status bits, never hidden content.
+type DelegationPreviewByteStatus struct {
+	AssembledBytes int  `json:"assembled_bytes"`
+	MaxBytes       int  `json:"max_bytes"`
+	OverLimit      bool `json:"over_limit"`
+	Truncated      bool `json:"truncated"`
+}
+
+// DelegationPreviewDecisionPayload answers a pending preview. Approve may carry
+// edited handoff fields; deny may carry a redacted human reason.
+type DelegationPreviewDecisionPayload struct {
+	PreviewID      string `json:"preview_id"`
+	Decision       string `json:"decision"` // DelegationPreviewDecisionApprove | DelegationPreviewDecisionDeny
+	Prompt         string `json:"prompt,omitempty"`
+	Context        string `json:"context,omitempty"`
+	ExpectedOutput string `json:"expected_output,omitempty"`
+	Notes          string `json:"notes,omitempty"`
+	DenyReason     string `json:"deny_reason,omitempty"`
+
+	ContextSet        bool `json:"-"`
+	ExpectedOutputSet bool `json:"-"`
+}
+
+// MarshalJSON preserves explicit clears for editable fields. Non-empty context
+// and expected_output are emitted for ordinary producers; ContextSet and
+// ExpectedOutputSet force emission even when the intended edited value is "".
+func (p DelegationPreviewDecisionPayload) MarshalJSON() ([]byte, error) {
+	out := map[string]any{
+		"preview_id": p.PreviewID,
+		"decision":   p.Decision,
+	}
+	if p.Prompt != "" {
+		out["prompt"] = p.Prompt
+	}
+	if p.ContextSet || p.Context != "" {
+		out["context"] = p.Context
+	}
+	if p.ExpectedOutputSet || p.ExpectedOutput != "" {
+		out["expected_output"] = p.ExpectedOutput
+	}
+	if p.Notes != "" {
+		out["notes"] = p.Notes
+	}
+	if p.DenyReason != "" {
+		out["deny_reason"] = p.DenyReason
+	}
+	return json.Marshal(out)
+}
+
+// UnmarshalJSON records presence for editable fields where an omitted value
+// means "leave the preview as-is" but an explicit empty string means "clear it".
+func (p *DelegationPreviewDecisionPayload) UnmarshalJSON(data []byte) error {
+	type alias DelegationPreviewDecisionPayload
+	var decoded alias
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	*p = DelegationPreviewDecisionPayload(decoded)
+	_, p.ContextSet = raw["context"]
+	_, p.ExpectedOutputSet = raw["expected_output"]
+	return nil
 }
 
 // StartDelegationPayload is the PWA→daemon command that USER-initiates a
