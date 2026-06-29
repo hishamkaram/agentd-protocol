@@ -1,16 +1,16 @@
-# Graph Report - agentd-protocol  (2026-06-26)
+# Graph Report - agentd-protocol  (2026-06-29)
 
 ## Corpus Check
-- 80 files · ~42,133 words
+- 91 files · ~41,782 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 699 nodes · 1087 edges · 44 communities (36 shown, 8 thin omitted)
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.8)
+- 713 nodes · 1100 edges · 43 communities (35 shown, 8 thin omitted)
+- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 120 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e3a7f247`
+- Built from commit: `87e156f6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -44,7 +44,6 @@
 - [[_COMMUNITY_Community 26|Community 26]]
 - [[_COMMUNITY_Community 27|Community 27]]
 - [[_COMMUNITY_Community 28|Community 28]]
-- [[_COMMUNITY_Community 29|Community 29]]
 - [[_COMMUNITY_Community 30|Community 30]]
 - [[_COMMUNITY_Community 31|Community 31]]
 - [[_COMMUNITY_Community 33|Community 33]]
@@ -62,40 +61,40 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `T` - 37 edges
-2. `T` - 37 edges
-3. `T` - 32 edges
-4. `assertRoundtrip()` - 20 edges
-5. `T` - 15 edges
-6. `NegotiateProtocolHello()` - 12 edges
-7. `Wire types` - 11 edges
-8. `T` - 11 edges
-9. `JSONRPCID` - 11 edges
+2. `T` - 32 edges
+3. `assertRoundtrip()` - 20 edges
+4. `T` - 15 edges
+5. `NegotiateProtocolHello()` - 12 edges
+6. `T` - 11 edges
+7. `JSONRPCID` - 11 edges
+8. `Wire types` - 11 edges
+9. `T` - 9 edges
 10. `T` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `TestSessionFeatureStatusConstants()` --calls--> `NegotiateProtocolHello()`  [INFERRED]
-  session_feature_status_test.go → v2.go
-- `TestSessionFeatureStatusConstants()` --calls--> `containsStringValue()`  [INFERRED]
-  session_feature_status_test.go → v2_test.go
+- `TestIsKnownEngine()` --calls--> `IsKnownEngine()`  [INFERRED]
+  delegation_link_engine_test.go → delegation.go
 - `TestControlMessageEdgeCases()` --calls--> `ControlType`  [INFERRED]
   protocol_test.go → control.go
-- `TestKnownEngines()` --calls--> `KnownEngines()`  [INFERRED]
-  delegation_test.go → delegation.go
-- `TestStartDelegationAwaitOrDefault()` --calls--> `StartDelegationAwaitOrDefault()`  [INFERRED]
-  delegation_test.go → delegation.go
+- `TestV2FixturesParse()` --calls--> `ValidateCommandReceipt()`  [INFERRED]
+  v2_test.go → receipts.go
+- `TestProtocolHelloAdvertisesCommandReceipts()` --calls--> `NegotiateProtocolHello()`  [INFERRED]
+  receipts_test.go → v2.go
+- `TestProtocolHelloAdvertisesCommandReceipts()` --calls--> `containsStringValue()`  [INFERRED]
+  receipts_test.go → v2_test.go
 
 ## Import Cycles
 - None detected.
 
-## Communities (44 total, 8 thin omitted)
+## Communities (43 total, 8 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
 Nodes (69): AgentDErrorData, AgentDEventEnvelope, ConnectionPhase, EventType, JSONRPCError, JSONRPCID, JSONRPCRequest, JSONRPCResponse (+61 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.06
-Nodes (62): IsKnownEngine(), T, TestApprovalAttribution_OmitemptyBackwardCompat(), TestApprovalAttribution_Roundtrip(), TestDelegationCancelAckPayload_Roundtrip(), TestDelegationCancelControlFramesNoContent(), TestDelegationCancelLifecycleStateConstants(), TestDelegationCancelPayload_RequestIDRoundtrip() (+54 more)
+Cohesion: 0.05
+Nodes (63): T, TestDelegationCancelAckPayload_Roundtrip(), TestDelegationCancelControlFramesNoContent(), TestDelegationCancelLifecycleStateConstants(), TestDelegationCancelPayload_RequestIDRoundtrip(), TestDelegationCancelPayload_Roundtrip(), TestDelegationForceAbortPayload_Roundtrip(), T (+55 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.12
@@ -146,8 +145,8 @@ Cohesion: 0.22
 Nodes (19): MCPListPayload, MCPListResponse, MCPMutationPayload, MCPMutationResponse, MCPReconnectPayload, MCPRemovePayload, MCPServerConfig, MCPServersChangedPayload (+11 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.11
-Nodes (16): ApprovalAttribution, DelegationCancelAckPayload, DelegationCancelPayload, DelegationForceAbortPayload, DelegationLinkPayload, DelegationPreviewByteStatus, DelegationPreviewDecisionPayload, DelegationPreviewPayload (+8 more)
+Cohesion: 0.07
+Nodes (22): ApprovalAttribution, DelegationCancelAckPayload, DelegationCancelPayload, DelegationForceAbortPayload, DelegationLinkPayload, DelegationPreviewByteStatus, DelegationPreviewDecisionPayload, DelegationPreviewPayload (+14 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.22
@@ -183,11 +182,11 @@ Nodes (7): CodexSandboxMode, IsKnownCodexSandboxMode(), KnownCodexSandboxModes()
 
 ### Community 23 - "Community 23"
 Cohesion: 0.39
-Nodes (8): TestSessionFeatureStatusConstants(), TestSessionFeatureStatusFixtures(), TestSessionFeatureStatusPayloadJSONRoundtrip(), TestSessionFeatureStatusPayloadRejectsUnknownStateAndReason(), TestSessionFeatureStatusPayloadRequiresFields(), TestSessionInfoFeatureStatusesJSONRoundtrip(), TestSessionInfoRecoveryJSONRoundtrip(), T
+Nodes (8): T, TestSessionFeatureStatusConstants(), TestSessionFeatureStatusFixtures(), TestSessionFeatureStatusPayloadJSONRoundtrip(), TestSessionFeatureStatusPayloadRejectsUnknownStateAndReason(), TestSessionFeatureStatusPayloadRequiresFields(), TestSessionInfoFeatureStatusesJSONRoundtrip(), TestSessionInfoRecoveryJSONRoundtrip()
 
 ### Community 24 - "Community 24"
 Cohesion: 0.25
-Nodes (7): Adding a New Wire Type, AgentD Protocol Repo, Architecture, Build & Test, Critical Rules, Full Specification, What This Is
+Nodes (7): Adding a New Wire Type, AgentD Protocol Repo, Architecture, Build & Test, Critical Rules, Source of Truth, What This Is
 
 ### Community 25 - "Community 25"
 Cohesion: 0.43
@@ -199,15 +198,11 @@ Nodes (6): GitDiffRequest, GitDiffResponse, GitFileStatus, GitNotAvailablePayloa
 
 ### Community 27 - "Community 27"
 Cohesion: 0.53
-Nodes (5): T, TestApprovalDecisionConstants(), TestApprovalResolvedPayload_Roundtrip(), TestMsgApprovalResolvedConstant(), TestMsgPendingApprovalStateConstant()
+Nodes (5): TestApprovalDecisionConstants(), TestApprovalResolvedPayload_Roundtrip(), TestMsgApprovalResolvedConstant(), TestMsgPendingApprovalStateConstant(), T
 
 ### Community 28 - "Community 28"
 Cohesion: 0.70
 Nodes (4): AgentExtensionDef, AgentExtensionInvocation, AgentExtensionKind, AgentExtensionScope
-
-### Community 29 - "Community 29"
-Cohesion: 0.40
-Nodes (4): HistoryPagePayload, HistoryPageRequest, SessionHeadPayload, RawMessage
 
 ### Community 30 - "Community 30"
 Cohesion: 0.70
@@ -234,7 +229,7 @@ Cohesion: 0.67
 Nodes (3): T, TestInteractivePromptResolvedPayloadRoundtrip(), TestMsgInteractivePromptResolvedConstant()
 
 ## Knowledge Gaps
-- **238 isolated node(s):** `Documentation`, `Wire types`, `Envelope and control plane`, `Per-agent capabilities (features 185 / 186 / 195)`, `Approval lifecycle (feature 193)` (+233 more)
+- **226 isolated node(s):** `What This Is`, `Build & Test`, `Architecture`, `Critical Rules`, `Adding a New Wire Type` (+221 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -245,12 +240,12 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Why does `TestControlMessageEdgeCases()` connect `Community 2` to `Community 10`?**
   _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **What connects `Documentation`, `Wire types`, `Envelope and control plane` to the rest of the system?**
-  _238 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `What This Is`, `Build & Test`, `Architecture` to the rest of the system?**
+  _226 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.06442058496853018 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.06479113384484228 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05405405405405406 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.12307692307692308 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**

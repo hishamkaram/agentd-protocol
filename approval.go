@@ -20,16 +20,14 @@
 //     the PWA's seenMessageKeys dedup key changes — bypasses the existing
 //     dedupe naturally without weakening it.
 //
-// The DAEMON is the source of truth for the Msg* constants in this file.
-// Matching constants live in agentd/internal/session/wsserver.go (planned
-// for feature 193 implementation) with init() panic cross-checks at daemon
-// startup — same drift-prevention pattern as
-// agentd-protocol/history.go ↔ agentd/internal/session/wsserver_history.go.
+// agentd-protocol is the source of truth for the Msg* constants in this file.
+// Matching daemon-local constants live under agentd/internal/session/ with
+// init() panic cross-checks at daemon startup.
 package protocol
 
-// Message-type constants — DAEMON-side source of truth.
-// Mirrors MUST exist in agentd/internal/session/ with init() panic
-// cross-check that the values agree at daemon startup.
+// Message-type constants owned by agentd-protocol. Mirrors MUST exist in
+// agentd/internal/session/ with init() panic cross-checks that the values agree
+// at daemon startup.
 const (
 	// MsgApprovalResolved is the daemon→PWA tombstone broadcast on every
 	// approval terminal state. Carries the approval_id, session_id, the
@@ -47,10 +45,8 @@ const (
 )
 
 // ApprovalDecision values used in ApprovalResolvedPayload.Decision.
-// These string constants document the canonical values; the daemon and
-// PWA both serialize/deserialize from this set. Values are stable wire
-// strings — changing them is a breaking change requiring all 3 repos to
-// update in lockstep.
+// agentd-protocol owns these stable wire strings; daemon, relay, and PWA
+// consumers must update in lockstep for any breaking value change.
 const (
 	// ApprovalDecisionAllow — user approved (or auto-allowed by policy).
 	ApprovalDecisionAllow = "allow"

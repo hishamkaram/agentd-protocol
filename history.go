@@ -3,7 +3,7 @@ package protocol
 
 import "encoding/json"
 
-// Message-type constants for daemon-owned transcript history recovery.
+// Message-type constants owned by agentd-protocol for transcript history recovery.
 const (
 	// MsgSessionHead is a daemon->PWA announcement of the current durable
 	// per-session head sequence.

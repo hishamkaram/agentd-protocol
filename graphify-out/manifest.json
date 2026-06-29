@@ -1,12 +1,12 @@
 {
   "approval.go": {
-    "mtime": 1781544908.2086558,
-    "ast_hash": "87c94f1b63c29331e996bae2a862c64b",
+    "mtime": 1782662847.6508589,
+    "ast_hash": "d1756a66f94ee16d0cc50e175b4b062c",
     "semantic_hash": ""
   },
   "approval_test.go": {
-    "mtime": 1781289718.9665744,
-    "ast_hash": "6cc07ec024527a30ac07ff5ac955a006",
+    "mtime": 1782662847.6558588,
+    "ast_hash": "e911cc279038083fdf75b5ff5176b34b",
     "semantic_hash": ""
   },
   "capabilities.go": {
@@ -45,13 +45,8 @@
     "semantic_hash": ""
   },
   "delegation.go": {
-    "mtime": 1782464766.697469,
-    "ast_hash": "963c312733a340f794820a00df7b4f90",
-    "semantic_hash": ""
-  },
-  "delegation_test.go": {
-    "mtime": 1782464766.698469,
-    "ast_hash": "3fa25d82386be3a861bd9dbeb5b38a88",
+    "mtime": 1782662847.6518588,
+    "ast_hash": "247bfbc45591f96a9238c9ebd86c3eb8",
     "semantic_hash": ""
   },
   "envelope.go": {
@@ -90,8 +85,8 @@
     "semantic_hash": ""
   },
   "gitsync.go": {
-    "mtime": 1781247745.5891056,
-    "ast_hash": "4980e5257b0d3e649c522143553623ba",
+    "mtime": 1782660395.0649922,
+    "ast_hash": "8029b9bedfe0ffc09d84cbb8c29c9ede",
     "semantic_hash": ""
   },
   "gitsync_test.go": {
@@ -105,8 +100,8 @@
     "semantic_hash": ""
   },
   "history.go": {
-    "mtime": 1781289718.9715745,
-    "ast_hash": "bef8c81b01abf092bb94a0c541c2d297",
+    "mtime": 1782660433.1455603,
+    "ast_hash": "3c87fb8f57d6fe4375f234077cccba12",
     "semantic_hash": ""
   },
   "history_test.go": {
@@ -325,17 +320,17 @@
     "semantic_hash": ""
   },
   "session_feature_status.go": {
-    "mtime": 1781289718.9815743,
-    "ast_hash": "c8d215f0b883214ac5198d74871697b5",
+    "mtime": 1782662847.648859,
+    "ast_hash": "6f1b8f83b8d220827930b9a45c0ae11e",
     "semantic_hash": ""
   },
   "session_feature_status_test.go": {
-    "mtime": 1782482763.491011,
+    "mtime": 1782489703.9952059,
     "ast_hash": "f964418485d1f33bc0c15e3c21a60e6d",
     "semantic_hash": ""
   },
   "session_recovery.go": {
-    "mtime": 1782482763.491011,
+    "mtime": 1782489703.9962058,
     "ast_hash": "ea131a8d49ad5f9155c63c5e3e08d5b5",
     "semantic_hash": ""
   },
@@ -365,8 +360,8 @@
     "semantic_hash": ""
   },
   "worktrees.go": {
-    "mtime": 1781247745.5831058,
-    "ast_hash": "7a89371acb27222bf9b99df9970eec3c",
+    "mtime": 1782660402.5389075,
+    "ast_hash": "ae2186e6203a4d96b1814fca2d4c73e8",
     "semantic_hash": ""
   },
   "worktrees_test.go": {
@@ -390,17 +385,17 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1782481917.2138429,
+    "mtime": 1782489703.988206,
     "ast_hash": "210cd4893580fcf4de7fb94945481642",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1781247745.0701144,
-    "ast_hash": "fc29766170e42e60552d1403f7152f23",
+    "mtime": 1782718427.7662914,
+    "ast_hash": "b34fd0a4075c3b3ac5adab9d107ac56d",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1782483114.9497178,
+    "mtime": 1782489703.9892058,
     "ast_hash": "13c80eed23c2aee5d27ef4def03300fd",
     "semantic_hash": ""
   },
@@ -415,13 +410,73 @@
     "semantic_hash": ""
   },
   ".githooks/codebase-memory-mcp-update": {
-    "mtime": 1782475588.9914258,
+    "mtime": 1782489703.987206,
     "ast_hash": "2846aeeb2999cea8c02639c1e0673025",
     "semantic_hash": ""
   },
   ".githooks/install-codebase-memory-mcp-hooks": {
-    "mtime": 1782475512.5152957,
+    "mtime": 1782489703.988206,
     "ast_hash": "e9f181506a30cce84d3ec27a584b96ba",
+    "semantic_hash": ""
+  },
+  "delegation_cancel_control_test.go": {
+    "mtime": 1782656300.8555427,
+    "ast_hash": "001179a4afe44494c4a8afb1184bf481",
+    "semantic_hash": ""
+  },
+  "delegation_link_engine_test.go": {
+    "mtime": 1782656300.8525426,
+    "ast_hash": "b26e1a46ce59aadccb85580b8fa1d1a7",
+    "semantic_hash": ""
+  },
+  "delegation_persisted_approval_test.go": {
+    "mtime": 1782656300.8575425,
+    "ast_hash": "2237423cca837269170c454b7c2b6bec",
+    "semantic_hash": ""
+  },
+  "delegation_preview_test.go": {
+    "mtime": 1782638684.2376542,
+    "ast_hash": "aa9395babaa51eac0f496afa28af3b60",
+    "semantic_hash": ""
+  },
+  "delegation_status_result_start_test.go": {
+    "mtime": 1782656300.8535426,
+    "ast_hash": "09b5869719498e2d2d1810f6852f7682",
+    "semantic_hash": ""
+  },
+  "delegation_approval.go": {
+    "mtime": 1782656212.9895363,
+    "ast_hash": "a520a6698bbfd09952350e2c190e9cad",
+    "semantic_hash": ""
+  },
+  "delegation_cancel.go": {
+    "mtime": 1782656212.9905362,
+    "ast_hash": "fefca5a3c6907e8a4f5042dbe77040f3",
+    "semantic_hash": ""
+  },
+  "delegation_link.go": {
+    "mtime": 1782656212.9915364,
+    "ast_hash": "d4c70de2c996cbeb9fa9ef8c23b5bd04",
+    "semantic_hash": ""
+  },
+  "delegation_persistence.go": {
+    "mtime": 1782656212.9915364,
+    "ast_hash": "023d05778ee59b920c849194999f2813",
+    "semantic_hash": ""
+  },
+  "delegation_preview.go": {
+    "mtime": 1782656212.9925363,
+    "ast_hash": "51de64f06ac27c849604fb8f85ad1f7d",
+    "semantic_hash": ""
+  },
+  "delegation_start.go": {
+    "mtime": 1782656212.9925363,
+    "ast_hash": "c353ab15659b9e0200cab4af45442d17",
+    "semantic_hash": ""
+  },
+  "delegation_status.go": {
+    "mtime": 1782656212.9925363,
+    "ast_hash": "bbdb0a35e23e92b156d7ce0214241394",
     "semantic_hash": ""
   }
 }
