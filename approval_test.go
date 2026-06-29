@@ -63,8 +63,8 @@ func TestApprovalResolvedPayload_Roundtrip(t *testing.T) {
 	}
 }
 
-// TestMsgApprovalResolvedConstant pins the wire-type string. Any change
-// here is a breaking change across all 3 repos (daemon, relay, PWA).
+// TestMsgApprovalResolvedConstant pins the agentd-protocol wire-type string.
+// Daemon, relay, and PWA consumers must update in lockstep for any change.
 func TestMsgApprovalResolvedConstant(t *testing.T) {
 	t.Parallel()
 	if MsgApprovalResolved != "approval_resolved" {

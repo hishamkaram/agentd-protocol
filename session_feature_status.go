@@ -51,8 +51,9 @@ const (
 )
 
 // SessionFeatureStatusPayload is carried by MsgSessionFeatureStatus and
-// EventSessionFeatureStatus. It reports the daemon-owned lifecycle of optional
-// startup/runtime features independently from provider startup.
+// EventSessionFeatureStatus. agentd-protocol owns this wire shape; daemon
+// producers use it to report optional startup/runtime feature lifecycle
+// independently from provider startup.
 type SessionFeatureStatusPayload struct {
 	SchemaVersion    int                      `json:"schema_version"`
 	SessionID        string                   `json:"session_id"`

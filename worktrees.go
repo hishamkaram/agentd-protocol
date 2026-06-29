@@ -5,17 +5,16 @@
 // management family (list, add, remove, lock/unlock, prune, session switch)
 // introduced in feature 173.
 //
-// The DAEMON is the source of truth for every Msg* constant in this file.
-// A matching constant block lives in agentd/internal/session/wsserver_worktrees.go
-// (added in a later phase) with an init() panic that cross-checks equality
-// at daemon startup — the explicit drift prevention for the feature 170
-// incident class (see specs/170-fix-mcp-wire-drift/spec.md).
+// agentd-protocol is the source of truth for every Msg* constant in this file.
+// A matching daemon-local constant block lives in
+// agentd/internal/session/wsserver_worktrees.go with an init() panic that
+// cross-checks equality at daemon startup.
 package protocol
 
-// Message-type constants — DAEMON-side source of truth. Feature 173.
+// Message-type constants owned by agentd-protocol. Feature 173.
 //
-// Mirror MUST exist in agentd/internal/session/wsserver_worktrees.go with an
-// init() panic cross-check that the two blocks agree at daemon startup.
+// Mirrors MUST exist in agentd/internal/session/wsserver_worktrees.go with an
+// init() panic cross-check that the values agree at daemon startup.
 const (
 	MsgGitWorktreeList               = "git_worktree_list"
 	MsgGitWorktreeListResponse       = "git_worktree_list_response"
