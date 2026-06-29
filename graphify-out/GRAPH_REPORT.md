@@ -1,7 +1,7 @@
 # Graph Report - agentd-protocol  (2026-06-29)
 
 ## Corpus Check
-- 91 files · ~41,768 words
+- 91 files · ~41,782 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2832ab2c`
+- Built from commit: `87e156f6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -186,7 +186,7 @@ Nodes (8): T, TestSessionFeatureStatusConstants(), TestSessionFeatureStatusFixtu
 
 ### Community 24 - "Community 24"
 Cohesion: 0.25
-Nodes (7): Adding a New Wire Type, AgentD Protocol Repo, Architecture, Build & Test, Critical Rules, Full Specification, What This Is
+Nodes (7): Adding a New Wire Type, AgentD Protocol Repo, Architecture, Build & Test, Critical Rules, Source of Truth, What This Is
 
 ### Community 25 - "Community 25"
 Cohesion: 0.43
@@ -229,7 +229,7 @@ Cohesion: 0.67
 Nodes (3): T, TestInteractivePromptResolvedPayloadRoundtrip(), TestMsgInteractivePromptResolvedConstant()
 
 ## Knowledge Gaps
-- **226 isolated node(s):** `ApprovalResolvedPayload`, `GitBranchListRequest`, `GitBranchSwitchRequest`, `GitBranchSwitchResponse`, `GitFetchRequest` (+221 more)
+- **226 isolated node(s):** `What This Is`, `Build & Test`, `Architecture`, `Critical Rules`, `Adding a New Wire Type` (+221 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -240,7 +240,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Why does `TestControlMessageEdgeCases()` connect `Community 2` to `Community 10`?**
   _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **What connects `ApprovalResolvedPayload`, `GitBranchListRequest`, `GitBranchSwitchRequest` to the rest of the system?**
+- **What connects `What This Is`, `Build & Test`, `Architecture` to the rest of the system?**
   _226 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.06442058496853018 - nodes in this community are weakly interconnected._

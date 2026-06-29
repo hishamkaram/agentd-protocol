@@ -4,726 +4,6 @@
   "graph": {},
   "nodes": [
     {
-      "label": "approval.go",
-      "file_type": "code",
-      "source_file": "approval.go",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "approval",
-      "community": 39,
-      "norm_label": "approval.go"
-    },
-    {
-      "label": "ApprovalResolvedPayload",
-      "file_type": "code",
-      "source_file": "approval.go",
-      "source_location": "L97",
-      "_origin": "ast",
-      "id": "agentd_protocol_approvalresolvedpayload",
-      "community": 39,
-      "norm_label": "approvalresolvedpayload"
-    },
-    {
-      "label": "approval_test.go",
-      "file_type": "code",
-      "source_file": "approval_test.go",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "approval_test",
-      "community": 27,
-      "norm_label": "approval_test.go"
-    },
-    {
-      "label": "TestApprovalResolvedPayload_Roundtrip()",
-      "file_type": "code",
-      "source_file": "approval_test.go",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "approval_test_testapprovalresolvedpayload_roundtrip",
-      "community": 27,
-      "norm_label": "testapprovalresolvedpayload_roundtrip()"
-    },
-    {
-      "label": "T",
-      "file_type": "code",
-      "source_file": "approval_test.go",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "t",
-      "community": 27,
-      "norm_label": "t"
-    },
-    {
-      "label": "TestMsgApprovalResolvedConstant()",
-      "file_type": "code",
-      "source_file": "approval_test.go",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "approval_test_testmsgapprovalresolvedconstant",
-      "community": 27,
-      "norm_label": "testmsgapprovalresolvedconstant()"
-    },
-    {
-      "label": "TestMsgPendingApprovalStateConstant()",
-      "file_type": "code",
-      "source_file": "approval_test.go",
-      "source_location": "L78",
-      "_origin": "ast",
-      "id": "approval_test_testmsgpendingapprovalstateconstant",
-      "community": 27,
-      "norm_label": "testmsgpendingapprovalstateconstant()"
-    },
-    {
-      "label": "TestApprovalDecisionConstants()",
-      "file_type": "code",
-      "source_file": "approval_test.go",
-      "source_location": "L91",
-      "_origin": "ast",
-      "id": "approval_test_testapprovaldecisionconstants",
-      "community": 27,
-      "norm_label": "testapprovaldecisionconstants()"
-    },
-    {
-      "label": "gitsync.go",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "gitsync",
-      "community": 8,
-      "norm_label": "gitsync.go"
-    },
-    {
-      "label": "GitBranch",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L64",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitbranch",
-      "community": 8,
-      "norm_label": "gitbranch"
-    },
-    {
-      "label": "GitBranchListRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L75",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitbranchlistrequest",
-      "community": 8,
-      "norm_label": "gitbranchlistrequest"
-    },
-    {
-      "label": "GitBranchListResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L81",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitbranchlistresponse",
-      "community": 8,
-      "norm_label": "gitbranchlistresponse"
-    },
-    {
-      "label": "GitBranchSwitchRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L93",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitbranchswitchrequest",
-      "community": 8,
-      "norm_label": "gitbranchswitchrequest"
-    },
-    {
-      "label": "GitBranchSwitchResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L101",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitbranchswitchresponse",
-      "community": 8,
-      "norm_label": "gitbranchswitchresponse"
-    },
-    {
-      "label": "GitFetchRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L114",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitfetchrequest",
-      "community": 8,
-      "norm_label": "gitfetchrequest"
-    },
-    {
-      "label": "GitFetchResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L122",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitfetchresponse",
-      "community": 8,
-      "norm_label": "gitfetchresponse"
-    },
-    {
-      "label": "GitPullRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L132",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitpullrequest",
-      "community": 8,
-      "norm_label": "gitpullrequest"
-    },
-    {
-      "label": "GitPullResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L139",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitpullresponse",
-      "community": 8,
-      "norm_label": "gitpullresponse"
-    },
-    {
-      "label": "GitPushRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L155",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitpushrequest",
-      "community": 8,
-      "norm_label": "gitpushrequest"
-    },
-    {
-      "label": "GitPushResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L165",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitpushresponse",
-      "community": 8,
-      "norm_label": "gitpushresponse"
-    },
-    {
-      "label": "GitStashEntry",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L176",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashentry",
-      "community": 8,
-      "norm_label": "gitstashentry"
-    },
-    {
-      "label": "GitStashListRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L186",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashlistrequest",
-      "community": 8,
-      "norm_label": "gitstashlistrequest"
-    },
-    {
-      "label": "GitStashListResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L192",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashlistresponse",
-      "community": 8,
-      "norm_label": "gitstashlistresponse"
-    },
-    {
-      "label": "GitStashPushRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L201",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashpushrequest",
-      "community": 8,
-      "norm_label": "gitstashpushrequest"
-    },
-    {
-      "label": "GitStashPushResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L207",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashpushresponse",
-      "community": 8,
-      "norm_label": "gitstashpushresponse"
-    },
-    {
-      "label": "GitStashApplyRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L218",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashapplyrequest",
-      "community": 8,
-      "norm_label": "gitstashapplyrequest"
-    },
-    {
-      "label": "GitStashApplyResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L226",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashapplyresponse",
-      "community": 8,
-      "norm_label": "gitstashapplyresponse"
-    },
-    {
-      "label": "GitStashPopRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L236",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashpoprequest",
-      "community": 8,
-      "norm_label": "gitstashpoprequest"
-    },
-    {
-      "label": "GitStashPopResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L243",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashpopresponse",
-      "community": 8,
-      "norm_label": "gitstashpopresponse"
-    },
-    {
-      "label": "GitStashDropRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L254",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashdroprequest",
-      "community": 8,
-      "norm_label": "gitstashdroprequest"
-    },
-    {
-      "label": "GitStashDropResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L261",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitstashdropresponse",
-      "community": 8,
-      "norm_label": "gitstashdropresponse"
-    },
-    {
-      "label": "GitSyncProgressPayload",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L275",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitsyncprogresspayload",
-      "community": 8,
-      "norm_label": "gitsyncprogresspayload"
-    },
-    {
-      "label": "GitSyncCancelRequest",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L284",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitsynccancelrequest",
-      "community": 8,
-      "norm_label": "gitsynccancelrequest"
-    },
-    {
-      "label": "GitSyncCancelResponse",
-      "file_type": "code",
-      "source_file": "gitsync.go",
-      "source_location": "L293",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitsynccancelresponse",
-      "community": 8,
-      "norm_label": "gitsynccancelresponse"
-    },
-    {
-      "label": "history.go",
-      "file_type": "code",
-      "source_file": "history.go",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "history",
-      "community": 14,
-      "norm_label": "history.go"
-    },
-    {
-      "label": "SessionHeadPayload",
-      "file_type": "code",
-      "source_file": "history.go",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionheadpayload",
-      "community": 14,
-      "norm_label": "sessionheadpayload"
-    },
-    {
-      "label": "HistoryPageRequest",
-      "file_type": "code",
-      "source_file": "history.go",
-      "source_location": "L30",
-      "_origin": "ast",
-      "id": "agentd_protocol_historypagerequest",
-      "community": 14,
-      "norm_label": "historypagerequest"
-    },
-    {
-      "label": "HistoryPagePayload",
-      "file_type": "code",
-      "source_file": "history.go",
-      "source_location": "L39",
-      "_origin": "ast",
-      "id": "agentd_protocol_historypagepayload",
-      "community": 14,
-      "norm_label": "historypagepayload"
-    },
-    {
-      "label": "RawMessage",
-      "file_type": "code",
-      "source_file": "history.go",
-      "source_location": "L41",
-      "_origin": "ast",
-      "id": "rawmessage",
-      "community": 14,
-      "norm_label": "rawmessage"
-    },
-    {
-      "label": "session_feature_status.go",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "session_feature_status",
-      "community": 19,
-      "norm_label": "session_feature_status.go"
-    },
-    {
-      "label": "SessionFeature",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L17",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionfeature",
-      "community": 19,
-      "norm_label": "sessionfeature"
-    },
-    {
-      "label": "SessionFeatureState",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L27",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionfeaturestate",
-      "community": 19,
-      "norm_label": "sessionfeaturestate"
-    },
-    {
-      "label": "SessionFeatureReasonCode",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L38",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionfeaturereasoncode",
-      "community": 19,
-      "norm_label": "sessionfeaturereasoncode"
-    },
-    {
-      "label": "SessionFeatureStatusPayload",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L57",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionfeaturestatuspayload",
-      "community": 19,
-      "norm_label": "sessionfeaturestatuspayload"
-    },
-    {
-      "label": ".Validate()",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionfeaturestatuspayload_validate",
-      "community": 19,
-      "norm_label": ".validate()"
-    },
-    {
-      "label": ".UnmarshalJSON()",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L93",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionfeaturestatuspayload_unmarshaljson",
-      "community": 19,
-      "norm_label": ".unmarshaljson()"
-    },
-    {
-      "label": "IsKnownSessionFeatureState()",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L107",
-      "_origin": "ast",
-      "id": "session_feature_status_isknownsessionfeaturestate",
-      "community": 19,
-      "norm_label": "isknownsessionfeaturestate()"
-    },
-    {
-      "label": "IsKnownSessionFeatureReasonCode()",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L121",
-      "_origin": "ast",
-      "id": "session_feature_status_isknownsessionfeaturereasoncode",
-      "community": 19,
-      "norm_label": "isknownsessionfeaturereasoncode()"
-    },
-    {
-      "label": "SessionInfo",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L141",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessioninfo",
-      "community": 19,
-      "norm_label": "sessioninfo"
-    },
-    {
-      "label": "ProviderCapabilityContract",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L143",
-      "_origin": "ast",
-      "id": "providercapabilitycontract",
-      "community": 19,
-      "norm_label": "providercapabilitycontract"
-    },
-    {
-      "label": "SessionRecoveryInfo",
-      "file_type": "code",
-      "source_file": "session_feature_status.go",
-      "source_location": "L144",
-      "_origin": "ast",
-      "id": "sessionrecoveryinfo",
-      "community": 19,
-      "norm_label": "sessionrecoveryinfo"
-    },
-    {
-      "label": "worktrees.go",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "worktrees",
-      "community": 12,
-      "norm_label": "worktrees.go"
-    },
-    {
-      "label": "Worktree",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L80",
-      "_origin": "ast",
-      "id": "agentd_protocol_worktree",
-      "community": 12,
-      "norm_label": "worktree"
-    },
-    {
-      "label": "GitWorktreeListRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L96",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreelistrequest",
-      "community": 12,
-      "norm_label": "gitworktreelistrequest"
-    },
-    {
-      "label": "GitWorktreeListResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L102",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreelistresponse",
-      "community": 12,
-      "norm_label": "gitworktreelistresponse"
-    },
-    {
-      "label": "GitWorktreeAddRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L113",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeaddrequest",
-      "community": 12,
-      "norm_label": "gitworktreeaddrequest"
-    },
-    {
-      "label": "GitWorktreeAddResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L124",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeaddresponse",
-      "community": 12,
-      "norm_label": "gitworktreeaddresponse"
-    },
-    {
-      "label": "GitWorktreeAddedPayload",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L135",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeaddedpayload",
-      "community": 12,
-      "norm_label": "gitworktreeaddedpayload"
-    },
-    {
-      "label": "GitWorktreeRemoveRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L142",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeremoverequest",
-      "community": 12,
-      "norm_label": "gitworktreeremoverequest"
-    },
-    {
-      "label": "GitWorktreeRemoveResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L152",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeremoveresponse",
-      "community": 12,
-      "norm_label": "gitworktreeremoveresponse"
-    },
-    {
-      "label": "GitWorktreeRemovedPayload",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L162",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeremovedpayload",
-      "community": 12,
-      "norm_label": "gitworktreeremovedpayload"
-    },
-    {
-      "label": "GitWorktreeLockRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L169",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreelockrequest",
-      "community": 12,
-      "norm_label": "gitworktreelockrequest"
-    },
-    {
-      "label": "GitWorktreeLockResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L177",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreelockresponse",
-      "community": 12,
-      "norm_label": "gitworktreelockresponse"
-    },
-    {
-      "label": "GitWorktreeUnlockRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L187",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeunlockrequest",
-      "community": 12,
-      "norm_label": "gitworktreeunlockrequest"
-    },
-    {
-      "label": "GitWorktreeUnlockResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L194",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeunlockresponse",
-      "community": 12,
-      "norm_label": "gitworktreeunlockresponse"
-    },
-    {
-      "label": "GitWorktreeUpdatedPayload",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L205",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeupdatedpayload",
-      "community": 12,
-      "norm_label": "gitworktreeupdatedpayload"
-    },
-    {
-      "label": "GitWorktreePruneRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L213",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeprunerequest",
-      "community": 12,
-      "norm_label": "gitworktreeprunerequest"
-    },
-    {
-      "label": "GitWorktreePruneResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L221",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreepruneresponse",
-      "community": 12,
-      "norm_label": "gitworktreepruneresponse"
-    },
-    {
-      "label": "GitWorktreeProgressPayload",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L240",
-      "_origin": "ast",
-      "id": "agentd_protocol_gitworktreeprogresspayload",
-      "community": 12,
-      "norm_label": "gitworktreeprogresspayload"
-    },
-    {
-      "label": "SessionWorktreeSwitchRequest",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L251",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionworktreeswitchrequest",
-      "community": 12,
-      "norm_label": "sessionworktreeswitchrequest"
-    },
-    {
-      "label": "SessionWorktreeSwitchResponse",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L261",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionworktreeswitchresponse",
-      "community": 12,
-      "norm_label": "sessionworktreeswitchresponse"
-    },
-    {
-      "label": "SessionWorktreeChangedPayload",
-      "file_type": "code",
-      "source_file": "worktrees.go",
-      "source_location": "L275",
-      "_origin": "ast",
-      "id": "agentd_protocol_sessionworktreechangedpayload",
-      "community": 12,
-      "norm_label": "sessionworktreechangedpayload"
-    },
-    {
       "label": "CLAUDE.md",
       "file_type": "document",
       "source_file": "CLAUDE.md",
@@ -794,14 +74,734 @@
       "norm_label": "adding a new wire type"
     },
     {
-      "label": "Full Specification",
+      "label": "Source of Truth",
       "file_type": "document",
       "source_file": "CLAUDE.md",
       "source_location": "L43",
       "_origin": "ast",
-      "id": "claude_full_specification",
+      "id": "claude_source_of_truth",
       "community": 24,
-      "norm_label": "full specification"
+      "norm_label": "source of truth"
+    },
+    {
+      "label": "approval.go",
+      "file_type": "code",
+      "source_file": "approval.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 39,
+      "norm_label": "approval.go",
+      "id": "approval"
+    },
+    {
+      "label": "ApprovalResolvedPayload",
+      "file_type": "code",
+      "source_file": "approval.go",
+      "source_location": "L97",
+      "_origin": "ast",
+      "community": 39,
+      "norm_label": "approvalresolvedpayload",
+      "id": "agentd_protocol_approvalresolvedpayload"
+    },
+    {
+      "label": "approval_test.go",
+      "file_type": "code",
+      "source_file": "approval_test.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "approval_test.go",
+      "id": "approval_test"
+    },
+    {
+      "label": "TestApprovalResolvedPayload_Roundtrip()",
+      "file_type": "code",
+      "source_file": "approval_test.go",
+      "source_location": "L13",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "testapprovalresolvedpayload_roundtrip()",
+      "id": "approval_test_testapprovalresolvedpayload_roundtrip"
+    },
+    {
+      "label": "T",
+      "file_type": "code",
+      "source_file": "approval_test.go",
+      "source_location": "L13",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "t",
+      "id": "t"
+    },
+    {
+      "label": "TestMsgApprovalResolvedConstant()",
+      "file_type": "code",
+      "source_file": "approval_test.go",
+      "source_location": "L68",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "testmsgapprovalresolvedconstant()",
+      "id": "approval_test_testmsgapprovalresolvedconstant"
+    },
+    {
+      "label": "TestMsgPendingApprovalStateConstant()",
+      "file_type": "code",
+      "source_file": "approval_test.go",
+      "source_location": "L78",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "testmsgpendingapprovalstateconstant()",
+      "id": "approval_test_testmsgpendingapprovalstateconstant"
+    },
+    {
+      "label": "TestApprovalDecisionConstants()",
+      "file_type": "code",
+      "source_file": "approval_test.go",
+      "source_location": "L91",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "testapprovaldecisionconstants()",
+      "id": "approval_test_testapprovaldecisionconstants"
+    },
+    {
+      "label": "gitsync.go",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitsync.go",
+      "id": "gitsync"
+    },
+    {
+      "label": "GitBranch",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L64",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitbranch",
+      "id": "agentd_protocol_gitbranch"
+    },
+    {
+      "label": "GitBranchListRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L75",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitbranchlistrequest",
+      "id": "agentd_protocol_gitbranchlistrequest"
+    },
+    {
+      "label": "GitBranchListResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L81",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitbranchlistresponse",
+      "id": "agentd_protocol_gitbranchlistresponse"
+    },
+    {
+      "label": "GitBranchSwitchRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L93",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitbranchswitchrequest",
+      "id": "agentd_protocol_gitbranchswitchrequest"
+    },
+    {
+      "label": "GitBranchSwitchResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L101",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitbranchswitchresponse",
+      "id": "agentd_protocol_gitbranchswitchresponse"
+    },
+    {
+      "label": "GitFetchRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L114",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitfetchrequest",
+      "id": "agentd_protocol_gitfetchrequest"
+    },
+    {
+      "label": "GitFetchResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L122",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitfetchresponse",
+      "id": "agentd_protocol_gitfetchresponse"
+    },
+    {
+      "label": "GitPullRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L132",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitpullrequest",
+      "id": "agentd_protocol_gitpullrequest"
+    },
+    {
+      "label": "GitPullResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L139",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitpullresponse",
+      "id": "agentd_protocol_gitpullresponse"
+    },
+    {
+      "label": "GitPushRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L155",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitpushrequest",
+      "id": "agentd_protocol_gitpushrequest"
+    },
+    {
+      "label": "GitPushResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L165",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitpushresponse",
+      "id": "agentd_protocol_gitpushresponse"
+    },
+    {
+      "label": "GitStashEntry",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L176",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashentry",
+      "id": "agentd_protocol_gitstashentry"
+    },
+    {
+      "label": "GitStashListRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L186",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashlistrequest",
+      "id": "agentd_protocol_gitstashlistrequest"
+    },
+    {
+      "label": "GitStashListResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L192",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashlistresponse",
+      "id": "agentd_protocol_gitstashlistresponse"
+    },
+    {
+      "label": "GitStashPushRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L201",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashpushrequest",
+      "id": "agentd_protocol_gitstashpushrequest"
+    },
+    {
+      "label": "GitStashPushResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L207",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashpushresponse",
+      "id": "agentd_protocol_gitstashpushresponse"
+    },
+    {
+      "label": "GitStashApplyRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L218",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashapplyrequest",
+      "id": "agentd_protocol_gitstashapplyrequest"
+    },
+    {
+      "label": "GitStashApplyResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L226",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashapplyresponse",
+      "id": "agentd_protocol_gitstashapplyresponse"
+    },
+    {
+      "label": "GitStashPopRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L236",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashpoprequest",
+      "id": "agentd_protocol_gitstashpoprequest"
+    },
+    {
+      "label": "GitStashPopResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L243",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashpopresponse",
+      "id": "agentd_protocol_gitstashpopresponse"
+    },
+    {
+      "label": "GitStashDropRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L254",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashdroprequest",
+      "id": "agentd_protocol_gitstashdroprequest"
+    },
+    {
+      "label": "GitStashDropResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L261",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitstashdropresponse",
+      "id": "agentd_protocol_gitstashdropresponse"
+    },
+    {
+      "label": "GitSyncProgressPayload",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L275",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitsyncprogresspayload",
+      "id": "agentd_protocol_gitsyncprogresspayload"
+    },
+    {
+      "label": "GitSyncCancelRequest",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L284",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitsynccancelrequest",
+      "id": "agentd_protocol_gitsynccancelrequest"
+    },
+    {
+      "label": "GitSyncCancelResponse",
+      "file_type": "code",
+      "source_file": "gitsync.go",
+      "source_location": "L293",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "gitsynccancelresponse",
+      "id": "agentd_protocol_gitsynccancelresponse"
+    },
+    {
+      "label": "history.go",
+      "file_type": "code",
+      "source_file": "history.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 14,
+      "norm_label": "history.go",
+      "id": "history"
+    },
+    {
+      "label": "SessionHeadPayload",
+      "file_type": "code",
+      "source_file": "history.go",
+      "source_location": "L22",
+      "_origin": "ast",
+      "community": 14,
+      "norm_label": "sessionheadpayload",
+      "id": "agentd_protocol_sessionheadpayload"
+    },
+    {
+      "label": "HistoryPageRequest",
+      "file_type": "code",
+      "source_file": "history.go",
+      "source_location": "L30",
+      "_origin": "ast",
+      "community": 14,
+      "norm_label": "historypagerequest",
+      "id": "agentd_protocol_historypagerequest"
+    },
+    {
+      "label": "HistoryPagePayload",
+      "file_type": "code",
+      "source_file": "history.go",
+      "source_location": "L39",
+      "_origin": "ast",
+      "community": 14,
+      "norm_label": "historypagepayload",
+      "id": "agentd_protocol_historypagepayload"
+    },
+    {
+      "label": "RawMessage",
+      "file_type": "code",
+      "source_file": "history.go",
+      "source_location": "L41",
+      "_origin": "ast",
+      "community": 14,
+      "norm_label": "rawmessage",
+      "id": "rawmessage"
+    },
+    {
+      "label": "session_feature_status.go",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "session_feature_status.go",
+      "id": "session_feature_status"
+    },
+    {
+      "label": "SessionFeature",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L17",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "sessionfeature",
+      "id": "agentd_protocol_sessionfeature"
+    },
+    {
+      "label": "SessionFeatureState",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L27",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "sessionfeaturestate",
+      "id": "agentd_protocol_sessionfeaturestate"
+    },
+    {
+      "label": "SessionFeatureReasonCode",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L38",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "sessionfeaturereasoncode",
+      "id": "agentd_protocol_sessionfeaturereasoncode"
+    },
+    {
+      "label": "SessionFeatureStatusPayload",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L57",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "sessionfeaturestatuspayload",
+      "id": "agentd_protocol_sessionfeaturestatuspayload"
+    },
+    {
+      "label": ".Validate()",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L68",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": ".validate()",
+      "id": "agentd_protocol_sessionfeaturestatuspayload_validate"
+    },
+    {
+      "label": ".UnmarshalJSON()",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L93",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": ".unmarshaljson()",
+      "id": "agentd_protocol_sessionfeaturestatuspayload_unmarshaljson"
+    },
+    {
+      "label": "IsKnownSessionFeatureState()",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L107",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "isknownsessionfeaturestate()",
+      "id": "session_feature_status_isknownsessionfeaturestate"
+    },
+    {
+      "label": "IsKnownSessionFeatureReasonCode()",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L121",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "isknownsessionfeaturereasoncode()",
+      "id": "session_feature_status_isknownsessionfeaturereasoncode"
+    },
+    {
+      "label": "SessionInfo",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L141",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "sessioninfo",
+      "id": "agentd_protocol_sessioninfo"
+    },
+    {
+      "label": "ProviderCapabilityContract",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L143",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "providercapabilitycontract",
+      "id": "providercapabilitycontract"
+    },
+    {
+      "label": "SessionRecoveryInfo",
+      "file_type": "code",
+      "source_file": "session_feature_status.go",
+      "source_location": "L144",
+      "_origin": "ast",
+      "community": 19,
+      "norm_label": "sessionrecoveryinfo",
+      "id": "sessionrecoveryinfo"
+    },
+    {
+      "label": "worktrees.go",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "worktrees.go",
+      "id": "worktrees"
+    },
+    {
+      "label": "Worktree",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L80",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "worktree",
+      "id": "agentd_protocol_worktree"
+    },
+    {
+      "label": "GitWorktreeListRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L96",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreelistrequest",
+      "id": "agentd_protocol_gitworktreelistrequest"
+    },
+    {
+      "label": "GitWorktreeListResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L102",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreelistresponse",
+      "id": "agentd_protocol_gitworktreelistresponse"
+    },
+    {
+      "label": "GitWorktreeAddRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L113",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeaddrequest",
+      "id": "agentd_protocol_gitworktreeaddrequest"
+    },
+    {
+      "label": "GitWorktreeAddResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L124",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeaddresponse",
+      "id": "agentd_protocol_gitworktreeaddresponse"
+    },
+    {
+      "label": "GitWorktreeAddedPayload",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L135",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeaddedpayload",
+      "id": "agentd_protocol_gitworktreeaddedpayload"
+    },
+    {
+      "label": "GitWorktreeRemoveRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L142",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeremoverequest",
+      "id": "agentd_protocol_gitworktreeremoverequest"
+    },
+    {
+      "label": "GitWorktreeRemoveResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L152",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeremoveresponse",
+      "id": "agentd_protocol_gitworktreeremoveresponse"
+    },
+    {
+      "label": "GitWorktreeRemovedPayload",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L162",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeremovedpayload",
+      "id": "agentd_protocol_gitworktreeremovedpayload"
+    },
+    {
+      "label": "GitWorktreeLockRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L169",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreelockrequest",
+      "id": "agentd_protocol_gitworktreelockrequest"
+    },
+    {
+      "label": "GitWorktreeLockResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L177",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreelockresponse",
+      "id": "agentd_protocol_gitworktreelockresponse"
+    },
+    {
+      "label": "GitWorktreeUnlockRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L187",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeunlockrequest",
+      "id": "agentd_protocol_gitworktreeunlockrequest"
+    },
+    {
+      "label": "GitWorktreeUnlockResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L194",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeunlockresponse",
+      "id": "agentd_protocol_gitworktreeunlockresponse"
+    },
+    {
+      "label": "GitWorktreeUpdatedPayload",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L205",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeupdatedpayload",
+      "id": "agentd_protocol_gitworktreeupdatedpayload"
+    },
+    {
+      "label": "GitWorktreePruneRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L213",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeprunerequest",
+      "id": "agentd_protocol_gitworktreeprunerequest"
+    },
+    {
+      "label": "GitWorktreePruneResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L221",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreepruneresponse",
+      "id": "agentd_protocol_gitworktreepruneresponse"
+    },
+    {
+      "label": "GitWorktreeProgressPayload",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L240",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "gitworktreeprogresspayload",
+      "id": "agentd_protocol_gitworktreeprogresspayload"
+    },
+    {
+      "label": "SessionWorktreeSwitchRequest",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L251",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "sessionworktreeswitchrequest",
+      "id": "agentd_protocol_sessionworktreeswitchrequest"
+    },
+    {
+      "label": "SessionWorktreeSwitchResponse",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L261",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "sessionworktreeswitchresponse",
+      "id": "agentd_protocol_sessionworktreeswitchresponse"
+    },
+    {
+      "label": "SessionWorktreeChangedPayload",
+      "file_type": "code",
+      "source_file": "worktrees.go",
+      "source_location": "L275",
+      "_origin": "ast",
+      "community": 12,
+      "norm_label": "sessionworktreechangedpayload",
+      "id": "agentd_protocol_sessionworktreechangedpayload"
     },
     {
       "label": "delegation.go",
@@ -7148,6 +7148,76 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude",
+      "target": "claude_agentd_protocol_repo"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_agentd_protocol_repo",
+      "target": "claude_adding_a_new_wire_type"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L12",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_agentd_protocol_repo",
+      "target": "claude_architecture"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_agentd_protocol_repo",
+      "target": "claude_build_test"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_agentd_protocol_repo",
+      "target": "claude_critical_rules"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "claude_agentd_protocol_repo",
+      "target": "claude_source_of_truth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "claude_agentd_protocol_repo",
+      "target": "claude_what_this_is"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "approval.go",
       "source_location": "L101",
       "weight": 1.0,
@@ -7213,9 +7283,9 @@
       "source_location": "L13",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "approval_test_testapprovalresolvedpayload_roundtrip",
-      "target": "t",
-      "confidence_score": 1.0
+      "target": "t"
     },
     {
       "relation": "references",
@@ -7224,9 +7294,9 @@
       "source_location": "L91",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "approval_test_testapprovaldecisionconstants",
-      "target": "t",
-      "confidence_score": 1.0
+      "target": "t"
     },
     {
       "relation": "references",
@@ -7235,9 +7305,9 @@
       "source_location": "L68",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "approval_test_testmsgapprovalresolvedconstant",
-      "target": "t",
-      "confidence_score": 1.0
+      "target": "t"
     },
     {
       "relation": "references",
@@ -7246,9 +7316,9 @@
       "source_location": "L78",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "approval_test_testmsgpendingapprovalstateconstant",
-      "target": "t",
-      "confidence_score": 1.0
+      "target": "t"
     },
     {
       "relation": "contains",
@@ -7559,9 +7629,9 @@
       "source_location": "L41",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "agentd_protocol_historypagepayload",
-      "target": "rawmessage",
-      "confidence_score": 1.0
+      "target": "rawmessage"
     },
     {
       "relation": "references",
@@ -7711,6 +7781,16 @@
       "target": "agentd_protocol_sessionfeaturereasoncode"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "session_feature_status.go",
+      "source_location": "L67",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "agentd_protocol_sessionfeaturestatuspayload",
+      "target": "agentd_protocol_sessionfeaturestatuspayload_validate"
+    },
+    {
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "session_feature_status.go",
@@ -7720,16 +7800,6 @@
       "confidence_score": 1.0,
       "source": "agentd_protocol_sessionfeaturestatuspayload_unmarshaljson",
       "target": "agentd_protocol_sessionfeaturestatuspayload"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "session_feature_status.go",
-      "source_location": "L67",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "agentd_protocol_sessionfeaturestatuspayload",
-      "target": "agentd_protocol_sessionfeaturestatuspayload_validate"
     },
     {
       "relation": "references",
@@ -8062,76 +8132,6 @@
       "confidence_score": 1.0,
       "source": "agentd_protocol_gitworktreeupdatedpayload",
       "target": "agentd_protocol_worktree"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude",
-      "target": "claude_agentd_protocol_repo"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L34",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_agentd_protocol_repo",
-      "target": "claude_adding_a_new_wire_type"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L12",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_agentd_protocol_repo",
-      "target": "claude_architecture"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_agentd_protocol_repo",
-      "target": "claude_build_test"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L18",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_agentd_protocol_repo",
-      "target": "claude_critical_rules"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L43",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_agentd_protocol_repo",
-      "target": "claude_full_specification"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "claude_agentd_protocol_repo",
-      "target": "claude_what_this_is"
     },
     {
       "relation": "contains",
@@ -18642,5 +18642,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2832ab2c269ebb16aa98f2abb0d6a90b546d9412"
+  "built_at_commit": "87e156f64b9e05d7203e8210be5f811df439c6e9"
 }
