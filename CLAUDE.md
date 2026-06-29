@@ -40,5 +40,5 @@ go vet ./...
 5. Update the type alias in `agentd-relay/internal/relay/types.go`
 6. Update the TypeScript definition in `agentd-web/src/types/index.ts`
 
-## Full Specification
-See `AGENTD_PLAN.md` in the workspace root for the complete wire format specification (Section 5).
+## Source of Truth
+Use this repo's Go types, schemas, fixtures, and tests as the canonical wire-contract source. Workspace planning docs are historical context only when they match the current implementation.
