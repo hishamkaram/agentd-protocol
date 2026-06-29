@@ -23,7 +23,7 @@ go vet ./...
 
 **Backward Compatible**: All new fields MUST use `omitempty`. Old clients that don't set new fields must produce identical JSON. New fields must never break existing consumers.
 
-**JSON Tags Are the Contract**: The `json:"..."` tags define the wire format. Changing a tag is a breaking change that affects all 3 repos (daemon, relay, PWA). The TypeScript copy in `agentd-web/src/types/index.ts` must be manually updated to match.
+**JSON Tags Are the Contract**: The `json:"..."` tags define the wire format. Changing a tag is a breaking change for daemon, relay, and PWA consumers. The TypeScript copy in `agentd-web/src/types/index.ts` must be manually updated to match.
 
 **Roundtrip Tested**: Every type must have a JSON marshal/unmarshal roundtrip test in `protocol_test.go`.
 
