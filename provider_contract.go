@@ -52,14 +52,15 @@ const (
 // emitted on SessionInfo.provider_contract. It describes provider facts that
 // legacy booleans and UI copy can derive from without changing old fields.
 type ProviderCapabilityContract struct {
-	SchemaVersion int                         `json:"schema_version"`
-	Commands      []ProviderCommandDescriptor `json:"commands,omitempty"`
-	Approval      []ProviderFeatureDescriptor `json:"approval,omitempty"`
-	Sandbox       []ProviderFeatureDescriptor `json:"sandbox,omitempty"`
-	MCP           []ProviderFeatureDescriptor `json:"mcp,omitempty"`
-	Interactive   []ProviderFeatureDescriptor `json:"interactive,omitempty"`
-	Skills        []ProviderFeatureDescriptor `json:"skills,omitempty"`
-	Model         []ProviderFeatureDescriptor `json:"model,omitempty"`
+	SchemaVersion   int                         `json:"schema_version"`
+	Commands        []ProviderCommandDescriptor `json:"commands,omitempty"`
+	Approval        []ProviderFeatureDescriptor `json:"approval,omitempty"`
+	Sandbox         []ProviderFeatureDescriptor `json:"sandbox,omitempty"`
+	MCP             []ProviderFeatureDescriptor `json:"mcp,omitempty"`
+	Interactive     []ProviderFeatureDescriptor `json:"interactive,omitempty"`
+	Skills          []ProviderFeatureDescriptor `json:"skills,omitempty"`
+	Model           []ProviderFeatureDescriptor `json:"model,omitempty"`
+	RuntimeSettings []ProviderFeatureDescriptor `json:"runtime_settings,omitempty"`
 }
 
 type ProviderFeatureDescriptor struct {
