@@ -68,6 +68,13 @@ func TestProviderCapabilityContractJSONKeys(t *testing.T) {
 			UserLabel:       "Model switching",
 			UserDescription: "Switch models during a session.",
 		}},
+		RuntimeSettings: []protocol.ProviderFeatureDescriptor{{
+			ID:              "effort.apply",
+			Support:         protocol.ProviderCapabilitySupported,
+			Source:          protocol.ProviderCapabilitySourceSDKRPC,
+			UserLabel:       "Effort",
+			UserDescription: "Change reasoning effort during a session.",
+		}},
 	}
 	raw, err := json.Marshal(in)
 	if err != nil {
@@ -83,6 +90,8 @@ func TestProviderCapabilityContractJSONKeys(t *testing.T) {
 		`"user_description":"Switch the model."`,
 		`"model":[`,
 		`"user_label":"Model switching"`,
+		`"runtime_settings":[`,
+		`"user_label":"Effort"`,
 	}
 	for _, key := range wantKeys {
 		if !strings.Contains(payload, key) {
