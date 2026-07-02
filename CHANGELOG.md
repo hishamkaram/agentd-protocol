@@ -20,6 +20,8 @@ Versioning convention (see [README.md](./README.md) for full policy):
   `provider_limit`, `hosted_capacity`, `wait_then_retry`,
   `increase_budget_then_retry`, plus optional `SessionRecoveryInfo.code` and
   `SessionRecoveryInfo.retry_after_ms`.
+- Additive `SessionInfo.authored_agent_count` field for reporting the number of
+  provider-accepted authored custom agents available to Claude.
 
 ## [v0.1.3] — 2026-06-13
 

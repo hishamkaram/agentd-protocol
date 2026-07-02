@@ -165,6 +165,34 @@ func TestSessionInfoRecoveryJSONRoundtrip(t *testing.T) {
 	}
 }
 
+func TestSessionInfoAuthoredAgentCountJSONRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	in := SessionInfo{AuthoredAgentCount: 2}
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if !strings.Contains(string(raw), `"authored_agent_count":2`) {
+		t.Fatalf("SessionInfo JSON missing authored_agent_count: %s", raw)
+	}
+	var got SessionInfo
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if !reflect.DeepEqual(got, in) {
+		t.Fatalf("roundtrip mismatch\nwant: %+v\n got: %+v", in, got)
+	}
+
+	raw, err = json.Marshal(SessionInfo{})
+	if err != nil {
+		t.Fatalf("marshal zero: %v", err)
+	}
+	if strings.Contains(string(raw), "authored_agent_count") {
+		t.Fatalf("zero SessionInfo unexpectedly marshaled authored_agent_count: %s", raw)
+	}
+}
+
 func TestSessionFeatureStatusFixtures(t *testing.T) {
 	t.Parallel()
 

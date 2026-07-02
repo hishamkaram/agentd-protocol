@@ -139,7 +139,8 @@ func IsKnownSessionFeatureReasonCode(code SessionFeatureReasonCode) bool {
 // SessionInfo pins the cross-repo feature_statuses field. Repos with richer
 // session summaries embed the same JSON field in their local SessionInfo type.
 type SessionInfo struct {
-	FeatureStatuses  []SessionFeatureStatusPayload `json:"feature_statuses,omitempty"`
-	ProviderContract *ProviderCapabilityContract   `json:"provider_contract,omitempty"`
-	Recovery         *SessionRecoveryInfo          `json:"recovery,omitempty"`
+	FeatureStatuses    []SessionFeatureStatusPayload `json:"feature_statuses,omitempty"`
+	ProviderContract   *ProviderCapabilityContract   `json:"provider_contract,omitempty"`
+	Recovery           *SessionRecoveryInfo          `json:"recovery,omitempty"`
+	AuthoredAgentCount int                           `json:"authored_agent_count,omitempty"`
 }
