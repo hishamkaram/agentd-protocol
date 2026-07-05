@@ -90,8 +90,16 @@ func TestWorkflowPayloadNoScriptPromptOrPathFields(t *testing.T) {
 func TestWorkflowWireConstants(t *testing.T) {
 	t.Parallel()
 
-	if MsgWorkflowUpdate != "workflow_update" {
-		t.Fatalf("MsgWorkflowUpdate = %q, want workflow_update", MsgWorkflowUpdate)
+	for name, value := range map[string]string{
+		"workflow_update":         MsgWorkflowUpdate,
+		"workflow_control":        MsgWorkflowControl,
+		"workflow_control_result": MsgWorkflowControlResult,
+		"list_workflows":          MsgListWorkflows,
+		"workflow_list":           MsgWorkflowList,
+	} {
+		if value != name {
+			t.Fatalf("%s message = %q", name, value)
+		}
 	}
 	for name, value := range map[string]string{
 		"running":   WorkflowStatusRunning,
@@ -101,6 +109,120 @@ func TestWorkflowWireConstants(t *testing.T) {
 	} {
 		if value != name {
 			t.Fatalf("%s status = %q", name, value)
+		}
+	}
+	if WorkflowControlActionStop != "stop" {
+		t.Fatalf("WorkflowControlActionStop = %q, want stop", WorkflowControlActionStop)
+	}
+}
+
+func TestWorkflowControlRequestRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	original := WorkflowControlRequest{
+		Type:       MsgWorkflowControl,
+		RequestID:  "req-1",
+		SessionID:  "session-1",
+		WorkflowID: "workflow-1",
+		TaskID:     "task-1",
+		RunID:      "run-1",
+		Action:     WorkflowControlActionStop,
+	}
+
+	raw, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	var decoded WorkflowControlRequest
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	if decoded.Type != MsgWorkflowControl ||
+		decoded.RequestID != "req-1" ||
+		decoded.SessionID != "session-1" ||
+		decoded.WorkflowID != "workflow-1" ||
+		decoded.TaskID != "task-1" ||
+		decoded.RunID != "run-1" ||
+		decoded.Action != WorkflowControlActionStop {
+		t.Fatalf("decoded workflow control request = %+v", decoded)
+	}
+}
+
+func TestWorkflowControlResultRoundtrip(t *testing.T) {
+	t.Parallel()
+
+	original := WorkflowControlResult{
+		Type:       MsgWorkflowControlResult,
+		RequestID:  "req-1",
+		SessionID:  "session-1",
+		WorkflowID: "workflow-1",
+		TaskID:     "task-1",
+		RunID:      "run-1",
+		Action:     WorkflowControlActionStop,
+		Success:    true,
+		Status:     WorkflowControlStatusStopped,
+	}
+
+	raw, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	var decoded WorkflowControlResult
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	if decoded.Type != MsgWorkflowControlResult ||
+		decoded.RequestID != "req-1" ||
+		decoded.SessionID != "session-1" ||
+		decoded.TaskID != "task-1" ||
+		decoded.Action != WorkflowControlActionStop ||
+		!decoded.Success ||
+		decoded.Status != WorkflowControlStatusStopped {
+		t.Fatalf("decoded workflow control result = %+v", decoded)
+	}
+}
+
+func TestWorkflowListPayloadRoundtripAndRedactionShape(t *testing.T) {
+	t.Parallel()
+
+	original := WorkflowListPayload{
+		Type:         MsgWorkflowList,
+		RequestID:    "req-1",
+		SessionID:    "session-1",
+		ProjectLabel: "agentd",
+		Items: []WorkflowListItem{{
+			ID:              "release-probe",
+			Name:            "Release probe",
+			Description:     "Verify release readiness",
+			Scope:           "project",
+			Command:         "release-probe",
+			PhaseTitles:     []string{"Plan", "Verify"},
+			UpdatedAtUnixMS: 1782904297561,
+			SupportsRun:     true,
+		}},
+	}
+
+	raw, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	var decoded WorkflowListPayload
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	if decoded.Type != MsgWorkflowList ||
+		decoded.RequestID != "req-1" ||
+		decoded.SessionID != "session-1" ||
+		decoded.ProjectLabel != "agentd" ||
+		len(decoded.Items) != 1 ||
+		decoded.Items[0].Command != "release-probe" ||
+		!decoded.Items[0].SupportsRun {
+		t.Fatalf("decoded workflow list = %+v", decoded)
+	}
+	body := string(raw)
+	for _, forbidden := range []string{"script_path", "scriptPath", "prompt", "transcript", "output_file", "/tmp/", "/home/"} {
+		if strings.Contains(body, forbidden) {
+			t.Fatalf("workflow list leaked %q in %s", forbidden, body)
 		}
 	}
 }
