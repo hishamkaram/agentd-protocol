@@ -16,6 +16,10 @@ Versioning convention (see [README.md](./README.md) for full policy):
 
 ### Wire types
 
+- Add `list_provider_catalogs` / `provider_catalog_list` messages with
+  provider-qualified model and canonical runtime-control catalogs, content
+  generations, CLI provenance, and sanitized discovery errors. Provider-native
+  control spellings remain daemon-side and are never serialized.
 - Additive recoverable-session fields and enum values: `budget_exceeded`,
   `provider_limit`, `hosted_capacity`, `wait_then_retry`,
   `increase_budget_then_retry`, plus optional `SessionRecoveryInfo.code` and
