@@ -88,6 +88,7 @@ func TestHistoryPagePayloadJSONRoundtrip(t *testing.T) {
 		HasMore:           true,
 		RequestID:         "request-123",
 		Error:             "history unavailable",
+		ErrorCode:         HistoryErrorUnavailable,
 		Trimmed:           true,
 		RetainedOldestSeq: 97,
 	}
@@ -96,7 +97,7 @@ func TestHistoryPagePayloadJSONRoundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal HistoryPagePayload: %v", err)
 	}
-	const wantJSON = `{"session_id":"session-123","messages":[{"type":"output","session_id":"session-123","seq":97},{"type":"output","session_id":"session-123","seq":98}],"oldest_seq":97,"has_more":true,"request_id":"request-123","error":"history unavailable","trimmed":true,"retained_oldest_seq":97}`
+	const wantJSON = `{"session_id":"session-123","messages":[{"type":"output","session_id":"session-123","seq":97},{"type":"output","session_id":"session-123","seq":98}],"oldest_seq":97,"has_more":true,"request_id":"request-123","error":"history unavailable","error_code":"history_unavailable","trimmed":true,"retained_oldest_seq":97}`
 	if string(raw) != wantJSON {
 		t.Fatalf("HistoryPagePayload JSON = %s, want %s", raw, wantJSON)
 	}
@@ -105,7 +106,7 @@ func TestHistoryPagePayloadJSONRoundtrip(t *testing.T) {
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatalf("unmarshal HistoryPagePayload: %v", err)
 	}
-	if out.SessionID != in.SessionID || out.OldestSeq != in.OldestSeq || out.HasMore != in.HasMore || out.RequestID != in.RequestID || out.Error != in.Error || out.Trimmed != in.Trimmed || out.RetainedOldestSeq != in.RetainedOldestSeq {
+	if out.SessionID != in.SessionID || out.OldestSeq != in.OldestSeq || out.HasMore != in.HasMore || out.RequestID != in.RequestID || out.Error != in.Error || out.ErrorCode != in.ErrorCode || out.Trimmed != in.Trimmed || out.RetainedOldestSeq != in.RetainedOldestSeq {
 		t.Fatalf("HistoryPagePayload scalar roundtrip = %+v, want %+v", out, in)
 	}
 	if len(out.Messages) != len(in.Messages) || string(out.Messages[0]) != string(in.Messages[0]) || string(out.Messages[1]) != string(in.Messages[1]) {

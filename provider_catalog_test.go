@@ -12,10 +12,12 @@ func TestProviderRuntimeCatalogRoundTrip(t *testing.T) {
 	want := ListProviderCatalogsResponse{
 		Type:      MsgProviderCatalogList,
 		RequestID: "catalog-1",
+		ScopeID:   "scope-abc123",
 		Catalogs: []ProviderRuntimeCatalog{
 			{
 				Agent:        "claude-code",
 				Provider:     "bedrock",
+				ScopeID:      "scope-abc123",
 				State:        ProviderCatalogReady,
 				Generation:   "generation-1",
 				Source:       ProviderCatalogSourceSDK,
@@ -26,6 +28,7 @@ func TestProviderRuntimeCatalogRoundTrip(t *testing.T) {
 						Value:                    "provider-model-a",
 						ResolvedModel:            "provider-model-a-20260710",
 						DisplayName:              "Provider Model A",
+						Disabled:                 true,
 						SupportsEffort:           true,
 						SupportedEffortLevels:    []string{"low", "high"},
 						SupportsAdaptiveThinking: true,
@@ -47,8 +50,71 @@ func TestProviderRuntimeCatalogRoundTrip(t *testing.T) {
 	if err := json.Unmarshal(raw, &got); err != nil {
 		t.Fatalf("Unmarshal: %v", err)
 	}
-	if len(got.Catalogs) != 1 || got.Catalogs[0].Provider != "bedrock" || got.Catalogs[0].Models[0].ResolvedModel != "provider-model-a-20260710" {
+	if got.ScopeID != "scope-abc123" ||
+		len(got.Catalogs) != 1 ||
+		got.Catalogs[0].Provider != "bedrock" ||
+		got.Catalogs[0].ScopeID != "scope-abc123" ||
+		got.Catalogs[0].Models[0].ResolvedModel != "provider-model-a-20260710" ||
+		!got.Catalogs[0].Models[0].Disabled {
 		t.Fatalf("round trip = %+v", got)
+	}
+}
+
+func TestListProviderCatalogsResponseScopeIDCompatibility(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		payload   string
+		wantScope string
+	}{
+		{
+			name:      "scoped response",
+			payload:   `{"type":"provider_catalog_list","scope_id":"scope-abc123","catalogs":[]}`,
+			wantScope: "scope-abc123",
+		},
+		{
+			name:    "legacy response",
+			payload: `{"type":"provider_catalog_list","catalogs":[]}`,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got ListProviderCatalogsResponse
+			if err := json.Unmarshal([]byte(tt.payload), &got); err != nil {
+				t.Fatalf("Unmarshal: %v", err)
+			}
+			if got.ScopeID != tt.wantScope {
+				t.Fatalf("scope_id = %q, want %q", got.ScopeID, tt.wantScope)
+			}
+		})
+	}
+}
+
+func TestListProviderCatalogsRequestRoundTripScopedWorkDir(t *testing.T) {
+	t.Parallel()
+
+	in := ListProviderCatalogsRequest{
+		Type:      MsgListProviderCatalogs,
+		RequestID: "catalog-request-1",
+		WorkDir:   "/workspace/project",
+	}
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	const wantJSON = `{"type":"list_provider_catalogs","request_id":"catalog-request-1","work_dir":"/workspace/project"}`
+	if string(raw) != wantJSON {
+		t.Fatalf("request JSON = %s, want %s", raw, wantJSON)
+	}
+	var got ListProviderCatalogsRequest
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	if got != in {
+		t.Fatalf("round trip = %+v, want %+v", got, in)
 	}
 }
 
