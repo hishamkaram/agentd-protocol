@@ -18,6 +18,15 @@ const (
 	MsgHistoryPage = "history_page"
 )
 
+type HistoryErrorCode string
+
+const (
+	HistoryErrorSessionNotFound HistoryErrorCode = "session_not_found"
+	HistoryErrorUnavailable     HistoryErrorCode = "history_unavailable"
+	HistoryErrorBusy            HistoryErrorCode = "history_busy"
+	HistoryErrorInvalidRequest  HistoryErrorCode = "invalid_request"
+)
+
 // SessionHeadPayload is carried in an AgentMessage with Type MsgSessionHead.
 type SessionHeadPayload struct {
 	SessionID         string `json:"session_id"`
@@ -43,6 +52,7 @@ type HistoryPagePayload struct {
 	HasMore           bool              `json:"has_more"`
 	RequestID         string            `json:"request_id"`
 	Error             string            `json:"error,omitempty"`
+	ErrorCode         HistoryErrorCode  `json:"error_code,omitempty"`
 	Trimmed           bool              `json:"trimmed,omitempty"`
 	RetainedOldestSeq uint64            `json:"retained_oldest_seq,omitempty"`
 }
