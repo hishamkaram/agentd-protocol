@@ -55,6 +55,7 @@ const (
 	CapabilitySessionFeatureStatus = "session.feature_status"
 	CapabilityRelayOpaque          = "relay.opaque"
 	CapabilityCommandReceipts      = "command.receipts"
+	CapabilityPendingTurnState     = "pending_turn.state"
 )
 
 const (
@@ -324,6 +325,7 @@ func FullProtocolHelloOffer() ProtocolHelloOffer {
 				CapabilitySessionFeatureStatus,
 				CapabilityRelayOpaque,
 				CapabilityCommandReceipts,
+				CapabilityPendingTurnState,
 			},
 			ProtocolV1: {CapabilityTransportPing},
 		},
