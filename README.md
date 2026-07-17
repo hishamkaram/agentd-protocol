@@ -27,6 +27,7 @@ The module groups wire contracts by feature area instead of exposing repo-specif
 | Area | Representative types | Purpose |
 |------|----------------------|---------|
 | Relay transport | `RelayEnvelope`, `ControlMessage`, `ControlType` | Encrypted relay envelopes plus register/join/status/audit/key-rotation/push/termination control frames |
+| Device recovery | `ClientAuthProof`, `ClientAuthEnrollPayload`, `ClientAuthRevokePayload`, `ClientKeySyncRequestPayload`, `ClientKeySyncResponsePayload`, `P256PublicJWK` | Sender-constrained browser joins, public-key enrollment and revocation, and opaque traffic-key recovery after rotation |
 | Route receipts | `RouteReceiptPayload`, `CommandReceiptPayload`, `CommandReceiptStage`, `CommandReceiptReasonCode` | Transport and command acknowledgement metadata without decrypted payload content |
 | Transcript recovery | `SessionHeadPayload`, `HistoryPageRequest`, `HistoryPagePayload` | Bounded selected-session transcript pagination and daemon-proven journal head metadata |
 | Pending turns | `PendingTurnStatePayload`, `PendingTurnItem`, `PendingTurnStage` | Revisioned replacement snapshots for durable provider-bound user turns without receipt metadata leakage |
@@ -45,6 +46,8 @@ The module groups wire contracts by feature area instead of exposing repo-specif
 register · join · heartbeat · ack · error · sync_policies
 status_update · audit_entry · deactivate_developer · client_connected
 client_count · key_rotate · entitlement_update · entitlement_violation
+client_auth_enroll · client_auth_enroll_ack · client_auth_revoke
+client_auth_revoke_ack · client_key_sync_request · client_key_sync_response
 push_notify · push_notify_result
 terminate_session · terminate_session_ack
 route_receipt
@@ -59,6 +62,9 @@ TerminateSessionPayload · TerminateSessionAckPayload
 ClientConnectedPayload · ClientCountPayload · KeyRotatePayload
 SyncPoliciesPayload · EntitlementUpdatePayload · EntitlementViolationPayload
 PushNotifyPayload · PushNotifyResultPayload · RouteReceiptPayload
+ClientAuthEnrollPayload · ClientAuthEnrollAckPayload
+ClientAuthRevokePayload · ClientAuthRevokeAckPayload
+ClientKeySyncRequestPayload · ClientKeySyncResponsePayload
 ```
 
 ## Usage
@@ -85,6 +91,14 @@ Relay control errors carry structured `retryable`, `terminal`, and
 `retry_after_ms` fields so clients can distinguish transient daemon reconnects
 from terminal pairing/session failures without inferring from socket state alone.
 
+`client_auth_v1` and `client_key_sync_v1` are additive capabilities. Current
+clients can enroll P-256 signing and key-agreement public keys, authenticate
+joins with fixed-width ECDSA proofs, and recover a rotated traffic key through
+an ECDH/HKDF/AES-GCM response that remains opaque to the relay. Legacy HMAC
+joins remain wire-compatible for clients that have not enrolled a device.
+`RelayEnvelope.key_epoch` stamps the base traffic-key epoch; an absent or zero
+value is the legacy initial epoch.
+
 Recoverable session pauses carry `SessionRecoveryInfo` on both `SessionInfo` and
 status payloads. The additive `code` and `retry_after_ms` fields let clients
 distinguish budget, provider-limit, and hosted-capacity pauses while older
@@ -92,7 +106,7 @@ clients continue to render `state: "paused"` plus the human message.
 
 ## Design Principles
 
-- **Zero dependencies** — only `encoding/json`, `time`, `crypto/rand`, `encoding/hex` from stdlib
+- **Zero third-party dependencies** — protocol validation and cryptographic byte contracts use only the Go standard library
 - **Pre-v1 lockstep** — coordinated contract removals and additions are expected while AgentD is still in foundation development
 - **W3C trace IDs** — 32 lowercase hex chars, ready for OpenTelemetry upgrade
 - **Roundtrip tested** — every type has a JSON marshal/unmarshal roundtrip test
