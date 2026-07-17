@@ -5,7 +5,7 @@
     "protocol": "agentd.v2",
     "selected_protocol": "agentd.v2",
     "supported_protocols": ["agentd.v2", "agentd.v1"],
-    "capabilities": ["jsonrpc.commands", "typed.events", "transport.ping", "support.bundle", "session.list", "session.feature_status", "relay.opaque", "command.receipts", "pending_turn.state"]
+    "capabilities": ["jsonrpc.commands", "typed.events", "transport.ping", "support.bundle", "session.list", "session.feature_status", "relay.opaque", "command.receipts", "pending_turn.state", "client_auth_v1", "client_key_sync_v1"]
   },
   "trace_id": "0123456789abcdef0123456789abcdef"
 }

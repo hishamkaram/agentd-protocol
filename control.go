@@ -10,25 +10,31 @@ type ControlType string
 
 // Control message types for the relay protocol.
 const (
-	CtrlRegister             ControlType = "register"
-	CtrlJoin                 ControlType = "join"
-	CtrlHeartbeat            ControlType = "heartbeat"
-	CtrlAck                  ControlType = "ack"
-	CtrlError                ControlType = "error"
-	CtrlSyncPolicies         ControlType = "sync_policies"
-	CtrlStatusUpdate         ControlType = "status_update"
-	CtrlAuditEntry           ControlType = "audit_entry"
-	CtrlDeactivateDeveloper  ControlType = "deactivate_developer"
-	CtrlClientConnected      ControlType = "client_connected"
-	CtrlClientCount          ControlType = "client_count"
-	CtrlKeyRotate            ControlType = "key_rotate"
-	CtrlEntitlementUpdate    ControlType = "entitlement_update"
-	CtrlEntitlementViolation ControlType = "entitlement_violation"
-	CtrlPushNotify           ControlType = "push_notify"
-	CtrlPushNotifyResult     ControlType = "push_notify_result"
-	CtrlTerminateSession     ControlType = "terminate_session"
-	CtrlTerminateSessionAck  ControlType = "terminate_session_ack"
-	CtrlRouteReceipt         ControlType = "route_receipt"
+	CtrlRegister              ControlType = "register"
+	CtrlJoin                  ControlType = "join"
+	CtrlHeartbeat             ControlType = "heartbeat"
+	CtrlAck                   ControlType = "ack"
+	CtrlError                 ControlType = "error"
+	CtrlSyncPolicies          ControlType = "sync_policies"
+	CtrlStatusUpdate          ControlType = "status_update"
+	CtrlAuditEntry            ControlType = "audit_entry"
+	CtrlDeactivateDeveloper   ControlType = "deactivate_developer"
+	CtrlClientConnected       ControlType = "client_connected"
+	CtrlClientCount           ControlType = "client_count"
+	CtrlKeyRotate             ControlType = "key_rotate"
+	CtrlEntitlementUpdate     ControlType = "entitlement_update"
+	CtrlEntitlementViolation  ControlType = "entitlement_violation"
+	CtrlPushNotify            ControlType = "push_notify"
+	CtrlPushNotifyResult      ControlType = "push_notify_result"
+	CtrlTerminateSession      ControlType = "terminate_session"
+	CtrlTerminateSessionAck   ControlType = "terminate_session_ack"
+	CtrlRouteReceipt          ControlType = "route_receipt"
+	CtrlClientAuthEnroll      ControlType = "client_auth_enroll"
+	CtrlClientAuthEnrollAck   ControlType = "client_auth_enroll_ack"
+	CtrlClientAuthRevoke      ControlType = "client_auth_revoke"
+	CtrlClientAuthRevokeAck   ControlType = "client_auth_revoke_ack"
+	CtrlClientKeySyncRequest  ControlType = "client_key_sync_request"
+	CtrlClientKeySyncResponse ControlType = "client_key_sync_response"
 )
 
 const (
@@ -42,6 +48,14 @@ const (
 	// dispatch historically emits AgentMessage envelopes, so this type carries a
 	// JSON-RPC response payload without exposing decrypted content to the relay.
 	MsgJSONRPCResponse = "jsonrpc_response"
+
+	// Client-auth enrollment and revocation cross the encrypted application
+	// channel between the browser and daemon before the daemon maps them onto
+	// relay controls with the same wire discriminators.
+	MsgClientAuthEnroll    = "client_auth_enroll"
+	MsgClientAuthEnrollAck = "client_auth_enroll_ack"
+	MsgClientAuthRevoke    = "client_auth_revoke"
+	MsgClientAuthRevokeAck = "client_auth_revoke_ack"
 )
 
 // ControlMessage is the wire format for relay control protocol messages.
@@ -64,16 +78,20 @@ type RegisterPayload struct {
 // JoinPayload is sent by the mobile client to join a session.
 // JWT carries the clientToken from QRPayload.token.
 type JoinPayload struct {
-	SessionID    string `json:"sid"`
-	JWT          string `json:"jwt"`
-	ClientID     string `json:"client_id,omitempty"`
-	NavSessionID string `json:"nav_session_id,omitempty"`
+	SessionID    string           `json:"sid"`
+	JWT          string           `json:"jwt"`
+	ClientID     string           `json:"client_id,omitempty"`
+	NavSessionID string           `json:"nav_session_id,omitempty"`
+	ClientAuth   *ClientAuthProof `json:"client_auth,omitempty"`
 }
 
 // AckPayload is the relay's acknowledgement of a successful registration or join.
 type AckPayload struct {
-	SessionID string `json:"sid"`
-	ClientID  string `json:"client_id,omitempty"`
+	SessionID    string   `json:"sid"`
+	ClientID     string   `json:"client_id,omitempty"`
+	Capabilities []string `json:"capabilities,omitempty"`
+	AuthMode     string   `json:"auth_mode,omitempty"`
+	KeyEpoch     *uint64  `json:"key_epoch,omitempty"`
 }
 
 // ErrorPayload is the relay's error response to a failed control operation.
@@ -157,6 +175,8 @@ type ClientConnectedPayload struct {
 	SessionID    string `json:"session_id"`
 	NavSessionID string `json:"nav_session_id,omitempty"`
 	ClientID     string `json:"client_id"`
+	DeviceID     string `json:"device_id,omitempty"`
+	AuthMode     string `json:"auth_mode,omitempty"`
 }
 
 // ClientCountPayload is sent by the relay to the daemon after every client

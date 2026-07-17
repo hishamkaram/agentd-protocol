@@ -453,6 +453,10 @@ func TestRelayEnvelopeSchemaAllowsZeroSequence(t *testing.T) {
 	if got := clientID["type"]; got != "string" {
 		t.Fatalf("relay envelope client_id type = %v, want string", got)
 	}
+	keyEpoch := schemaProperty(t, schema, "key_epoch")
+	if got := keyEpoch["minimum"]; got != float64(0) {
+		t.Fatalf("relay envelope key_epoch minimum = %v, want 0", got)
+	}
 }
 
 func TestV2OpenRPCDocumentsSupportRelayDiagnostics(t *testing.T) {
