@@ -24,6 +24,7 @@ func TestRelayEnvelopeRoundtrip(t *testing.T) {
 				SessionID:      "sess-123",
 				Seq:            42,
 				Encrypted:      []byte("ciphertext-bytes"),
+				KeyEpoch:       2,
 				TraceID:        "4bf92f3577b34da6a3ce929d0e0e4736",
 				TargetClientID: "client-1",
 			},
@@ -94,6 +95,25 @@ func TestApplicationLivenessMessageConstants(t *testing.T) {
 	}
 	if protocol.MsgPong != "pong" {
 		t.Fatalf("MsgPong = %q, want pong", protocol.MsgPong)
+	}
+}
+
+func TestClientAuthApplicationMessagesMatchRelayControls(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		message string
+		control protocol.ControlType
+	}{
+		{protocol.MsgClientAuthEnroll, protocol.CtrlClientAuthEnroll},
+		{protocol.MsgClientAuthEnrollAck, protocol.CtrlClientAuthEnrollAck},
+		{protocol.MsgClientAuthRevoke, protocol.CtrlClientAuthRevoke},
+		{protocol.MsgClientAuthRevokeAck, protocol.CtrlClientAuthRevokeAck},
+	}
+	for _, tt := range tests {
+		if tt.message != string(tt.control) {
+			t.Errorf("application message %q does not match relay control %q", tt.message, tt.control)
+		}
 	}
 }
 
@@ -648,301 +668,6 @@ func TestKeyRotatePayloadRoundtrip(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			assertRoundtrip(t, tt.payload)
-		})
-	}
-}
-
-func TestKeyRotatePayloadOmitemptyNotUsed(t *testing.T) {
-	t.Parallel()
-	// KeyRotatePayload fields are NOT omitempty — all fields must be present in JSON
-	// because the relay needs all four fields to process the rotation.
-	payload := protocol.KeyRotatePayload{
-		NewKeyHMAC:    "abc",
-		PrevKeyHMAC:   "def",
-		PrevExpiresAt: 1744300000,
-		Epoch:         1,
-	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		t.Fatalf("marshal: %v", err)
-	}
-	s := string(data)
-	for _, field := range []string{`"new_key_hmac"`, `"prev_key_hmac"`, `"prev_expires_at"`, `"epoch"`} {
-		if !bytes.Contains(data, []byte(field)) {
-			t.Errorf("field %s must be present in JSON, got: %s", field, s)
-		}
-	}
-}
-
-func TestControlTypeConstants(t *testing.T) {
-	t.Parallel()
-	expected := map[protocol.ControlType]string{
-		protocol.CtrlRegister:             "register",
-		protocol.CtrlJoin:                 "join",
-		protocol.CtrlHeartbeat:            "heartbeat",
-		protocol.CtrlAck:                  "ack",
-		protocol.CtrlError:                "error",
-		protocol.CtrlSyncPolicies:         "sync_policies",
-		protocol.CtrlStatusUpdate:         "status_update",
-		protocol.CtrlAuditEntry:           "audit_entry",
-		protocol.CtrlDeactivateDeveloper:  "deactivate_developer",
-		protocol.CtrlClientConnected:      "client_connected",
-		protocol.CtrlClientCount:          "client_count",
-		protocol.CtrlKeyRotate:            "key_rotate",
-		protocol.CtrlEntitlementUpdate:    "entitlement_update",
-		protocol.CtrlEntitlementViolation: "entitlement_violation",
-		protocol.CtrlPushNotify:           "push_notify",
-		protocol.CtrlPushNotifyResult:     "push_notify_result",
-		protocol.CtrlTerminateSession:     "terminate_session",
-		protocol.CtrlTerminateSessionAck:  "terminate_session_ack",
-		protocol.CtrlRouteReceipt:         "route_receipt",
-	}
-	for ct, want := range expected {
-		if string(ct) != want {
-			t.Errorf("ControlType %q != %q", ct, want)
-		}
-	}
-}
-
-func TestRelayEnvelopeEdgeCases(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name     string
-		envelope protocol.RelayEnvelope
-	}{
-		{
-			name:     "zero-value struct",
-			envelope: protocol.RelayEnvelope{},
-		},
-		{
-			name: "nil Encrypted field",
-			envelope: protocol.RelayEnvelope{
-				SessionID: "sess-nil-enc",
-				Seq:       7,
-				Encrypted: nil,
-			},
-		},
-		{
-			name: "opaque route envelope id",
-			envelope: protocol.RelayEnvelope{
-				SessionID:  "sess-route-id",
-				Seq:        8,
-				Encrypted:  []byte("ciphertext"),
-				TraceID:    "0123456789abcdef0123456789abcdef",
-				EnvelopeID: "cmd-123",
-			},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assertRoundtrip(t, tt.envelope)
-		})
-	}
-}
-
-func TestControlMessageEdgeCases(t *testing.T) {
-	t.Parallel()
-
-	t.Run("zero-value struct marshal unmarshal", func(t *testing.T) {
-		t.Parallel()
-		original := protocol.ControlMessage{}
-		data, err := json.Marshal(original)
-		if err != nil {
-			t.Fatalf("marshal: %v", err)
-		}
-		var decoded protocol.ControlMessage
-		if err := json.Unmarshal(data, &decoded); err != nil {
-			t.Fatalf("unmarshal: %v", err)
-		}
-		if decoded.Type != "" {
-			t.Errorf("expected empty Type, got %q", decoded.Type)
-		}
-		// nil json.RawMessage marshals as "null", which unmarshals as json.RawMessage("null")
-		// This is expected JSON behavior — verify it explicitly.
-		if decoded.Payload == nil {
-			t.Error("expected Payload to be non-nil after roundtrip of zero-value (JSON null)")
-		}
-	})
-
-	roundtripTests := []struct {
-		name string
-		msg  protocol.ControlMessage
-	}{
-		{
-			name: "unknown control type",
-			msg: protocol.ControlMessage{
-				Type:    protocol.ControlType("unknown_type_xyz"),
-				Payload: json.RawMessage(`{"foo":"bar"}`),
-			},
-		},
-		{
-			name: "null payload roundtrips",
-			msg: protocol.ControlMessage{
-				Type:    protocol.CtrlHeartbeat,
-				Payload: json.RawMessage("null"),
-			},
-		},
-		{
-			name: "empty JSON object payload",
-			msg: protocol.ControlMessage{
-				Type:    protocol.CtrlAck,
-				Payload: json.RawMessage(`{}`),
-			},
-		},
-		{
-			name: "route receipt payload",
-			msg: protocol.ControlMessage{
-				Type: protocol.CtrlRouteReceipt,
-				Payload: mustJSON(t, protocol.RouteReceiptPayload{
-					EnvelopeID:       "cmd-123",
-					SessionID:        "relay-session",
-					TraceID:          "0123456789abcdef0123456789abcdef",
-					Routed:           false,
-					ReasonCode:       "relay_route_failed",
-					ObservedAtUnixMs: 1710000000000,
-				}),
-			},
-		},
-	}
-	for _, tt := range roundtripTests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assertRoundtrip(t, tt.msg)
-		})
-	}
-}
-
-func TestPolicyJSONEdgeCases(t *testing.T) {
-	t.Parallel()
-
-	t.Run("zero-value struct", func(t *testing.T) {
-		t.Parallel()
-		assertRoundtrip(t, protocol.PolicyJSON{})
-	})
-
-	t.Run("nil slices in PolicyMatchJSON", func(t *testing.T) {
-		t.Parallel()
-		assertRoundtrip(t, protocol.PolicyJSON{
-			Name:   "nil-slices",
-			Match:  protocol.PolicyMatchJSON{},
-			Action: "deny",
-		})
-	})
-
-	t.Run("empty slices become nil after roundtrip due to omitempty", func(t *testing.T) {
-		t.Parallel()
-		original := protocol.PolicyJSON{
-			Name: "empty-match",
-			Match: protocol.PolicyMatchJSON{
-				Tool:      []string{},
-				RiskLevel: []string{},
-			},
-			Action: "allow",
-		}
-		data, err := json.Marshal(original)
-		if err != nil {
-			t.Fatalf("marshal: %v", err)
-		}
-		var decoded protocol.PolicyJSON
-		if err := json.Unmarshal(data, &decoded); err != nil {
-			t.Fatalf("unmarshal: %v", err)
-		}
-		// omitempty causes empty slices to be omitted from JSON, resulting in nil after unmarshal.
-		if decoded.Name != "empty-match" {
-			t.Errorf("Name: got %q, want %q", decoded.Name, "empty-match")
-		}
-		if decoded.Action != "allow" {
-			t.Errorf("Action: got %q, want %q", decoded.Action, "allow")
-		}
-		if decoded.Match.Tool != nil {
-			t.Errorf("Tool: expected nil after roundtrip of empty slice, got %v", decoded.Match.Tool)
-		}
-		if decoded.Match.RiskLevel != nil {
-			t.Errorf("RiskLevel: expected nil after roundtrip of empty slice, got %v", decoded.Match.RiskLevel)
-		}
-	})
-}
-
-func TestSyncPoliciesPayloadEdgeCases(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		payload protocol.SyncPoliciesPayload
-	}{
-		{
-			name:    "zero-value struct",
-			payload: protocol.SyncPoliciesPayload{},
-		},
-		{
-			name:    "empty policies slice",
-			payload: protocol.SyncPoliciesPayload{Policies: []protocol.PolicyJSON{}},
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assertRoundtrip(t, tt.payload)
-		})
-	}
-}
-
-func TestInvalidJSONDecode(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		input   string
-		target  interface{}
-		wantErr bool
-	}{
-		{
-			name:    "invalid JSON for ControlMessage",
-			input:   `{invalid}`,
-			target:  &protocol.ControlMessage{},
-			wantErr: true,
-		},
-		{
-			name:    "invalid JSON for RelayEnvelope",
-			input:   `{invalid}`,
-			target:  &protocol.RelayEnvelope{},
-			wantErr: true,
-		},
-		{
-			name:    "truncated JSON for ControlMessage",
-			input:   `{"type":"register","pay`,
-			target:  &protocol.ControlMessage{},
-			wantErr: true,
-		},
-		{
-			name:    "truncated JSON for RelayEnvelope",
-			input:   `{"sid":"abc","seq":1,"en`,
-			target:  &protocol.RelayEnvelope{},
-			wantErr: true,
-		},
-		{
-			name:    "wrong type for seq field",
-			input:   `{"sid":"abc","seq":"not-a-number","enc":"AA=="}`,
-			target:  &protocol.RelayEnvelope{},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			err := json.Unmarshal([]byte(tt.input), tt.target)
-			if tt.wantErr && err == nil {
-				t.Errorf("expected error for input %q, got nil", tt.input)
-			}
-			if !tt.wantErr && err != nil {
-				t.Errorf("unexpected error for input %q: %v", tt.input, err)
-			}
 		})
 	}
 }

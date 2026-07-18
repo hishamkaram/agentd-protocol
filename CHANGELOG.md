@@ -16,6 +16,15 @@ Versioning convention (see [README.md](./README.md) for full policy):
 
 ### Wire types
 
+- Add `client_auth_v1` and `client_key_sync_v1` capabilities; P-256 public JWK,
+  device proof, enrollment/revocation, and correlated key-sync payloads; and
+  canonical ECDSA proof and key-sync AAD byte helpers.
+- Add client-auth enrollment, revocation, and key-sync control types plus
+  optional `JoinPayload.client_auth` and acknowledged auth-mode metadata.
+- Add `RelayEnvelope.key_epoch` so durable replay can retain only ciphertext
+  encrypted under the active base traffic-key epoch. Missing values remain
+  legacy epoch zero.
+
 - Add `list_provider_catalogs` / `provider_catalog_list` messages with
   provider-qualified model and canonical runtime-control catalogs, content
   generations, CLI provenance, and sanitized discovery errors. Provider-native

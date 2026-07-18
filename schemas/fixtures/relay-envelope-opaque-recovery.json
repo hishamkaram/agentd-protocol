@@ -1,0 +1,10 @@
+{
+  "sid": "relay_session_1",
+  "seq": 0,
+  "enc": "",
+  "key_epoch": 7,
+  "eid": "key-sync-request-1",
+  "client_id": "client-1",
+  "rel": true,
+  "opaque_ctrl": "eyJ0eXBlIjoiY2xpZW50X2tleV9zeW5jX3Jlc3BvbnNlIiwicGF5bG9hZCI6e319"
+}
