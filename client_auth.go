@@ -58,10 +58,13 @@ type ClientAuthProof struct {
 // ClientAuthEnrollPayload enrolls public device keys after an E2E-authenticated
 // pairing. Repeating the same request and keys is idempotent.
 type ClientAuthEnrollPayload struct {
-	Version         uint8         `json:"version"`
-	SessionID       string        `json:"sid"`
-	DeviceID        string        `json:"device_id"`
-	RequestID       string        `json:"request_id"`
+	Version   uint8  `json:"version"`
+	SessionID string `json:"sid"`
+	DeviceID  string `json:"device_id"`
+	RequestID string `json:"request_id"`
+	// ClientID is injected by the daemon from the relay-authenticated source
+	// connection. It is omitted for durable background reconciliation.
+	ClientID        string        `json:"client_id,omitempty"`
 	SigningKey      P256PublicJWK `json:"signing_key"`
 	KeyAgreementKey P256PublicJWK `json:"key_agreement_key"`
 	ExpiresAt       int64         `json:"expires_at"`

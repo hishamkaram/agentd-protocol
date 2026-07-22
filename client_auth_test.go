@@ -196,6 +196,7 @@ func TestClientAuthWirePayloadsRoundTrip(t *testing.T) {
 		SessionID:       join.SessionID,
 		DeviceID:        join.ClientAuth.DeviceID,
 		RequestID:       "request-1",
+		ClientID:        ack.ClientID,
 		SigningKey:      testP256PublicJWK("verify"),
 		KeyAgreementKey: testP256PublicJWK(),
 		ExpiresAt:       1772758208,
@@ -252,6 +253,14 @@ func TestClientAuthFieldsRemainAdditive(t *testing.T) {
 		if strings.Contains(string(ackJSON), field) {
 			t.Fatalf("legacy ack unexpectedly contains %s: %s", field, ackJSON)
 		}
+	}
+
+	enrollJSON, err := json.Marshal(ClientAuthEnrollPayload{SessionID: "session"})
+	if err != nil {
+		t.Fatalf("marshal enrollment: %v", err)
+	}
+	if strings.Contains(string(enrollJSON), "client_id") {
+		t.Fatalf("background enrollment unexpectedly contains client_id: %s", enrollJSON)
 	}
 }
 

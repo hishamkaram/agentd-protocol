@@ -96,6 +96,9 @@ clients can enroll P-256 signing and key-agreement public keys, authenticate
 joins with fixed-width ECDSA proofs, and recover a rotated traffic key through
 an ECDH/HKDF/AES-GCM response that remains opaque to the relay. Legacy HMAC
 joins remain wire-compatible for clients that have not enrolled a device.
+`ClientAuthEnrollPayload.client_id` is also additive: the daemon sets it only
+from relay-authenticated source metadata, while durable background
+reconciliation leaves it absent.
 `RelayEnvelope.key_epoch` stamps the base traffic-key epoch; an absent or zero
 value is the legacy initial epoch.
 
