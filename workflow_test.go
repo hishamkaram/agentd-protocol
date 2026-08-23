@@ -114,6 +114,14 @@ func TestWorkflowWireConstants(t *testing.T) {
 	if WorkflowControlActionStop != "stop" {
 		t.Fatalf("WorkflowControlActionStop = %q, want stop", WorkflowControlActionStop)
 	}
+	for name, value := range map[string]string{
+		"stopped":     WorkflowControlStatusStopped,
+		"unsupported": WorkflowControlStatusUnsupported,
+	} {
+		if value != name {
+			t.Fatalf("workflow control status %s = %q", name, value)
+		}
+	}
 }
 
 func TestWorkflowControlRequestRoundtrip(t *testing.T) {
