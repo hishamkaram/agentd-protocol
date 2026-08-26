@@ -8,6 +8,7 @@ import (
 
 func TestProviderRuntimeCatalogRoundTrip(t *testing.T) {
 	t.Parallel()
+	runtimeAvailable := false
 
 	want := ListProviderCatalogsResponse{
 		Type:      MsgProviderCatalogList,
@@ -34,7 +35,11 @@ func TestProviderRuntimeCatalogRoundTrip(t *testing.T) {
 						SupportsAdaptiveThinking: true,
 					},
 				},
-				ApprovalModes: []ProviderControlOption{{Value: "default", ProviderValue: "manual"}},
+				ApprovalModes: []ProviderControlOption{{
+					Value:            "default",
+					ProviderValue:    "manual",
+					RuntimeAvailable: &runtimeAvailable,
+				}},
 			},
 		},
 	}
@@ -55,7 +60,9 @@ func TestProviderRuntimeCatalogRoundTrip(t *testing.T) {
 		got.Catalogs[0].Provider != "bedrock" ||
 		got.Catalogs[0].ScopeID != "scope-abc123" ||
 		got.Catalogs[0].Models[0].ResolvedModel != "provider-model-a-20260710" ||
-		!got.Catalogs[0].Models[0].Disabled {
+		!got.Catalogs[0].Models[0].Disabled ||
+		got.Catalogs[0].ApprovalModes[0].RuntimeAvailable == nil ||
+		*got.Catalogs[0].ApprovalModes[0].RuntimeAvailable {
 		t.Fatalf("round trip = %+v", got)
 	}
 }

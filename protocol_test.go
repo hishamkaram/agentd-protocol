@@ -296,7 +296,13 @@ func TestJoinPayloadBackwardCompatibleWithoutNavSessionID(t *testing.T) {
 
 func TestAckPayloadRoundtrip(t *testing.T) {
 	t.Parallel()
-	assertRoundtrip(t, protocol.AckPayload{SessionID: "sess-123"})
+	epoch := uint64(3)
+	authenticatedEpoch := uint64(2)
+	assertRoundtrip(t, protocol.AckPayload{
+		SessionID:             "sess-123",
+		KeyEpoch:              &epoch,
+		AuthenticatedKeyEpoch: &authenticatedEpoch,
+	})
 }
 
 func TestErrorPayloadRoundtrip(t *testing.T) {

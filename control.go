@@ -87,11 +87,12 @@ type JoinPayload struct {
 
 // AckPayload is the relay's acknowledgement of a successful registration or join.
 type AckPayload struct {
-	SessionID    string   `json:"sid"`
-	ClientID     string   `json:"client_id,omitempty"`
-	Capabilities []string `json:"capabilities,omitempty"`
-	AuthMode     string   `json:"auth_mode,omitempty"`
-	KeyEpoch     *uint64  `json:"key_epoch,omitempty"`
+	SessionID             string   `json:"sid"`
+	ClientID              string   `json:"client_id,omitempty"`
+	Capabilities          []string `json:"capabilities,omitempty"`
+	AuthMode              string   `json:"auth_mode,omitempty"`
+	KeyEpoch              *uint64  `json:"key_epoch,omitempty"`
+	AuthenticatedKeyEpoch *uint64  `json:"authenticated_key_epoch,omitempty"`
 }
 
 // ErrorPayload is the relay's error response to a failed control operation.
