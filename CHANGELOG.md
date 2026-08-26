@@ -29,6 +29,9 @@ Versioning convention (see [README.md](./README.md) for full policy):
   provider-qualified model and canonical runtime-control catalogs, content
   generations, CLI provenance, and sanitized discovery errors. Provider-native
   control spellings remain daemon-side and are never serialized.
+- Add optional `ProviderControlOption.runtime_available` so daemon catalogs
+  can distinguish launch-only controls from modes that may be changed during a
+  running session.
 - Additive recoverable-session fields and enum values: `budget_exceeded`,
   `provider_limit`, `hosted_capacity`, `wait_then_retry`,
   `increase_budget_then_retry`, plus optional `SessionRecoveryInfo.code` and

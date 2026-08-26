@@ -38,9 +38,10 @@ type ProviderCatalogError struct {
 // ProviderControlOption exposes a stable canonical value to clients while
 // retaining the provider value only for daemon-side launch translation.
 type ProviderControlOption struct {
-	Value         string `json:"value,omitempty"`
-	ProviderValue string `json:"-"`
-	DisplayName   string `json:"display_name,omitempty"`
+	Value            string `json:"value,omitempty"`
+	ProviderValue    string `json:"-"`
+	DisplayName      string `json:"display_name,omitempty"`
+	RuntimeAvailable *bool  `json:"runtime_available,omitempty"`
 }
 
 type ProviderModelInfo struct {
