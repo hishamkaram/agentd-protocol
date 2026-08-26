@@ -173,6 +173,7 @@ func TestClientAuthWirePayloadsRoundTrip(t *testing.T) {
 	t.Parallel()
 
 	epoch := uint64(9)
+	authenticatedEpoch := uint64(8)
 	join := JoinPayload{
 		SessionID: "session-123",
 		JWT:       "legacy-token",
@@ -185,11 +186,12 @@ func TestClientAuthWirePayloadsRoundTrip(t *testing.T) {
 		},
 	}
 	ack := AckPayload{
-		SessionID:    join.SessionID,
-		ClientID:     "connection-1",
-		Capabilities: []string{CapabilityClientAuthV1, CapabilityClientKeySyncV1},
-		AuthMode:     ClientAuthModeDevice,
-		KeyEpoch:     &epoch,
+		SessionID:             join.SessionID,
+		ClientID:              "connection-1",
+		Capabilities:          []string{CapabilityClientAuthV1, CapabilityClientKeySyncV1},
+		AuthMode:              ClientAuthModeDevice,
+		KeyEpoch:              &epoch,
+		AuthenticatedKeyEpoch: &authenticatedEpoch,
 	}
 	enroll := ClientAuthEnrollPayload{
 		Version:         ClientAuthVersionV1,
@@ -249,7 +251,7 @@ func TestClientAuthFieldsRemainAdditive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal ack: %v", err)
 	}
-	for _, field := range []string{"capabilities", "auth_mode", "key_epoch"} {
+	for _, field := range []string{"capabilities", "auth_mode", "key_epoch", "authenticated_key_epoch"} {
 		if strings.Contains(string(ackJSON), field) {
 			t.Fatalf("legacy ack unexpectedly contains %s: %s", field, ackJSON)
 		}
