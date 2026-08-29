@@ -31,6 +31,13 @@ func TestProviderCapabilityContractRoundTrip(t *testing.T) {
 			UserLabel:       "Session approvals",
 			UserDescription: "Allow this action for the rest of the session.",
 		}},
+		Background: []protocol.ProviderFeatureDescriptor{{
+			ID:              "background.task.stop",
+			Support:         protocol.ProviderCapabilitySupported,
+			Source:          protocol.ProviderCapabilitySourceSDKRPC,
+			UserLabel:       "Background tasks",
+			UserDescription: "Stop a live background task.",
+		}},
 	}
 
 	raw, err := json.Marshal(in)
@@ -75,6 +82,13 @@ func TestProviderCapabilityContractJSONKeys(t *testing.T) {
 			UserLabel:       "Effort",
 			UserDescription: "Change reasoning effort during a session.",
 		}},
+		Background: []protocol.ProviderFeatureDescriptor{{
+			ID:              "background.terminals.stop_all",
+			Support:         protocol.ProviderCapabilitySupported,
+			Source:          protocol.ProviderCapabilitySourceSDKRPC,
+			UserLabel:       "Background terminals",
+			UserDescription: "Stop all live background terminals.",
+		}},
 	}
 	raw, err := json.Marshal(in)
 	if err != nil {
@@ -92,6 +106,8 @@ func TestProviderCapabilityContractJSONKeys(t *testing.T) {
 		`"user_label":"Model switching"`,
 		`"runtime_settings":[`,
 		`"user_label":"Effort"`,
+		`"background":[`,
+		`"id":"background.terminals.stop_all"`,
 	}
 	for _, key := range wantKeys {
 		if !strings.Contains(payload, key) {
