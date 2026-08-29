@@ -61,6 +61,7 @@ type ProviderCapabilityContract struct {
 	Skills          []ProviderFeatureDescriptor `json:"skills,omitempty"`
 	Model           []ProviderFeatureDescriptor `json:"model,omitempty"`
 	RuntimeSettings []ProviderFeatureDescriptor `json:"runtime_settings,omitempty"`
+	Background      []ProviderFeatureDescriptor `json:"background,omitempty"`
 }
 
 type ProviderFeatureDescriptor struct {
