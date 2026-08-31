@@ -34,6 +34,15 @@ func TestBackgroundWireConstants(t *testing.T) {
 			t.Fatalf("%s status = %q", name, value)
 		}
 	}
+	for name, value := range map[string]TerminalObservationState{
+		"unknown":  TerminalObservationUnknown,
+		"current":  TerminalObservationCurrent,
+		"degraded": TerminalObservationDegraded,
+	} {
+		if value != TerminalObservationState(name) {
+			t.Fatalf("%s observation state = %q", name, value)
+		}
+	}
 }
 
 func TestBackgroundControlRequestRoundTripAndValidate(t *testing.T) {
@@ -62,6 +71,16 @@ func TestBackgroundControlRequestRoundTripAndValidate(t *testing.T) {
 				SessionID: "session-1",
 				Action:    BackgroundControlActionStopAllTerminals,
 			},
+		},
+		{
+			name: "rejects unsupported action",
+			in: BackgroundControlRequest{
+				Type:      MsgBackgroundControl,
+				RequestID: "req-unsupported",
+				SessionID: "session-1",
+				Action:    "stop_terminal",
+			},
+			wantErr: true,
 		},
 		{
 			name: "stop task requires task id",
@@ -123,6 +142,29 @@ func TestBackgroundControlRequestRoundTripAndValidate(t *testing.T) {
 	}
 }
 
+func TestBackgroundControlResultValidateTargetContract(t *testing.T) {
+	t.Parallel()
+
+	valid := BackgroundControlResult{
+		Type:      MsgBackgroundControlResult,
+		RequestID: "req-1",
+		SessionID: "session-1",
+		TaskID:    "task-1",
+		Action:    BackgroundControlActionStopTask,
+		Success:   true,
+		Status:    BackgroundControlStatusAccepted,
+	}
+	if err := valid.Validate(); err != nil {
+		t.Fatalf("Validate() = %v", err)
+	}
+
+	invalid := valid
+	invalid.Action = BackgroundControlActionStopAllTerminals
+	if err := invalid.Validate(); err == nil {
+		t.Fatal("Validate() accepted a task target for Stop All")
+	}
+}
+
 func TestBackgroundControlResultRoundTrip(t *testing.T) {
 	t.Parallel()
 
@@ -161,10 +203,17 @@ func TestBackgroundStatePayloadRoundTripAndValidate(t *testing.T) {
 	original := BackgroundStatePayload{
 		Type:                  MsgBackgroundState,
 		SessionID:             "session-1",
+		ActiveRunIDs:          []string{"run-1"},
 		ActiveTaskIDs:         []string{"task-1"},
 		ActiveTerminalHandles: []string{"proc-1", "proc-2"},
-		ActiveTerminalCount:   2,
-		UpdatedAtUnixMS:       1782904297561,
+		ActiveTerminals: []BackgroundTerminalDescriptor{
+			{TerminalID: "proc-1", RunID: "run-1", Command: "sleep 10", Cwd: "/tmp"},
+			{TerminalID: "proc-2", Command: "tail -f log"},
+		},
+		ActiveTerminalCount:      2,
+		TerminalObservation:      TerminalObservationCurrent,
+		TerminalObservedAtUnixMS: 1782904297500,
+		UpdatedAtUnixMS:          1782904297561,
 	}
 
 	raw, err := json.Marshal(original)
@@ -180,10 +229,130 @@ func TestBackgroundStatePayloadRoundTripAndValidate(t *testing.T) {
 	}
 	if decoded.SessionID != original.SessionID ||
 		decoded.ActiveTerminalCount != 2 ||
+		decoded.TerminalObservation != TerminalObservationCurrent ||
+		decoded.TerminalObservedAtUnixMS != original.TerminalObservedAtUnixMS ||
+		len(decoded.ActiveTerminals) != 2 ||
+		decoded.ActiveTerminals[0].RunID != "run-1" ||
 		len(decoded.ActiveTerminalHandles) != 2 ||
 		decoded.ActiveTerminalHandles[1] != "proc-2" ||
-		len(decoded.ActiveTaskIDs) != 1 {
+		len(decoded.ActiveTaskIDs) != 1 || len(decoded.ActiveRunIDs) != 1 {
 		t.Fatalf("decoded state = %+v", decoded)
+	}
+}
+
+func TestBackgroundStatePayloadAllowsDescriptorOnlyTerminalCount(t *testing.T) {
+	t.Parallel()
+
+	payload := BackgroundStatePayload{
+		Type:      MsgBackgroundState,
+		SessionID: "session-1",
+		ActiveTerminals: []BackgroundTerminalDescriptor{
+			{TerminalID: "terminal-1", Command: "sleep 10"},
+		},
+	}
+
+	if err := payload.Validate(); err != nil {
+		t.Fatalf("Validate() descriptor-only snapshot = %v", err)
+	}
+}
+
+func TestBackgroundStatePayloadRejectsInvalidObservation(t *testing.T) {
+	t.Parallel()
+
+	state := BackgroundStatePayload{
+		Type:                MsgBackgroundState,
+		SessionID:           "session-1",
+		TerminalObservation: TerminalObservationState("stale"),
+	}
+	if err := state.Validate(); err == nil {
+		t.Fatal("Validate() accepted unknown terminal observation state")
+	}
+
+	state.TerminalObservation = TerminalObservationCurrent
+	state.ActiveTerminalCount = 1
+	state.ActiveTerminals = []BackgroundTerminalDescriptor{{TerminalID: ""}}
+	if err := state.Validate(); err == nil {
+		t.Fatal("Validate() accepted an empty public terminal id")
+	}
+}
+
+func TestBackgroundStatePayloadRequiresExactCurrentHandleInventory(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		payload BackgroundStatePayload
+	}{
+		{
+			name: "missing current handles",
+			payload: BackgroundStatePayload{
+				Type:                MsgBackgroundState,
+				SessionID:           "session-1",
+				ActiveTerminalCount: 1,
+				TerminalObservation: TerminalObservationCurrent,
+			},
+		},
+		{
+			name: "current count mismatch",
+			payload: BackgroundStatePayload{
+				Type:                  MsgBackgroundState,
+				SessionID:             "session-1",
+				ActiveTerminalHandles: []string{"terminal-1"},
+				TerminalObservation:   TerminalObservationCurrent,
+			},
+		},
+		{
+			name: "duplicate handles",
+			payload: BackgroundStatePayload{
+				Type:                  MsgBackgroundState,
+				SessionID:             "session-1",
+				ActiveTerminalHandles: []string{"terminal-1", "terminal-1"},
+				ActiveTerminalCount:   2,
+				TerminalObservation:   TerminalObservationCurrent,
+			},
+		},
+		{
+			name: "duplicate descriptors",
+			payload: BackgroundStatePayload{
+				Type:      MsgBackgroundState,
+				SessionID: "session-1",
+				ActiveTerminals: []BackgroundTerminalDescriptor{
+					{TerminalID: "terminal-1"},
+					{TerminalID: "terminal-1"},
+				},
+				ActiveTerminalCount: 2,
+			},
+		},
+		{
+			name: "current descriptors without exact handles",
+			payload: BackgroundStatePayload{
+				Type:                MsgBackgroundState,
+				SessionID:           "session-1",
+				ActiveTerminals:     []BackgroundTerminalDescriptor{{TerminalID: "terminal-1"}},
+				TerminalObservation: TerminalObservationCurrent,
+			},
+		},
+		{
+			name: "current descriptor IDs differ from handles",
+			payload: BackgroundStatePayload{
+				Type:                  MsgBackgroundState,
+				SessionID:             "session-1",
+				ActiveTerminalHandles: []string{"terminal-1"},
+				ActiveTerminals:       []BackgroundTerminalDescriptor{{TerminalID: "terminal-2"}},
+				ActiveTerminalCount:   1,
+				TerminalObservation:   TerminalObservationCurrent,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if err := tt.payload.Validate(); err == nil {
+				t.Fatal("Validate() accepted an invalid terminal inventory")
+			}
+		})
 	}
 }
 

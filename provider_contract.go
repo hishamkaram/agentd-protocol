@@ -62,6 +62,7 @@ type ProviderCapabilityContract struct {
 	Model           []ProviderFeatureDescriptor `json:"model,omitempty"`
 	RuntimeSettings []ProviderFeatureDescriptor `json:"runtime_settings,omitempty"`
 	Background      []ProviderFeatureDescriptor `json:"background,omitempty"`
+	Agents          []ProviderFeatureDescriptor `json:"agents,omitempty"`
 }
 
 type ProviderFeatureDescriptor struct {
