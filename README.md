@@ -18,7 +18,19 @@
 
 ## What This Is
 
-A tiny Go module containing the shared wire protocol types used by both the [AgentD daemon](https://github.com/hishamkaram/agentd) and [AgentD relay server](https://github.com/hishamkaram/agentd-relay). By importing from a single source of truth, wire format drift between repos is impossible — the Go compiler enforces type identity.
+A Go module containing shared wire protocol types used by the [AgentD daemon](https://github.com/hishamkaram/agentd) and [AgentD relay server](https://github.com/hishamkaram/agentd-relay). Shared types reduce drift between Go consumers. Independently deployed versions and the browser's TypeScript contracts still require compatibility tests.
+
+## Installation
+
+Use the Go version declared in [go.mod](go.mod).
+
+```bash
+go get github.com/hishamkaram/agentd-protocol@main
+```
+
+The type reference below describes the development branch. Pin the resolved
+version in your application's `go.mod`; older release tags can have a smaller API.
+This is a library, not a server or a standalone remote-control application.
 
 ## Public Type Surface
 
@@ -132,6 +144,12 @@ See [`CHANGELOG.md`](./CHANGELOG.md) for the per-release wire-type
 inventory. Tags are pushed manually after a wire-additive PR merges to
 `main`. Consumers may pin via the tag (`v0.1.0`) or via a Go
 pseudo-version (`v0.0.0-<timestamp>-<sha>`) — both are supported.
+
+## Development
+
+Run `go test -race -count=1 -p 4 ./...`, `go vet ./...`, and
+`golangci-lint run ./...` before submitting changes. See
+[contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md).
 
 ## License
 
