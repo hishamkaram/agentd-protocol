@@ -7,3 +7,6 @@ graphify-out/.pending_changes
 
 # codebase-memory-mcp local artifacts
 .codebase-memory/
+
+# Local Go test output
+/coverage.out
